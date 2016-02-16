@@ -49,7 +49,7 @@ class PostsCommand extends MUMigrationBase {
 			WP_CLI::error( __( "Please, provide a blog id", 'mu-migration' ) );
 		}
 
-		switch_to_blog( $this->assoc_args['blog_id'] );
+		switch_to_blog( (int) $this->assoc_args['blog_id'] );
 
 		$ids_map = json_decode( file_get_contents( $filename ) );
 
@@ -59,63 +59,59 @@ class PostsCommand extends MUMigrationBase {
 			);
 		}
 
-		global $wpdb;
 
-		/**
-		 * Grab records that should have an author, no matter the type of the post
-		 */
-		$sql  = "SELECT * FROM {$wpdb->posts} as wpp WHERE wpp.post_author != 0 ";
+		$equals_id 			= array();
+		$author_not_found 	= array();
 
-		$results = $wpdb->get_results( $sql );
-		$counter = 0;
+		$this->all_posts(
+			array(
+				'post_type' => get_post_types(),
+			),
+			function() use ( &$equals_id, &$author_not_found, $ids_map ) {
+				$author = get_the_author_meta( 'ID' );
+				if ( isset( $ids_map->{$author} ) ) {
+					if ( $author != $ids_map->{$author} ) {
+						global $wpdb;
 
-		$equals_id = array();
-		$author_not_found = array();
+						$wpdb->update( $wpdb->posts,
+							array(
+								'post_author' => $ids_map->{$author}
+							),
+							array(
+								'ID' => get_the_ID()
+							),
+							array(
+								'%d'
+							),
+							array(
+								'%d'
+							)
+						);
 
-		foreach( $results as $result ) {
-			if ( isset( $ids_map->{$result->post_author} ) ) {
-				if ( $result->ID != $ids_map->{$result->post_author} ) {
-					$wpdb->update( $wpdb->posts,
-						array(
-							'post_author' => $ids_map->{$result->post_author}
-						),
-						array(
-							'ID' => $result->ID
-						),
-						array(
-							'%d'
-						),
-						array(
-							'%d'
-						)
-					);
 
-					WP_CLI::log( sprintf(
-						__( 'Updated post_author for "%s" (ID #%d)', 'mu-migration' ),
-						$result->post_title,
-						absint( $result->ID )
-					) );
+						WP_CLI::log( sprintf(
+							__( 'Updated post_author for "%s" (ID #%d)', 'mu-migration' ),
+							get_the_title(),
+							absint( get_the_ID() )
+						) );
 
-					$counter++;
+					} else {
+						WP_CLI::log( sprintf(
+							__( '#%d New user ID equals to the old user ID'),
+							get_the_ID()
+						) );
+						$equals_id[] = absint( get_the_ID() );
+					}
 				} else {
 					WP_CLI::log( sprintf(
-						__( '#%d New user ID equals to the old user ID'),
-						$result->ID
+						__( "#%d New user ID not found or it's already been updated", 'mu-migration'),
+						absint( get_the_ID() )
 					) );
-					$equals_id[] = $result->ID;
+
+					$author_not_found[] = absint( get_the_ID() );
 				}
-
-			} else {
-				WP_CLI::log( sprintf(
-					__( "#%d New user ID not found or it's already been updated", 'mu-migration'),
-					$result->ID
-				) );
-
-				$author_not_found[] = $result->ID;
 			}
-
-		}
-
+		);
 
 		//Report
 		if ( ! empty( $author_not_found ) ) {
@@ -132,11 +128,6 @@ class PostsCommand extends MUMigrationBase {
 				implode( ',', $equals_id )
 			) );
 		}
-
-		WP_CLI::success( sprintf(
-			__( '%d posts has been updated', 'mu-migration' ),
-			$counter
-		) );
 
 		restore_current_blog();
 

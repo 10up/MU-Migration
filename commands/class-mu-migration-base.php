@@ -43,7 +43,7 @@ abstract class MUMigrationBase extends \WP_CLI_Command {
 		 *
 		 * @param Array $default_args The default args
 		 */
-		$default_args = apply_filters( 'mu-migration/all_posts/default_args', $default_args );
+		$default_args 	= apply_filters( 'mu-migration/all_posts/default_args', $default_args );
 
 		$query_args 	= wp_parse_args( $query_args, $default_args );
 

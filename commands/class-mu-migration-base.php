@@ -36,11 +36,20 @@ abstract class MUMigrationBase extends \WP_CLI_Command {
 			'paged'             => 1
 		);
 
-		$query_args = wp_parse_args( $query_args, $default_args );
+		/**
+		 * Change the default args for querying posts in the all_posts method.
+		 *
+		 * @since 0.2.0
+		 *
+		 * @param Array $default_args The default args
+		 */
+		$default_args = apply_filters( 'mu-migration/all_posts/default_args', $default_args );
 
-		$query      = new \WP_Query( $query_args );
+		$query_args 	= wp_parse_args( $query_args, $default_args );
 
-		$counter    = 0;
+		$query      	= new \WP_Query( $query_args );
+
+		$counter   		= 0;
 
 		while( $query->have_posts() ) {
 			$query->the_post();

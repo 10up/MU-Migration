@@ -3,7 +3,7 @@
  * Plugin Name: MU Migration
  * Plugin URI: http://10up.com
  * Description: This is a set of WP-CLI commands to support the migration of single WordPress instances over to multisite
- * Version: 0.1.0
+ * Version: 0.2.0
  * Author: Nícholas André, 10up
  * Author URI: http://10up.com
  * Text Domain: mu-migration
@@ -12,10 +12,9 @@
  * @package TenUp\MU_Migration
  */
 
-namespace TenUp\Cleveland_Clinic\Plugin;
 
 if ( ! defined( 'ABSPATH' ) ) {
-	die( esc_html__( 'Cannot access pages directly.', 'cleveland-clinic-plugin' ) );
+	die( esc_html__( 'Cannot access pages directly.', 'mu-migration' ) );
 }
 
 // Only load this plugin once and bail if WP CLI is not present

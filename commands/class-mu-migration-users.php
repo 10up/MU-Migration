@@ -22,25 +22,24 @@ class UsersCommand extends MUMigrationBase {
 	 *
 	 *   wp mu-migration users update_passwords --reset --blog_id=2 --send_email
 	 *
-	 * @synopsis [<inputfile>] [--blog_id=<blog_id>] [--reset] [--send_email] [--include=<users_id>]  [--exclude=<users_id>]
+	 * @synopsis [<newpassword>] [--blog_id=<blog_id>] [--reset] [--send_email] [--include=<users_id>]  [--exclude=<users_id>]
 	 */
 	public function update_passwords( $args = array(), $assoc_args = array() ) {
-		$default_args = array(
-			0 => '' //new password
-		);
-
-		$this->args = $args + $default_args;
-
-		$new_password = $this->args[0];
-
-		$this->assoc_args = wp_parse_args( $assoc_args,
+		$this->process_args(
+			array(
+				0 => '' //new password
+			),
+			$args,
 			array(
 				'blog_id'   => '',
 				'role'      => '',
 				'exclude'   => '',
 				'include'   => '',
-			)
+			),
+			$assoc_args
 		);
+
+		$new_password = $this->args[0];
 
 		$reset_passwords = false;
 

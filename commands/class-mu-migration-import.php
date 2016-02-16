@@ -93,8 +93,24 @@ class ImportCommand extends MUMigrationBase {
 					if ( ! is_wp_error( $new_id ) ) {
 						$user = new \WP_User( $new_id );
 
+						/**
+						 * Fires an action before exporting the custom user data
+						 *
+						 * @sinec 0.1.0
+						 *
+						 * @param Array $user_data The $user_data array
+						 * @param WP_User $user The user object
+						 */
 						do_action( 'mu_migration/import/user/custom_data_before', $user_data, $user );
 
+						/**
+						 * Modify the default set of user data to be exported/imported
+						 *
+						 * @since 0.1.0
+						 *
+						 * @param Array
+						 * @param WP_User $user object for the current user
+						 */
 						$custom_user_data = apply_filters( 'mu_migration/export/user/data', array(), $user );
 
 						if ( ! empty( $custom_user_data ) ) {
@@ -105,6 +121,14 @@ class ImportCommand extends MUMigrationBase {
 							}
 						}
 
+						/**
+						 * Fires an action after exporting the custom user data
+						 *
+						 * @sinec 0.1.0
+						 *
+						 * @param Array $user_data The $user_data array
+						 * @param WP_User $user The user object
+						 */
 						do_action( 'mu_migration/import/user/custom_data_after', $user_data, $user );
 
 						$count++;

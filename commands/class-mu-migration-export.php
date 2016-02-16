@@ -278,6 +278,14 @@ class ExportCommand extends MUMigrationBase {
 				$user->get( 'yim' ), $user->get( 'jabber' ), $user->get( 'description' ),
 			);
 
+			/**
+			 * Modify the default set of user data to be exported/imported
+			 *
+			 * @since 0.1.0
+			 *
+			 * @param Array
+			 * @param WP_User $user object for the current user
+			 */
 			$custom_user_data = apply_filters( 'mu_migration/export/user/data', array(), $user );
 
 			if ( ! empty( $custom_user_data ) ) {
@@ -295,7 +303,7 @@ class ExportCommand extends MUMigrationBase {
 		fclose( $file_handler );
 
 		\WP_CLI::success( sprintf(
-			__( '%d users have been exported', 'mu_migration' ),
+			__( '%d users have been exported', 'mu-migration' ),
 			absint( $count )
 		) );
 

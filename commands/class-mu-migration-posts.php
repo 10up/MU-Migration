@@ -27,23 +27,22 @@ class PostsCommand extends MUMigrationBase {
 	 * @synopsis <inputfile> --blog_id=<blog_id>
 	 */
 	public function update_author( $args = array(), $assoc_args = array() ) {
-		$default_args = array(
-			0 => '', // .json map file
+		$this->process_args(
+			array(
+				0 => '', // .json map file
+			),
+			$args,
+			array(
+				'blog_id'  => '',
+			),
+			$assoc_args
 		);
-
-		$this->args = $args + $default_args;
 
 		$filename = $this->args[0];
 
 		if ( empty( $filename ) || ! file_exists( $filename ) ) {
 			WP_CLI::error( __( "Invalid input file", 'mu-migration' ) );
 		}
-
-		$this->assoc_args = wp_parse_args( $assoc_args,
-			array(
-				'blog_id'  => '',
-			)
-		);
 
 		if ( empty( $this->assoc_args['blog_id'] ) ) {
 			WP_CLI::error( __( "Please, provide a blog id", 'mu-migration' ) );
@@ -151,11 +150,16 @@ class PostsCommand extends MUMigrationBase {
 	 * @synopsis <inputfile> --blog_id=<blog_id>
 	 */
 	public function update_wc_customer( $args = array(), $assoc_args = array() ) {
-		$default_args = array(
-			0 => '', // .json map file
+		$this->process_args(
+			array(
+				0 => '', // .json map file
+			),
+			$args,
+			array(
+				'blog_id'  => '',
+			),
+			$assoc_args
 		);
-
-		$this->args = $args + $default_args;
 
 		$filename = $this->args[0];
 
@@ -163,17 +167,11 @@ class PostsCommand extends MUMigrationBase {
 			WP_CLI::error( __( "Invalid input file", 'mu-migration' ) );
 		}
 
-		$this->assoc_args = wp_parse_args( $assoc_args,
-			array(
-				'blog_id'  => '',
-			)
-		);
-
 		if ( empty( $this->assoc_args['blog_id'] ) ) {
 			WP_CLI::error( __( "Please, provide a blog id", 'mu-migration' ) );
 		}
 
-		switch_to_blog( $this->assoc_args['blog_id'] );
+		switch_to_blog( (int) $this->assoc_args['blog_id'] );
 
 		$ids_map = json_decode( file_get_contents( $filename ) );
 

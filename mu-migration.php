@@ -22,7 +22,7 @@ if ( defined( 'TENUP_MU_MIGRATION_VERSION' ) || ! defined( 'WP_CLI' ) ) {
 	return;
 }
 
-define( 'TENUP_MU_MIGRATION_VERSION', '0.1.0' );
+define( 'TENUP_MU_MIGRATION_VERSION', '0.2.0' );
 define( 'TENUP_MU_MIGRATION_URL', esc_url( plugin_dir_url( __FILE__ ), array( 'http', 'https' ) ) );
 define( 'TENUP_MU_MIGRATION_PATH', wp_normalize_path( dirname( __FILE__ ) . '/' ) );
 define( 'TENUP_MU_MIGRATION_COMMANDS_PATH', TENUP_MU_MIGRATION_PATH . 'commands/' );

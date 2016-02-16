@@ -48,10 +48,9 @@ class ExportCommand extends MUMigrationBase {
 	public function tables( $args = array(), $assoc_args = array() ) {
 		global $wpdb;
 
-		$rand = rand();
 		$this->process_args(
 			array(
-				0 => "_db_{$rand}.sql", // output file name
+				0 => '', // output file name
 			),
 			$args,
 			array(

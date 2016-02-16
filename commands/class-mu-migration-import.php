@@ -25,24 +25,24 @@ class ImportCommand extends MUMigrationBase {
 	 * @synopsis <inputfile> --map_file=<map> --blog_id=<blog_id>
 	 */
 	public function users( $args = array(), $assoc_args = array() ) {
-		$default_args = array(
-			0 => '', // .csv to import users
+		$this->process_args(
+			array(
+				0 => '', // .csv to import users
+			),
+			$args,
+			array(
+				'blog_id' => '',
+				'map_file' => 'ids_maps.json',
+			),
+			$assoc_args
 		);
 
-		$this->args =$args + $default_args;
 
 		$filename = $this->args[0];
 
 		if ( empty( $filename ) || ! file_exists( $filename ) ) {
 			WP_CLI::error( __( "Invalid input file", 'mu-migration') );
 		}
-
-		$this->assoc_args = wp_parse_args( $assoc_args,
-			array(
-				'blog_id' => '',
-				'map_file' => 'ids_maps.json',
-			)
-		);
 
 		if ( empty( $this->assoc_args[ 'blog_id' ]) ) {
 			WP_CLI::error( __( 'Please, provide a blog_id ', 'mu-migration') );
@@ -199,11 +199,20 @@ class ImportCommand extends MUMigrationBase {
 	public function tables( $args = array(), $assoc_args = array() ) {
 		global $wpdb;
 
-		$default_args = array(
-			0 => '', // .sql file to import
+		$this->process_args(
+			array(
+				0 => '', // .sql file to import
+			),
+			$args,
+			array(
+				'blog_id'       => '',
+				'old_url'       => '',
+				'new_url'       => '',
+				'old_prefix'    => $wpdb->prefix,
+			),
+			$assoc_args
 		);
 
-		$this->args =$args + $default_args;
 
 		$filename = $this->args[0];
 
@@ -211,14 +220,6 @@ class ImportCommand extends MUMigrationBase {
 			WP_CLI::error( __( "Invalid input file", 'mu-migration') );
 		}
 
-		$this->assoc_args = wp_parse_args( $assoc_args,
-			array(
-				'blog_id'       => '',
-				'old_url'       => '',
-				'new_url'       => '',
-				'old_prefix'    => $wpdb->prefix,
-			)
-		);
 
 		if ( empty( $this->assoc_args[ 'blog_id' ]) ) {
 			WP_CLI::error( __( 'Please, provide a blog_id ', 'mu-migration') );

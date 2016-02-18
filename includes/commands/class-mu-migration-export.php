@@ -4,6 +4,9 @@
  *
  */
 namespace TenUp\MU_Migration\Commands;
+use TenUp\MU_Migration\Helpers;
+use Alchemy\Zippy\Zippy;
+
 
 class ExportCommand extends MUMigrationBase {
 
@@ -41,9 +44,9 @@ class ExportCommand extends MUMigrationBase {
 	 *
 	 * ## EXAMBLES
 	 *
-	 *      wp mu-migration export tables output.sql --db_prefix=wp_2_
+	 *      wp mu-migration export tables output.sql
 	 *
-	 * @synopsis <outputfile> [--db_prefix=<prefix>]
+	 * @synopsis <outputfile>
 	 */
 	public function tables( $args = array(), $assoc_args = array() ) {
 		global $wpdb;
@@ -60,13 +63,6 @@ class ExportCommand extends MUMigrationBase {
 		);
 
 		$filename = $this->args[0];
-
-		//test if sed exists
-		$sed = \WP_CLI::launch( 'sed --version', false, false );
-
-		if ( 0 !== $sed ) {
-			\WP_CLI::error( __( 'sed not present, please install sed', 'mu-migration' ) );
-		}
 
 
 		$tables = \WP_CLI::launch_self(
@@ -115,35 +111,6 @@ class ExportCommand extends MUMigrationBase {
 			);
 
 			if ( 0 === $export ) {
-
-				$new_prefix = $this->assoc_args['db_prefix'];
-
-				if ( ! empty( $new_prefix ) ) {
-					$mysql_chunks_regex = array(
-						'DROP TABLE IF EXISTS',
-						'CREATE TABLE',
-						'LOCK TABLES',
-						'INSERT INTO',
-						'CREATE TABLE IF NOT EXISTS',
-						'ALTER TABLE',
-					);
-
-					//build sed expressions
-					$sed_commands = array();
-					foreach( $mysql_chunks_regex as $regex ) {
-						$sed_commands[] = "s/{$regex} `{$wpdb->prefix}/{$regex} `{$new_prefix}/g";
-					}
-
-					foreach( $sed_commands as $sed_command ) {
-						$full_command = "sed '$sed_command' -i $filename";
-						$sed_result = \WP_CLI::launch( $full_command, false, false );
-
-						if ( 0 !== $sed_result ) {
-							\WP_CLI::warning( __( 'Something went wrong while running sed', 'mu-migration' ) );
-						}
-					}
-				}
-
 				\WP_CLI::success( __( 'The export is now complete', 'mu-migration' ) );
 
 			} else {
@@ -185,6 +152,10 @@ class ExportCommand extends MUMigrationBase {
 		$delimiter = ',';
 
 		$file_handler = fopen( $filename , 'w+' );
+
+		if ( ! $file_handler ) {
+			\WP_CLI::error( __( 'Impossible to create the file', 'mu-migration' ) );
+		}
 
 		$woocomerce = isset( $this->assoc_args['woocomerce'] ) ? true : false;
 
@@ -305,6 +276,125 @@ class ExportCommand extends MUMigrationBase {
 		) );
 
 	}
+
+	/**
+	 * Export the whole site onto a zip file
+	 *
+	 * ## OPTIONS
+	 *
+	 * <outputfile>
+	 * : The name of the exported .zip file
+	 *
+	 * ## EXAMBLES
+	 *
+	 *      wp mu-migration export all site.zip
+	 *
+	 * @synopsis [<zipfile>] [--blog_id=<blog_id>] [--plugins] [--themes] [--uploads]
+	 */
+	public function all( $args = array(), $assoc_args = array() ) {
+		$site_data = array(
+			'url' 			=> esc_url( home_url() ),
+			'name'			=> sanitize_text_field( get_bloginfo( 'name' ) ),
+			'admin_email'	=> sanitize_text_field( get_bloginfo( 'admin_email' ) ),
+			'site_language' => sanitize_text_field( get_bloginfo( 'language' ) ),
+			'plugins'		=> get_plugins()
+		);
+
+		$this->process_args(
+			array(
+				0 => 'mu-migration-' . sanitize_title( $site_data['name'] ) . '.zip',
+			),
+			$args,
+			array(),
+			$assoc_args
+		);
+
+		$zip_file = $this->args[0];
+
+		$include_plugins 	= isset( $this->assoc_args['plugins'] ) ? true : false;
+		$include_themes 	= isset( $this->assoc_args['themes'] ) 	? true : false;
+		$include_uploads 	= isset( $this->assoc_args['uploads'] ) ? true : false;
+
+		$users_assoc_args = array();
+
+		if ( Helpers\is_woocomerce_active()) {
+			$users_assoc_args = array(
+				'woocomerce' => true
+			);
+		}
+
+		$rand = rand();
+
+		/*
+		 * Adding rand() to the temporary file names to guarantee uniqueness
+		 */
+		$users_file 	= 'mu-migration-' . $rand . sanitize_title( $site_data['name'] ) . '.csv';
+		$tables_file 	= 'mu-migration-' . $rand . sanitize_title( $site_data['name'] ) . '.sql';
+		$meta_data_file = 'mu-migration-' . $rand . sanitize_title( $site_data['name'] ) . '.json';
+
+		\WP_CLI::log( __( 'Exporting site meta data...', 'mu-migration' ) );
+		file_put_contents( $meta_data_file, json_encode( $site_data ) );
+
+		\WP_CLI::log( __( 'Exporting users...', 'mu-migration' ) );
+		$this->users( array( $users_file ), $users_assoc_args );
+
+		\WP_CLI::log( __( 'Exporting tables', 'mu-migration' ) );
+		$this->tables( array( $tables_file ) );
+
+		$zippy = Zippy::load();
+
+		$zip = null;
+
+		/*
+		 * Removing previous $zip_file, if any
+		 */
+		if ( file_exists( $zip_file ) ) {
+			unlink( $zip_file );
+		}
+
+		$files_to_zip = array(
+			$users_file,
+			$tables_file,
+			$meta_data_file
+		);
+
+		if ( $include_plugins ) {
+			$files_to_zip[] = WP_PLUGIN_DIR;
+		}
+
+		if ( $include_themes ) {
+			$files_to_zip[] = get_theme_root();
+		}
+
+		if ( $include_uploads ) {
+			$upload_dir = wp_upload_dir();
+			$files_to_zip[] = $upload_dir['basedir'];
+		}
+
+		try{
+			\WP_CLI::log( __( 'Zipping files....', 'mu-migration' ) );
+			$zip = $zippy->create( $zip_file , $files_to_zip, true );
+		} catch(\Exception $e) {
+			\WP_CLI::warning( __( 'Unable to create the zip file', 'mu-migration' ) );
+		}
+
+		if ( file_exists( $users_file ) ) {
+			unlink( $users_file );
+		}
+
+		if ( file_exists( $tables_file ) ) {
+			unlink( $tables_file );
+		}
+
+		if ( file_exists( $meta_data_file ) ) {
+			unlink( $meta_data_file );
+		}
+
+		if ( $zip !== null ) {
+			\WP_CLI::success( sprintf( __( 'A zip file named %s has been created', 'mu-migration' ), $zip_file ) );
+		}
+	}
+
 }
 
 \WP_CLI::add_command( 'mu-migration export', __NAMESPACE__ . '\\ExportCommand' );

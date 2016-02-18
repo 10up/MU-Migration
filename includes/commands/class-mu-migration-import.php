@@ -229,6 +229,8 @@ class ImportCommand extends MUMigrationBase {
 			WP_CLI::error( __( 'You should be running multisite in order to run this command', 'mu-migration' ) );
 		}
 
+		$this->check_for_sed_presence( true );
+
 		$import = \WP_CLI::launch_self(
 			"db import",
 			array( $filename ),
@@ -308,6 +310,51 @@ class ImportCommand extends MUMigrationBase {
 
 			restore_current_blog();
 		}
+	}
+
+	private function replace_db_prefix( $filename, $old_db_prefix, $new_db_prefix ) {
+		$new_prefix = $new_db_prefix;
+
+		if ( ! empty( $new_prefix ) ) {
+			$mysql_chunks_regex = array(
+				'DROP TABLE IF EXISTS',
+				'CREATE TABLE',
+				'LOCK TABLES',
+				'INSERT INTO',
+				'CREATE TABLE IF NOT EXISTS',
+				'ALTER TABLE',
+			);
+
+			//build sed expressions
+			$sed_commands = array();
+			foreach( $mysql_chunks_regex as $regex ) {
+				$sed_commands[] = "s/{$regex} `{$old_db_prefix}/{$regex} `{$new_prefix}/g";
+			}
+
+			foreach( $sed_commands as $sed_command ) {
+				$full_command = "sed '$sed_command' -i $filename";
+				$sed_result = \WP_CLI::launch( $full_command, false, false );
+
+				if ( 0 !== $sed_result ) {
+					\WP_CLI::warning( __( 'Something went wrong while running sed', 'mu-migration' ) );
+				}
+			}
+		}
+	}
+
+	private function check_for_sed_presence( $exit_on_error = false ) {
+		//test if sed exists
+		$sed = \WP_CLI::launch( 'sed --version', false, false );
+
+		if ( 0 !== $sed ) {
+			if ( $exit_on_error ) {
+				\WP_CLI::error( __( 'sed not present, please install sed', 'mu-migration' ) );
+			}
+
+			return false;
+		}
+
+		return true;
 	}
 }
 

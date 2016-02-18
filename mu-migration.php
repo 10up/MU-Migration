@@ -2,7 +2,7 @@
 /**
  * Plugin Name: MU Migration
  * Plugin URI: http://10up.com
- * Description: This is a set of WP-CLI commands to support the migration of single WordPress instances over to multisite
+ * Description: A set of WP-CLI commands to support the migration of single WordPress instances over to multisite
  * Version: 0.2.0
  * Author: Nícholas André, 10up
  * Author URI: http://10up.com
@@ -25,8 +25,9 @@ if ( defined( 'TENUP_MU_MIGRATION_VERSION' ) || ! defined( 'WP_CLI' ) ) {
 define( 'TENUP_MU_MIGRATION_VERSION', '0.2.0' );
 define( 'TENUP_MU_MIGRATION_URL', esc_url( plugin_dir_url( __FILE__ ), array( 'http', 'https' ) ) );
 define( 'TENUP_MU_MIGRATION_PATH', wp_normalize_path( dirname( __FILE__ ) . '/' ) );
-define( 'TENUP_MU_MIGRATION_COMMANDS_PATH', TENUP_MU_MIGRATION_PATH . 'commands/' );
+define( 'TENUP_MU_MIGRATION_COMMANDS_PATH', TENUP_MU_MIGRATION_PATH . 'includes/commands/' );
 
+require_once( TENUP_MU_MIGRATION_PATH . 'vendor/autoload.php' );
 require_once( TENUP_MU_MIGRATION_COMMANDS_PATH . 'class-mu-migration-base.php'      );
 require_once( TENUP_MU_MIGRATION_COMMANDS_PATH . 'class-mu-migration-export.php'    );
 require_once( TENUP_MU_MIGRATION_COMMANDS_PATH . 'class-mu-migration-import.php'    );

@@ -229,7 +229,11 @@ class ImportCommand extends MUMigrationBase {
 			WP_CLI::error( __( 'You should be running multisite in order to run this command', 'mu-migration' ) );
 		}
 
+		//terminates the script if sed is not installed
 		$this->check_for_sed_presence( true );
+
+		//replaces the db prefix and saves back the modifications to the sql file
+		$this->replace_db_prefix( $filename, $this->assoc_args['old_prefix'] );
 
 		$import = \WP_CLI::launch_self(
 			"db import",
@@ -312,6 +316,13 @@ class ImportCommand extends MUMigrationBase {
 		}
 	}
 
+	/**
+	 * Replaces the db_prefix with a new one using sed
+	 *
+	 * @param $filename The filename of the sql file to which the db prefix should be replaced
+	 * @param $old_db_prefix The db prefix to be replaced
+	 * @param $new_db_prefix The new db prefix
+	 */
 	private function replace_db_prefix( $filename, $old_db_prefix, $new_db_prefix ) {
 		$new_prefix = $new_db_prefix;
 
@@ -342,6 +353,12 @@ class ImportCommand extends MUMigrationBase {
 		}
 	}
 
+	/**
+	 * Checks whether sed is available or not
+	 *
+	 * @param bool $exit_on_error If set to true the script will be terminated if sed is not available
+	 * @return bool True if sed is available, false otherwise
+	 */
 	private function check_for_sed_presence( $exit_on_error = false ) {
 		//test if sed exists
 		$sed = \WP_CLI::launch( 'sed --version', false, false );

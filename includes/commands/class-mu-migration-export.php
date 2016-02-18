@@ -292,11 +292,14 @@ class ExportCommand extends MUMigrationBase {
 	 * @synopsis [<zipfile>] [--blog_id=<blog_id>] [--plugins] [--themes] [--uploads]
 	 */
 	public function all( $args = array(), $assoc_args = array() ) {
+		global $wpdb;
+
 		$site_data = array(
 			'url' 			=> esc_url( home_url() ),
 			'name'			=> sanitize_text_field( get_bloginfo( 'name' ) ),
 			'admin_email'	=> sanitize_text_field( get_bloginfo( 'admin_email' ) ),
 			'site_language' => sanitize_text_field( get_bloginfo( 'language' ) ),
+			'db_prefix'		=> $wpdb->prefix,
 			'plugins'		=> get_plugins()
 		);
 

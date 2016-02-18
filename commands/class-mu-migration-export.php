@@ -275,8 +275,21 @@ class ExportCommand extends MUMigrationBase {
 
 	}
 
+	/**
+	 * Export the whole site to a zip file
+	 *
+	 * ## OPTIONS
+	 *
+	 * <outputfile>
+	 * : The name of the exported .zip file
+	 *
+	 * ## EXAMBLES
+	 *
+	 *      wp mu-migration export all site.zip
+	 *
+	 * @synopsis [<zipfile>] [--blog_id=<blog_id>] [--plugins] [--themes] [--uploads]
+	 */
 	public function all( $args = array(), $assoc_args = array() ) {
-
 		$site_data = array(
 			'url' 			=> esc_url( home_url() ),
 			'name'			=> sanitize_text_field( get_bloginfo( 'name' ) ),
@@ -285,9 +298,22 @@ class ExportCommand extends MUMigrationBase {
 			'plugins'		=> $this->get_plugins_list()
 		);
 
-		$users_assoc_args = array(
-
+		$this->process_args(
+			array(
+				0 => 'mu-migration-' . sanitize_title( $site_data['name'] ) . '.zip',
+			),
+			$args,
+			array(),
+			$assoc_args
 		);
+
+		$zip_file = $this->args[0];
+
+		$include_plugins 	= isset( $this->assoc_args['plugins'] ) ? true : false;
+		$include_themes 	= isset( $this->assoc_args['themes'] ) 	? true : false;
+		$include_uploads 	= isset( $this->assoc_args['uploads'] ) ? true : false;
+
+		$users_assoc_args = array();
 
 		if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) ) {
 			$users_assoc_args = array(
@@ -303,13 +329,14 @@ class ExportCommand extends MUMigrationBase {
 
 		file_put_contents( $meta_data_file, json_encode( $site_data ) );
 
+		\WP_CLI::log( __( 'Exporting users...', 'mu-migration' ) );
+
 		$this->users( array( $users_file ), $users_assoc_args );
 
+		\WP_CLI::log( __( 'Exporting tables', 'mu-migration' ) );
 		$this->tables( array( $tables_file ) );
 
 		$zippy = Zippy::load();
-
-		$zip_file = 'mu-migration-' . sanitize_title( $site_data['name'] ) . '.zip';
 
 		$zip = null;
 
@@ -317,12 +344,29 @@ class ExportCommand extends MUMigrationBase {
 			unlink( $zip_file );
 		}
 
+		$files_to_zip = array(
+			$users_file,
+			$tables_file,
+			$meta_data_file
+		);
+
+		if ( $include_plugins ) {
+			$files_to_zip[] = WP_PLUGIN_DIR;
+		}
+
+		if ( $include_themes ) {
+			$files_to_zip[] = get_theme_root();
+		}
+
+		if ( $include_uploads ) {
+			$upload_dir = wp_upload_dir();
+			$files_to_zip[] = $upload_dir['basedir'];
+		}
+
 		try{
-			$zip = $zippy->create( $zip_file , array(
-				$users_file,
-				$tables_file,
-				$meta_data_file
-			), true );
+			\WP_CLI::log( __( 'Zipping files....', 'mu-migration' ) );
+			$zip = $zippy->create( $zip_file , $files_to_zip, true );
+
 		} catch(\Exception $e) {
 			\WP_CLI::warning( __( 'Unable to create the zip file', 'mu-migration' ) );
 		}
@@ -343,12 +387,7 @@ class ExportCommand extends MUMigrationBase {
 			\WP_CLI::success( sprintf( __( 'A zip file named %s has been created', 'mu-migration' ), $zip_file ) );
 		}
 	}
-
-	private function get_plugins_list() {
-		return array(
-
-		);
-	}
+	
 }
 
 \WP_CLI::add_command( 'mu-migration export', __NAMESPACE__ . '\\ExportCommand' );

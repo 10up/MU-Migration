@@ -4,7 +4,9 @@
  *
  */
 namespace TenUp\MU_Migration\Commands;
+use TenUp\MU_Migration\Helpers;
 use Alchemy\Zippy\Zippy;
+
 
 class ExportCommand extends MUMigrationBase {
 
@@ -276,7 +278,7 @@ class ExportCommand extends MUMigrationBase {
 	}
 
 	/**
-	 * Export the whole site to a zip file
+	 * Export the whole site onto a zip file
 	 *
 	 * ## OPTIONS
 	 *
@@ -295,7 +297,7 @@ class ExportCommand extends MUMigrationBase {
 			'name'			=> sanitize_text_field( get_bloginfo( 'name' ) ),
 			'admin_email'	=> sanitize_text_field( get_bloginfo( 'admin_email' ) ),
 			'site_language' => sanitize_text_field( get_bloginfo( 'language' ) ),
-			'plugins'		=> $this->get_plugins_list()
+			'plugins'		=> get_plugins()
 		);
 
 		$this->process_args(
@@ -315,7 +317,7 @@ class ExportCommand extends MUMigrationBase {
 
 		$users_assoc_args = array();
 
-		if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) ) {
+		if ( Helpers\is_woocomerce_active()) {
 			$users_assoc_args = array(
 				'woocomerce' => true
 			);
@@ -323,14 +325,17 @@ class ExportCommand extends MUMigrationBase {
 
 		$rand = rand();
 
+		/*
+		 * Adding rand() to the temporary file names to guarantee uniqueness
+		 */
 		$users_file 	= 'mu-migration-' . $rand . sanitize_title( $site_data['name'] ) . '.csv';
 		$tables_file 	= 'mu-migration-' . $rand . sanitize_title( $site_data['name'] ) . '.sql';
 		$meta_data_file = 'mu-migration-' . $rand . sanitize_title( $site_data['name'] ) . '.json';
 
+		\WP_CLI::log( __( 'Exporting site meta data...', 'mu-migration' ) );
 		file_put_contents( $meta_data_file, json_encode( $site_data ) );
 
 		\WP_CLI::log( __( 'Exporting users...', 'mu-migration' ) );
-
 		$this->users( array( $users_file ), $users_assoc_args );
 
 		\WP_CLI::log( __( 'Exporting tables', 'mu-migration' ) );
@@ -340,6 +345,9 @@ class ExportCommand extends MUMigrationBase {
 
 		$zip = null;
 
+		/*
+		 * Removing previous $zip_file, if any
+		 */
 		if ( file_exists( $zip_file ) ) {
 			unlink( $zip_file );
 		}
@@ -366,7 +374,6 @@ class ExportCommand extends MUMigrationBase {
 		try{
 			\WP_CLI::log( __( 'Zipping files....', 'mu-migration' ) );
 			$zip = $zippy->create( $zip_file , $files_to_zip, true );
-
 		} catch(\Exception $e) {
 			\WP_CLI::warning( __( 'Unable to create the zip file', 'mu-migration' ) );
 		}
@@ -387,7 +394,7 @@ class ExportCommand extends MUMigrationBase {
 			\WP_CLI::success( sprintf( __( 'A zip file named %s has been created', 'mu-migration' ), $zip_file ) );
 		}
 	}
-	
+
 }
 
 \WP_CLI::add_command( 'mu-migration export', __NAMESPACE__ . '\\ExportCommand' );

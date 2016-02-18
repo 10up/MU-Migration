@@ -19,6 +19,21 @@ abstract class MUMigrationBase extends \WP_CLI_Command {
 	protected $assoc_args;
 
 	/**
+	 * Process the provided arguments
+	 *
+	 * @sinec 0.2.0
+	 *
+	 * @param array $default_args
+	 * @param array $args
+	 * @param array $default_assoc_args
+	 * @param array $assoc_args
+	 */
+	protected function process_args( $default_args = array(), $args = array(), $default_assoc_args = array(), $assoc_args = array() ) {
+		$this->args 		= $args + $default_args;
+		$this->assoc_args 	= wp_parse_args( $assoc_args, $default_assoc_args );
+	}
+
+	/**
 	 * Run through all posts and executes the provided callback for each post
 	 *
 	 * @param $query_args

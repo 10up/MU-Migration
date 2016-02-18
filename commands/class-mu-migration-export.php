@@ -48,21 +48,19 @@ class ExportCommand extends MUMigrationBase {
 	 */
 	public function tables( $args = array(), $assoc_args = array() ) {
 		global $wpdb;
-		$rand = rand();
 
-		$default_args = array(
-			0 => "_db_{$rand}.sql", // output file name
-		);
-
-		$this->args = $args + $default_args;
-
-		$filename = $this->args[0];
-
-		$this->assoc_args = wp_parse_args( $assoc_args,
+		$this->process_args(
+			array(
+				0 => '', // output file name
+			),
+			$args,
 			array(
 				'db_prefix'  => '',
-			)
+			),
+			$assoc_args
 		);
+
+		$filename = $this->args[0];
 
 
 		$tables = \WP_CLI::launch_self(
@@ -137,20 +135,19 @@ class ExportCommand extends MUMigrationBase {
 	 * @synopsis <outputfile> [--blog_id=<blog_id>] [--woocomerce]
 	 */
 	public function users( $args = array(), $assoc_args = array() ) {
-		$default_args = array(
-			0 => 'users.csv', // output file name
+		$this->process_args(
+			array(
+				0 => 'users.csv',
+			),
+			$args,
+			array(
+				'blog_id' => '',
+			),
+			$assoc_args
 		);
-
-		$this->args = $args + $default_args;
 
 		$filename = $this->args[0];
 		$delimiter = ',';
-
-		$this->assoc_args = wp_parse_args( $assoc_args,
-			array(
-				'blog_id'  => '',
-			)
-		);
 
 		$file_handler = fopen( $filename , 'w+' );
 

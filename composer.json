@@ -1,0 +1,14 @@
+{
+    "name": "10up/mu-migration",
+    "description": "A set of WP-CLI commands to support the migration of single WordPress instances to multisite",
+    "require": {
+        "alchemy/zippy": "^0.3.5"
+    },
+    "license": "GPLv3",
+    "authors": [
+        {
+            "name": "Nícholas André",
+            "email": "nicholas@iotecnologia.com.br"
+        }
+    ]
+}

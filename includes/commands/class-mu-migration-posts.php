@@ -4,7 +4,7 @@
  *
  */
 namespace TenUp\MU_Migration\Commands;
-
+use TenUp\MU_Migration\Helpers;
 use WP_CLI;
 
 class PostsCommand extends MUMigrationBase {
@@ -162,6 +162,10 @@ class PostsCommand extends MUMigrationBase {
 		);
 
 		$filename = $this->args[0];
+
+		if ( ! Helpers\is_woocommerce_active() ) {
+			WP_CLI::error( __( 'WooCommerce is not active', 'mu-migration' ) );
+		}
 
 		if ( empty( $filename ) || ! file_exists( $filename ) ) {
 			WP_CLI::error( __( "Invalid input file", 'mu-migration' ) );

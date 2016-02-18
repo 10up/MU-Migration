@@ -6,7 +6,7 @@ namespace TenUp\MU_Migration\Helpers;
  *
  * @return bool True if WooComerce is active, false otherwise
  */
-function is_woocomerce_active() {
+function is_woocomnerce_active() {
     return in_array(
         'woocommerce/woocommerce.php',
         apply_filters( 'active_plugins', get_option('active_plugins') )

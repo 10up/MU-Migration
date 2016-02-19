@@ -320,7 +320,7 @@ class ExportCommand extends MUMigrationBase {
 
 		$users_assoc_args = array();
 
-		if ( Helpers\is_woocommerce_active() ) {
+		if ( Helpers\is_woocomnerce_active() ) {
 			$users_assoc_args = array(
 				'woocomerce' => true
 			);

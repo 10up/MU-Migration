@@ -48,3 +48,23 @@ function parse_url_for_search_replace( $url ) {
 
     return $parsed_url['host'] . $parsed_url['path'];
 }
+
+/**
+ * Recursively removes a directory and its files
+ *
+ * @param $dirPath Dir Path to delete
+ * @param bool $deleteParent
+ */
+function recursiveDelete( $dirPath, $deleteParent = true ){
+    foreach(
+        new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator( $dirPath, FilesystemIterator::SKIP_DOTS ),
+            RecursiveIteratorIterator::CHILD_FIRST
+        ) as $path ) {
+        $path->isFile() ? unlink( $path->getPathname() ) : rmdir( $path->getPathname() );
+    }
+
+    if( $deleteParent ) {
+        rmdir( $dirPath );
+    }
+}

@@ -360,11 +360,8 @@ class ImportCommand extends MUMigrationBase {
 		//$temp_dir = 'mu-migration54078153';
 
 		WP_CLI::log( __( 'Extracting zip package...', 'mu-migration' ) );
-		$zippy = Zippy::load();
 
-		$site_package = $zippy->open( $filename );
-		mkdir( $temp_dir );
-		$site_package->extract( $temp_dir );
+		Helpers\extract( $filename, $temp_dir );
 
 		$site_meta_data     = glob( $temp_dir . '/*.json' 	);
 		$users      		= glob( $temp_dir . '/*.csv' 	);
@@ -400,15 +397,10 @@ class ImportCommand extends MUMigrationBase {
 
 		$this->users( array( $users[0] ), $users_assoc_args );
 
-		global $wpdb;
-		switch_to_blog( $blog_id );
-		$new_db_prefix = $wpdb->prefix;
-		restore_current_blog();
-
 		$tables_assoc_args = array(
 			'blog_id'		=> $blog_id,
 			'old_prefix'	=> $site_meta_data->db_prefix,
-			'new_prefix'	=> $new_db_prefix
+			'new_prefix'	=> Helpers\get_db_prefix( $blog_id )
 		);
 
 		/*
@@ -440,25 +432,27 @@ class ImportCommand extends MUMigrationBase {
 		}
 
 		if ( ! empty( $plugins_folder ) ) {
-			$this->move_plugins( $temp_dir );
+			$this->move_plugins( $temp_dir . '/plugins' );
 		}
 
 		if ( ! empty( $uploads_folder ) ) {
-			$this->move_uploads( $temp_dir );
+			$this->move_uploads( $temp_dir . '/uploads' );
 		}
 
 		if ( ! empty( $themes_folder ) ) {
-			$this->move_themes( $temp_dir );
+			$this->move_themes( $temp_dir . '/themes' );
 		}
 
-		//must be recusrive
-		unlink( $temp_dir );
+		Helpers\delete_folder( $temp_dir );
+
 		WP_CLI::success( __( 'All done', 'mu-migration' ) );
 
 	}
 
-	private function move_plugins( $temp_dir ) {
-
+	private function move_plugins( $plugins_dir ) {
+		if ( file_exists( $plugins_dir ) ){
+			
+		}
 	}
 
 	private function move_uploads( $temp_dir ) {
@@ -540,7 +534,6 @@ class ImportCommand extends MUMigrationBase {
 	 * @return bool True if sed is available, false otherwise
 	 */
 	private function check_for_sed_presence( $exit_on_error = false ) {
-		//test if sed exists
 		$sed = \WP_CLI::launch( 'sed --version', false, false );
 
 		if ( 0 !== $sed ) {

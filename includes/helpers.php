@@ -55,7 +55,7 @@ function parse_url_for_search_replace( $url ) {
  * @param $dirPath Dir Path to delete
  * @param bool $deleteParent
  */
-function recursiveDelete( $dirPath, $deleteParent = true ){
+function delete_folder( $dirPath, $deleteParent = true ){
     foreach(
         new RecursiveIteratorIterator(
             new RecursiveDirectoryIterator( $dirPath, FilesystemIterator::SKIP_DOTS ),
@@ -67,4 +67,37 @@ function recursiveDelete( $dirPath, $deleteParent = true ){
     if( $deleteParent ) {
         rmdir( $dirPath );
     }
+}
+
+/**
+ * Extracts a zip file to the dest_dir
+ *
+ * @uses Zippy
+ *
+ * @param $filename
+ * @param $dest_dir
+ */
+function extract( $filename, $dest_dir ) {
+    $zippy = Zippy::load();
+
+    $site_package = $zippy->open( $filename );
+    mkdir( $dest_dir );
+    $site_package->extract( $dest_dir );
+}
+
+/**
+ * Retrieves the db prefix based on the blog_id
+ *
+ * @uses wpdb
+ *
+ * @param $blog_id
+ * @return string
+ */
+function get_db_prefix( $blog_id ) {
+    global $wpdb;
+    switch_to_blog( $blog_id );
+    $new_db_prefix = $wpdb->prefix;
+    restore_current_blog();
+
+    return $new_db_prefix;
 }

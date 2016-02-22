@@ -361,8 +361,15 @@ class ImportCommand extends MUMigrationBase {
 
 		WP_CLI::log( __( 'Extracting zip package...', 'mu-migration' ) );
 
+		/*
+		 * Extract the file to the $temp_dir
+		 */
 		Helpers\extract( $filename, $temp_dir );
 
+		/*
+		 * Looks for required (.json, .csv and .sql) files and for the optional folders
+		 * that can live in the zip package (plugins, themes and uploads).
+		 */
 		$site_meta_data     = glob( $temp_dir . '/*.json' 	);
 		$users      		= glob( $temp_dir . '/*.csv' 	);
 		$sql 				= glob( $temp_dir . '/*.sql' 	);
@@ -449,18 +456,64 @@ class ImportCommand extends MUMigrationBase {
 
 	}
 
+	/**
+	 * Moves the plugins to the right directory
+	 *
+	 * @param $plugins_dir The path to the plugins to be moved over
+	 */
 	private function move_plugins( $plugins_dir ) {
 		if ( file_exists( $plugins_dir ) ){
-			
+			WP_CLI::info( 'Moving Plugins...' );
+			$plugins 			= new \DirectoryIterator( $plugins_dir );
+			$installed_plugins 	= WP_PLUGIN_DIR;
+
+			foreach( $plugins as $plugin ) {
+				if ( $plugin->isDir() ) {
+					$fullPluginPath = $plugins_dir . '/' . $plugin->getFilename();
+
+					if ( ! file_exists( $installed_plugins . '/' . $plugin->getFilename() ) ) {
+						WP_CLI::info( sprintf( __( 'Moving %s to plugins folder' ), $plugin->getFilename() ) );
+						rename( $fullPluginPath, $installed_plugins .'/' . $plugin->getFilename() );
+					}
+				}
+			}
 		}
 	}
 
-	private function move_uploads( $temp_dir ) {
-
+	/**
+	 * Moves the uploads folder to the right location
+	 *
+	 * @param $uploads_dir
+	 */
+	private function move_uploads( $uploads_dir ) {
+		if ( file_exists( $uploads_dir ) ){
+			\WP_CLI::info( 'Moving Uploads...' );
+			rename( $uploads_dir, wp_upload_dir() );
+		}
 	}
 
-	private function move_themes( $tempo_dir ) {
+	/**
+	 * Moves the themes to the right location
+	 *
+	 * @param $themes_dir
+	 */
+	private function move_themes( $themes_dir ) {
+		if ( file_exists( $themes_dir ) ){
+			WP_CLI::info( 'Moving Themes...' );
+			$themes 			= new \DirectoryIterator( $themes_dir );
+			$installed_themes 	= get_theme_root();
 
+			foreach( $themes as $theme ) {
+				if ( $theme->isDir() ) {
+					$fullPluginPath = $themes_dir . '/' . $theme->getFilename();
+
+					if ( ! file_exists( $installed_themes . '/' . $theme->getFilename() ) ) {
+						WP_CLI::info( sprintf( __( 'Moving %s to themes folder' ), $theme->getFilename() ) );
+						rename( $fullPluginPath, $installed_themes .'/' . $theme->getFilename() );
+					}
+				}
+			}
+		}
 	}
 
 	/**

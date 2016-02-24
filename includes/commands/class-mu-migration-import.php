@@ -260,14 +260,18 @@ class ImportCommand extends MUMigrationBase {
 					Helpers\parse_url_for_search_replace( $this->assoc_args['old_url'] )
 				);
 				$url  = '';
-				//Try to run with both new_url or old_url and save the right one
+
+				/*
+				 * Depending of the state of the database, the tables can have either the new_url or the old_url,
+				 * so we're essentially trying with both and saving the correct one
+				 */
 				do {
 					$url = array_pop( $urls );
 
 					$search_replace = \WP_CLI::launch_self(
 						"search-replace",
 						array( $this->assoc_args['old_url'], $this->assoc_args['new_url'] ),
-						array( 'url' => esc_url( $url ) ),
+						array( 'url' => $url ),
 						false,
 						false,
 						array()
@@ -357,7 +361,6 @@ class ImportCommand extends MUMigrationBase {
 		}
 
 		$temp_dir = 'mu-migration' . rand() . '/';
-		//$temp_dir = 'mu-migration54078153';
 
 		WP_CLI::log( __( 'Extracting zip package...', 'mu-migration' ) );
 
@@ -373,9 +376,9 @@ class ImportCommand extends MUMigrationBase {
 		$site_meta_data     = glob( $temp_dir . '/*.json' 	);
 		$users      		= glob( $temp_dir . '/*.csv' 	);
 		$sql 				= glob( $temp_dir . '/*.sql' 	);
-		$plugins_folder 	= glob( $temp_dir . '/plugins' 	);
-		$themes_folder 		= glob( $temp_dir . '/themes' 	);
-		$uploads_folder 	= glob( $temp_dir . '/uploads' 	);
+		$plugins_folder 	= glob( $temp_dir . '/wp-content/plugins' );
+		$themes_folder 		= glob( $temp_dir . '/wp-content/themes'  );
+		$uploads_folder 	= glob( $temp_dir . '/wp-content/uploads' );
 
 		if ( empty( $site_meta_data ) || empty( $users)  || empty( $sql ) ) {
 			WP_CLI::error( __( "There's something wrong with your zip package, unable to find required files", 'mu-migration' ) );
@@ -439,16 +442,23 @@ class ImportCommand extends MUMigrationBase {
 		}
 
 		if ( ! empty( $plugins_folder ) ) {
-			$this->move_plugins( $temp_dir . '/plugins' );
+			$this->move_plugins( $plugins_folder[0] );
 		}
 
 		if ( ! empty( $uploads_folder ) ) {
-			$this->move_uploads( $temp_dir . '/uploads' );
+			$this->move_uploads( $uploads_folder[0], $blog_id );
 		}
 
 		if ( ! empty( $themes_folder ) ) {
-			$this->move_themes( $temp_dir . '/themes' );
+			$this->move_themes( $themes_folder[0] );
 		}
+
+        /*
+         * Flush the rewrite rules for the newly created site, just in case
+         */
+        switch_to_blog( $blog_id );
+        flush_rewrite_rules();
+        restore_current_blog();
 
 		Helpers\delete_folder( $temp_dir );
 
@@ -463,7 +473,7 @@ class ImportCommand extends MUMigrationBase {
 	 */
 	private function move_plugins( $plugins_dir ) {
 		if ( file_exists( $plugins_dir ) ){
-			WP_CLI::info( 'Moving Plugins...' );
+			WP_CLI::log( 'Moving Plugins...' );
 			$plugins 			= new \DirectoryIterator( $plugins_dir );
 			$installed_plugins 	= WP_PLUGIN_DIR;
 
@@ -472,7 +482,7 @@ class ImportCommand extends MUMigrationBase {
 					$fullPluginPath = $plugins_dir . '/' . $plugin->getFilename();
 
 					if ( ! file_exists( $installed_plugins . '/' . $plugin->getFilename() ) ) {
-						WP_CLI::info( sprintf( __( 'Moving %s to plugins folder' ), $plugin->getFilename() ) );
+						WP_CLI::log( sprintf( __( 'Moving %s to plugins folder' ), $plugin->getFilename() ) );
 						rename( $fullPluginPath, $installed_plugins .'/' . $plugin->getFilename() );
 					}
 				}
@@ -485,10 +495,14 @@ class ImportCommand extends MUMigrationBase {
 	 *
 	 * @param $uploads_dir
 	 */
-	private function move_uploads( $uploads_dir ) {
+	private function move_uploads( $uploads_dir, $blog_id ) {
 		if ( file_exists( $uploads_dir ) ){
-			\WP_CLI::info( 'Moving Uploads...' );
-			rename( $uploads_dir, wp_upload_dir() );
+			\WP_CLI::log( 'Moving Uploads...' );
+			switch_to_blog( $blog_id );
+			$dest_uploads_dir = wp_upload_dir();
+			restore_current_blog();
+
+			rename( $uploads_dir, $dest_uploads_dir['basedir'] );
 		}
 	}
 
@@ -499,7 +513,7 @@ class ImportCommand extends MUMigrationBase {
 	 */
 	private function move_themes( $themes_dir ) {
 		if ( file_exists( $themes_dir ) ){
-			WP_CLI::info( 'Moving Themes...' );
+			WP_CLI::log( 'Moving Themes...' );
 			$themes 			= new \DirectoryIterator( $themes_dir );
 			$installed_themes 	= get_theme_root();
 
@@ -508,8 +522,17 @@ class ImportCommand extends MUMigrationBase {
 					$fullPluginPath = $themes_dir . '/' . $theme->getFilename();
 
 					if ( ! file_exists( $installed_themes . '/' . $theme->getFilename() ) ) {
-						WP_CLI::info( sprintf( __( 'Moving %s to themes folder' ), $theme->getFilename() ) );
+						WP_CLI::log( sprintf( __( 'Moving %s to themes folder' ), $theme->getFilename() ) );
 						rename( $fullPluginPath, $installed_themes .'/' . $theme->getFilename() );
+
+						WP_CLI::launch_self(
+							"theme enable",
+							array( $theme->getFilename() ),
+							array(),
+							false,
+							false,
+							array()
+						);
 					}
 				}
 			}

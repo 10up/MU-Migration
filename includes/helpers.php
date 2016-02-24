@@ -1,6 +1,6 @@
 <?php
 namespace TenUp\MU_Migration\Helpers;
-
+use Alchemy\Zippy\Zippy;
 /**
  * Checks for the presence of Woocomerce
  *
@@ -57,9 +57,9 @@ function parse_url_for_search_replace( $url ) {
  */
 function delete_folder( $dirPath, $deleteParent = true ){
     foreach(
-        new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator( $dirPath, FilesystemIterator::SKIP_DOTS ),
-            RecursiveIteratorIterator::CHILD_FIRST
+        new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator( $dirPath, \FilesystemIterator::SKIP_DOTS ),
+            \RecursiveIteratorIterator::CHILD_FIRST
         ) as $path ) {
         $path->isFile() ? unlink( $path->getPathname() ) : rmdir( $path->getPathname() );
     }

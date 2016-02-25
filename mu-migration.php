@@ -28,6 +28,7 @@ define( 'TENUP_MU_MIGRATION_PATH', wp_normalize_path( dirname( __FILE__ ) . '/' 
 define( 'TENUP_MU_MIGRATION_COMMANDS_PATH', TENUP_MU_MIGRATION_PATH . 'includes/commands/' );
 
 require_once( TENUP_MU_MIGRATION_PATH . 'vendor/autoload.php' );
+require_once( TENUP_MU_MIGRATION_PATH . 'includes/helpers.php' );
 require_once( TENUP_MU_MIGRATION_COMMANDS_PATH . 'class-mu-migration-base.php'      );
 require_once( TENUP_MU_MIGRATION_COMMANDS_PATH . 'class-mu-migration-export.php'    );
 require_once( TENUP_MU_MIGRATION_COMMANDS_PATH . 'class-mu-migration-import.php'    );

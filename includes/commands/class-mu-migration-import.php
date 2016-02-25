@@ -259,7 +259,6 @@ class ImportCommand extends MUMigrationBase {
 					Helpers\parse_url_for_search_replace( $this->assoc_args['new_url'] ),
 					Helpers\parse_url_for_search_replace( $this->assoc_args['old_url'] )
 				);
-				$url  = '';
 
 				/*
 				 * Depending of the state of the database, the tables can have either the new_url or the old_url,
@@ -270,7 +269,10 @@ class ImportCommand extends MUMigrationBase {
 
 					$search_replace = \WP_CLI::launch_self(
 						"search-replace",
-						array( $this->assoc_args['old_url'], $this->assoc_args['new_url'] ),
+						array(
+                            Helpers\parse_url_for_search_replace( $this->assoc_args['old_url'] ),
+                            Helpers\parse_url_for_search_replace( $this->assoc_args['new_url'] ),
+                        ),
 						array( 'url' => $url ),
 						false,
 						false,
@@ -285,18 +287,23 @@ class ImportCommand extends MUMigrationBase {
 					WP_CLI::log( __( 'Search and Replace has been successfully executed', 'mu-migration' ) );
 				}
 
-				$search_replace = \WP_CLI::launch_self(
-					"search-replace",
-					array( 'wp-content/uploads', 'wp-content/uploads/sites/' . $this->assoc_args['blog_id'] ),
-					array( 'url' => $this->assoc_args['new_url'] ),
-					false,
-					false,
-					array()
-				);
+                /*
+                 * If the $blog_id equals 1 the upload path remains the same
+                 */
+                if ( $this->assoc_args['blog_id'] > 1 ) {
+                    $search_replace = \WP_CLI::launch_self(
+                        "search-replace",
+                        array( 'wp-content/uploads', 'wp-content/uploads/sites/' . $this->assoc_args['blog_id'] ),
+                        array( 'url' => $this->assoc_args['new_url'] ),
+                        false,
+                        false,
+                        array()
+                    );
 
-				if ( 0 === $search_replace ) {
-					WP_CLI::log( __( 'Uploads paths have been successfully executed', 'mu-migration' ) );
-				}
+                    if ( 0 === $search_replace ) {
+                        WP_CLI::log( __( 'Uploads paths have been successfully updated', 'mu-migration' ) );
+                    }
+                }
 			}
 
 			switch_to_blog( (int) $this->assoc_args['blog_id'] );
@@ -360,7 +367,7 @@ class ImportCommand extends MUMigrationBase {
 			WP_CLI::error( __( 'The provided file does not appear to be a zip file', 'mu-migration' ) );
 		}
 
-		$temp_dir = 'mu-migration' . rand() . '/';
+		$temp_dir = 'mu-migration' . time() . '/';
 
 		WP_CLI::log( __( 'Extracting zip package...', 'mu-migration' ) );
 
@@ -405,6 +412,8 @@ class ImportCommand extends MUMigrationBase {
 			'blog_id'	=> $blog_id
 		);
 
+        WP_CLI::log( __( 'Importing Users...', 'mu-migration' ) );
+
 		$this->users( array( $users[0] ), $users_assoc_args );
 
 		$tables_assoc_args = array(
@@ -417,14 +426,17 @@ class ImportCommand extends MUMigrationBase {
 		 * If changing URL, then set the proper params to force search-replace in the tables method
 		 */
 		if ( ! empty( $assoc_args[ 'new_url' ] ) ) {
-			$tables_assoc_args['new_url'] = $assoc_args['new_url'];
-			$tables_assoc_args['old_url'] = $old_url;
+			$tables_assoc_args['new_url'] = esc_url( $assoc_args['new_url'] );
+			$tables_assoc_args['old_url'] = esc_url( $old_url );
 		}
+
+        WP_CLI::log( __( 'Importing tables...', 'mu-migration' ) );
 
 		$this->tables( array( $sql[0] ), $tables_assoc_args );
 
 		$postsCommand = new PostsCommand();
 
+        WP_CLI::log( __( 'Updating post_author...', 'mu-migration' ) );
 		$postsCommand->update_author(
 			array( $map_file ),
 			array(
@@ -433,6 +445,7 @@ class ImportCommand extends MUMigrationBase {
 		);
 
 		if ( Helpers\is_woocomnerce_active() ) {
+            WP_CLI::log( __( 'Updating WC Customer...', 'mu-migration' ) );
 			$postsCommand->update_wc_customer(
 				array( $map_file ),
 				array(
@@ -453,14 +466,20 @@ class ImportCommand extends MUMigrationBase {
 			$this->move_themes( $themes_folder[0] );
 		}
 
-        /*
-         * Flush the rewrite rules for the newly created site, just in case
-         */
-        switch_to_blog( $blog_id );
-        flush_rewrite_rules();
-        restore_current_blog();
+        WP_CLI::log( __( 'Flushing rewrite rules...', 'mu-migration' ) );
 
-		Helpers\delete_folder( $temp_dir );
+        add_action( 'init', function() use ( $blog_id ) {
+            /*
+             * Flush the rewrite rules for the newly created site, just in case
+             */
+            switch_to_blog( $blog_id );
+            flush_rewrite_rules();
+            restore_current_blog();
+        }, 9999 );
+
+        WP_CLI::log( __( 'Removing temporary files....', 'mu-migration' ) );
+
+        Helpers\delete_folder( $temp_dir );
 
 		WP_CLI::success( __( 'All done', 'mu-migration' ) );
 
@@ -502,7 +521,7 @@ class ImportCommand extends MUMigrationBase {
 			$dest_uploads_dir = wp_upload_dir();
 			restore_current_blog();
 
-			rename( $uploads_dir, $dest_uploads_dir['basedir'] );
+			Helpers\copy_folder( $uploads_dir, $dest_uploads_dir['basedir'] );
 		}
 	}
 

@@ -1,6 +1,7 @@
 <?php
 namespace TenUp\MU_Migration\Helpers;
 use Alchemy\Zippy\Zippy;
+
 /**
  * Checks for the presence of Woocomerce
  *
@@ -46,7 +47,9 @@ function is_zip_file( $filename ) {
 function parse_url_for_search_replace( $url ) {
     $parsed_url = parse_url( esc_url( $url ) );
 
-    return $parsed_url['host'] . $parsed_url['path'];
+    $path = isset( $parsed_url['path'] ) ? $parsed_url['path'] : '/';
+
+    return $parsed_url['host'] . $path;
 }
 
 /**
@@ -56,17 +59,54 @@ function parse_url_for_search_replace( $url ) {
  * @param bool $deleteParent
  */
 function delete_folder( $dirPath, $deleteParent = true ){
-    foreach(
-        new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator( $dirPath, \FilesystemIterator::SKIP_DOTS ),
-            \RecursiveIteratorIterator::CHILD_FIRST
-        ) as $path ) {
-        $path->isFile() ? unlink( $path->getPathname() ) : rmdir( $path->getPathname() );
+    $limit = 0;
+
+    /*
+     * We may hit the recursion depth,
+     * so let's keep trying until everything has been deleted.
+     *
+     * The limit check avoids infinite loops
+     */
+    while( file_exists( $dirPath ) && $limit++ < 10 ) {
+        foreach(
+            new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator( $dirPath, \FilesystemIterator::SKIP_DOTS ),
+                \RecursiveIteratorIterator::CHILD_FIRST
+            ) as $path ) {
+            $path->isFile() ? @unlink( $path->getPathname() ) : @rmdir( $path->getPathname() );
+        }
+
+        if( $deleteParent ) {
+            rmdir( $dirPath );
+        }
+    }
+}
+
+/**
+ * Recursively copies a directory and its files
+ *
+ * @param $source   The source folder
+ * @param $dest     The destination folder
+ */
+function copy_folder( $source, $dest ) {
+    if ( ! file_exists( $dest ) ) {
+        mkdir( $dest );
     }
 
-    if( $deleteParent ) {
-        rmdir( $dirPath );
+    foreach (
+        $iterator = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator( $source, \RecursiveDirectoryIterator::SKIP_DOTS ),
+            \RecursiveIteratorIterator::SELF_FIRST ) as $item) {
+        if ( $item->isDir() ) {
+            $dir = $dest . DIRECTORY_SEPARATOR . $iterator->getSubPathName();
+            if ( ! file_exists( $dir ) ) {
+                mkdir( $dir );
+            }
+        } else {
+            copy( $item, $dest . DIRECTORY_SEPARATOR . $iterator->getSubPathName() );
+        }
     }
+
 }
 
 /**

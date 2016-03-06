@@ -47,7 +47,7 @@ function is_zip_file( $filename ) {
 function parse_url_for_search_replace( $url ) {
     $parsed_url = parse_url( esc_url( $url ) );
 
-    $path = isset( $parsed_url['path'] ) ? $parsed_url['path'] : '/';
+    $path = isset( $parsed_url['path'] ) ? $parsed_url['path'] : '';
 
     return $parsed_url['host'] . $path;
 }

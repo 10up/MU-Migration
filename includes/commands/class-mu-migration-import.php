@@ -255,33 +255,20 @@ class ImportCommand extends MUMigrationBase {
 			if ( ! empty( $this->assoc_args['old_url'] ) && ! empty( $this->assoc_args['new_url'] ) ) {
 				WP_CLI::log( __( 'Running search-replace', 'mu-migration' ) );
 
-				$urls = array(
-					Helpers\parse_url_for_search_replace( $this->assoc_args['new_url'] ),
-					Helpers\parse_url_for_search_replace( $this->assoc_args['old_url'] )
+				$old_url = Helpers\parse_url_for_search_replace( $this->assoc_args['old_url'] );
+				$new_url = Helpers\parse_url_for_search_replace( $this->assoc_args['new_url'] );
+				
+				$search_replace = \WP_CLI::launch_self(
+					"search-replace",
+					array(
+						$old_url,
+						$new_url,
+					),
+					array(),
+					false,
+					false,
+					array(  'url' => $new_url )
 				);
-
-				/*
-				 * Depending of the state of the database, the tables can have either the new_url or the old_url,
-				 * so we're essentially trying with both and saving the correct one
-				 */
-				do {
-					$url = array_pop( $urls );
-
-					$search_replace = \WP_CLI::launch_self(
-						"search-replace",
-						array(
-                            Helpers\parse_url_for_search_replace( $this->assoc_args['old_url'] ),
-                            Helpers\parse_url_for_search_replace( $this->assoc_args['new_url'] ),
-                        ),
-						array( 'url' => $url ),
-						false,
-						false,
-						array()
-					);
-
-
-				} while( $search_replace !== 0 && count( $urls ) > 0 );
-
 
 				if ( 0 === $search_replace ) {
 					WP_CLI::log( __( 'Search and Replace has been successfully executed', 'mu-migration' ) );
@@ -294,10 +281,10 @@ class ImportCommand extends MUMigrationBase {
                     $search_replace = \WP_CLI::launch_self(
                         "search-replace",
                         array( 'wp-content/uploads', 'wp-content/uploads/sites/' . $this->assoc_args['blog_id'] ),
-                        array( 'url' => $this->assoc_args['new_url'] ),
+                        array(),
                         false,
                         false,
-                        array()
+                        array( 'url' => $new_url )
                     );
 
                     if ( 0 === $search_replace ) {

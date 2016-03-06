@@ -412,7 +412,7 @@ class ImportCommand extends MUMigrationBase {
 			'blog_id'	=> $blog_id
 		);
 
-        WP_CLI::log( __( 'Importing Users...', 'mu-migration' ) );
+		WP_CLI::log( __( 'Importing Users...', 'mu-migration' ) );
 
 		$this->users( array( $users[0] ), $users_assoc_args );
 
@@ -430,13 +430,13 @@ class ImportCommand extends MUMigrationBase {
 			$tables_assoc_args['old_url'] = esc_url( $old_url );
 		}
 
-        WP_CLI::log( __( 'Importing tables...', 'mu-migration' ) );
+		WP_CLI::log( __( 'Importing tables...', 'mu-migration' ) );
 
 		$this->tables( array( $sql[0] ), $tables_assoc_args );
 
 		$postsCommand = new PostsCommand();
 
-        WP_CLI::log( __( 'Updating post_author...', 'mu-migration' ) );
+		WP_CLI::log( __( 'Updating post_author...', 'mu-migration' ) );
 		$postsCommand->update_author(
 			array( $map_file ),
 			array(
@@ -445,7 +445,7 @@ class ImportCommand extends MUMigrationBase {
 		);
 
 		if ( Helpers\is_woocomnerce_active() ) {
-            WP_CLI::log( __( 'Updating WC Customer...', 'mu-migration' ) );
+			WP_CLI::log( __( 'Updating WC Customer...', 'mu-migration' ) );
 			$postsCommand->update_wc_customer(
 				array( $map_file ),
 				array(
@@ -466,20 +466,20 @@ class ImportCommand extends MUMigrationBase {
 			$this->move_themes( $themes_folder[0] );
 		}
 
-        WP_CLI::log( __( 'Flushing rewrite rules...', 'mu-migration' ) );
+		WP_CLI::log( __( 'Flushing rewrite rules...', 'mu-migration' ) );
 
-        add_action( 'init', function() use ( $blog_id ) {
-            /*
-             * Flush the rewrite rules for the newly created site, just in case
-             */
-            switch_to_blog( $blog_id );
-            flush_rewrite_rules();
-            restore_current_blog();
-        }, 9999 );
+		add_action( 'init', function() use ( $blog_id ) {
+			/*
+			 * Flush the rewrite rules for the newly created site, just in case
+			 */
+			switch_to_blog( $blog_id );
+			flush_rewrite_rules();
+			restore_current_blog();
+		}, 9999 );
 
-        WP_CLI::log( __( 'Removing temporary files....', 'mu-migration' ) );
+		WP_CLI::log( __( 'Removing temporary files....', 'mu-migration' ) );
 
-        Helpers\delete_folder( $temp_dir );
+		Helpers\delete_folder( $temp_dir );
 
 		WP_CLI::success( __( 'All done', 'mu-migration' ) );
 

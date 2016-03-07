@@ -50,10 +50,10 @@ abstract class MUMigrationBase extends \WP_CLI_Command {
 			'post_type'                 => 'post',
 			'posts_per_page'            => 1000,
 			'post_status'               => array( 'publish', 'pending', 'draft', 'future', 'private' ),
-            'cache_results '            => false,
-            'update_post_meta_cache'    => false,
-            'update_post_term_cache'    => false,
-            'offset'                    => 0
+			'cache_results '            => false,
+			'update_post_meta_cache'    => false,
+			'update_post_term_cache'    => false,
+			'offset'                    => 0
 		);
 
 		/**
@@ -79,24 +79,24 @@ abstract class MUMigrationBase extends \WP_CLI_Command {
 			$counter++;
 
 			if ( 0 === $counter % $query_args['posts_per_page'] ) {
-                /*
-                 * The WP_Query class hooks a reference to one of its own methods
-                 * onto filters if update_post_term_cache or
-                 * update_post_meta_cache are true, which prevents PHP's garbage
-                 * collector from cleaning up the WP_Query instance on long-
-                 * running processes.
-                 *
-                 * By manually removing these callbacks (often created by things
-                 * like get_posts()), we're able to properly unallocate memory
-                 * once occupied by a WP_Query object.
-                 */
-                if ( isset( $wp_filter['get_term_metadata'][10] ) ) {
-                    foreach ( $wp_filter['get_term_metadata'][10] as $hook => $content ) {
-                        if ( preg_match( '#^[0-9a-f]{32}lazyload_term_meta$#', $hook ) ) {
-                            unset( $wp_filter['get_term_metadata'][10][ $hook ] );
-                        }
-                    }
-                }
+				/*
+				 * The WP_Query class hooks a reference to one of its own methods
+				 * onto filters if update_post_term_cache or
+				 * update_post_meta_cache are true, which prevents PHP's garbage
+				 * collector from cleaning up the WP_Query instance on long-
+				 * running processes.
+				 *
+				 * By manually removing these callbacks (often created by things
+				 * like get_posts()), we're able to properly unallocate memory
+				 * once occupied by a WP_Query object.
+				 */
+				if ( isset( $wp_filter['get_term_metadata'][10] ) ) {
+					foreach ( $wp_filter['get_term_metadata'][10] as $hook => $content ) {
+						if ( preg_match( '#^[0-9a-f]{32}lazyload_term_meta$#', $hook ) ) {
+							unset( $wp_filter['get_term_metadata'][10][ $hook ] );
+						}
+					}
+				}
 
 				$query_args['offset'] += $query_args['posts_per_page'];
 				$query = new \WP_Query( $query_args );

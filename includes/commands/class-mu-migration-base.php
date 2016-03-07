@@ -39,7 +39,7 @@ abstract class MUMigrationBase extends \WP_CLI_Command {
 	 * @param $query_args
 	 * @param $callback
 	 */
-	protected function all_posts( $query_args, $callback ) {
+	protected function all_posts( $query_args, $callback, $verbose = true ) {
 		if ( ! is_callable( $callback ) ) {
 			self::error( __( "The provided callback is invalid", 'mu-migration' ) );
 		}
@@ -105,9 +105,34 @@ abstract class MUMigrationBase extends \WP_CLI_Command {
 
 		wp_reset_postdata();
 
-		WP_CLI::success( sprintf(
+		$this->success( sprintf(
 			__("%d posts were updated", 'mu-migration'),
 			$counter
-		) );
+		), $verbose );
+	}
+
+
+	public function line( $msg, $verbose ) {
+		if ( $verbose ) {
+			WP_CLI::line( $msg );
+		}
+	}
+
+	public function log( $msg, $verbose ) {
+		if ( $verbose ) {
+			WP_CLI::log( $msg );
+		}
+	}
+
+	public function success( $msg, $verbose ) {
+		if ( $verbose ) {
+			WP_CLI::success( $msg );
+		}
+	}
+
+	public function warning( $msg, $verbose ) {
+		if ( $verbose ) {
+			WP_CLI::warning( $msg );
+		}
 	}
 }

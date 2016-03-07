@@ -48,7 +48,7 @@ class ExportCommand extends MUMigrationBase {
 	 *
 	 * @synopsis <outputfile>
 	 */
-	public function tables( $args = array(), $assoc_args = array() ) {
+	public function tables( $args = array(), $assoc_args = array(), $verbose = true ) {
 		global $wpdb;
 
 		$this->process_args(
@@ -111,8 +111,7 @@ class ExportCommand extends MUMigrationBase {
 			);
 
 			if ( 0 === $export ) {
-				\WP_CLI::success( __( 'The export is now complete', 'mu-migration' ) );
-
+				$this->success( __( 'The export is now complete', 'mu-migration' ), $verbose );
 			} else {
 				\WP_CLI::error( __( 'Something went wrong while trying to export the database', 'mu-migration' ) );
 			}
@@ -136,7 +135,7 @@ class ExportCommand extends MUMigrationBase {
 	 *
 	 * @synopsis <outputfile> [--blog_id=<blog_id>] [--woocomerce]
 	 */
-	public function users( $args = array(), $assoc_args = array() ) {
+	public function users( $args = array(), $assoc_args = array(), $verbose = true ) {
 		$this->process_args(
 			array(
 				0 => 'users.csv',
@@ -270,10 +269,10 @@ class ExportCommand extends MUMigrationBase {
 
 		fclose( $file_handler );
 
-		\WP_CLI::success( sprintf(
+		$this->success( sprintf(
 			__( '%d users have been exported', 'mu-migration' ),
 			absint( $count )
-		) );
+		), $verbose );
 
 	}
 
@@ -339,10 +338,10 @@ class ExportCommand extends MUMigrationBase {
 		file_put_contents( $meta_data_file, json_encode( $site_data ) );
 
 		\WP_CLI::log( __( 'Exporting users...', 'mu-migration' ) );
-		$this->users( array( $users_file ), $users_assoc_args );
+		$this->users( array( $users_file ), $users_assoc_args, false );
 
 		\WP_CLI::log( __( 'Exporting tables', 'mu-migration' ) );
-		$this->tables( array( $tables_file ) );
+		$this->tables( array( $tables_file ), false );
 
 		$zippy = Zippy::load();
 

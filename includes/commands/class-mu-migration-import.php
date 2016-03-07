@@ -25,7 +25,7 @@ class ImportCommand extends MUMigrationBase {
 	 *
 	 * @synopsis <inputfile> --map_file=<map> --blog_id=<blog_id>
 	 */
-	public function users( $args = array(), $assoc_args = array() ) {
+	public function users( $args = array(), $assoc_args = array(), $verbose = true ) {
 		$this->process_args(
 			array(
 				0 => '', // .csv to import users
@@ -71,7 +71,7 @@ class ImportCommand extends MUMigrationBase {
 		$existing_users = 0;
 		$labels = array();
 		if ( false !== $input_file_handler ) {
-			WP_CLI::line( sprintf( "Parsing %s...", $filename ) );
+			$this->line( sprintf( "Parsing %s...", $filename ), $verbose );
 
 			$line = 0;
 			while( ( $data = fgetcsv( $input_file_handler, 0, $delimiter ) ) !== false ) {
@@ -136,17 +136,17 @@ class ImportCommand extends MUMigrationBase {
 						$ids_maps[ $old_id ] = $new_id;
 						add_user_to_blog( $this->assoc_args[ 'blog_id' ], $new_id, $user_data['role'] );
 					} else {
-						WP_CLI::warning( sprintf(
+						$this->warning( sprintf(
 							__( 'An error has occurred when inserting %s: %s.', 'mu-migration'),
 							$user_data['user_login'] ,
 							implode( ', ', $new_id->get_error_messages() )
-						) );
+						), $verbose );
 					}
 				} else {
-					WP_CLI::warning( sprintf(
+					$this->warning( sprintf(
 						__( '%s exists, using his ID...', 'mu-migration'),
 						$user_data['user_login']
-					) );
+					), $verbose );
 
 					$existing_users++;
 					$ids_maps[ $old_id ] = $user_exists->ID;
@@ -161,17 +161,17 @@ class ImportCommand extends MUMigrationBase {
 				fwrite( $output_file_handler, json_encode( $ids_maps ) );
 				fclose( $output_file_handler );
 
-				WP_CLI::success( sprintf(
+				$this->success( sprintf(
 					__( 'A map file has been created: %s', 'mu-migration' ),
 					$this->assoc_args['map_file']
-				) );
+				), $verbose );
 			}
 
-			WP_CLI::success( sprintf(
+			$this->success( sprintf(
 				__( '%d users have been imported and %d users already existed', 'mu-migration' ),
 				absint( $count ),
 				absint( $existing_users )
-			) );
+			), $verbose );
 		} else {
 			WP_CLI::error( sprintf(
 				__( 'Can not read the file %s', 'mu-migration' ),
@@ -197,7 +197,7 @@ class ImportCommand extends MUMigrationBase {
 	 *
 	 * @synopsis <inputfile> --blog_id=<blog_id> --old_prefix=<old> --new_prefix=<new> [--old_url=<olddomain>] [--new_url=<newdomain>]
 	 */
-	public function tables( $args = array(), $assoc_args = array() ) {
+	public function tables( $args = array(), $assoc_args = array(), $verbose = true ) {
 		global $wpdb;
 
 		$this->process_args(
@@ -249,11 +249,11 @@ class ImportCommand extends MUMigrationBase {
 		);
 
 		if ( 0 === $import ) {
-			WP_CLI::log( __( 'Database imported', 'mu-migration' ) );
+			$this->log( __( 'Database imported', 'mu-migration' ), $verbose );
 
 			//perform search and replace
 			if ( ! empty( $this->assoc_args['old_url'] ) && ! empty( $this->assoc_args['new_url'] ) ) {
-				WP_CLI::log( __( 'Running search-replace', 'mu-migration' ) );
+				$this->log( __( 'Running search-replace', 'mu-migration' ), $verbose);
 
 				$old_url = Helpers\parse_url_for_search_replace( $this->assoc_args['old_url'] );
 				$new_url = Helpers\parse_url_for_search_replace( $this->assoc_args['new_url'] );
@@ -271,8 +271,10 @@ class ImportCommand extends MUMigrationBase {
 				);
 
 				if ( 0 === $search_replace ) {
-					WP_CLI::log( __( 'Search and Replace has been successfully executed', 'mu-migration' ) );
+					$this->log( __( 'Search and Replace has been successfully executed', 'mu-migration' ), $verbose );
 				}
+
+				$this->log( __( 'Running Search and Replace for uploads paths', 'mu-migration' ), $verbose );
 
                 /*
                  * If the $blog_id equals 1 the upload path remains the same
@@ -288,7 +290,7 @@ class ImportCommand extends MUMigrationBase {
                     );
 
                     if ( 0 === $search_replace ) {
-                        WP_CLI::log( __( 'Uploads paths have been successfully updated', 'mu-migration' ) );
+                        $this->log( __( 'Uploads paths have been successfully updated', 'mu-migration' ), $verbose );
                     }
                 }
 			}
@@ -401,7 +403,7 @@ class ImportCommand extends MUMigrationBase {
 
 		WP_CLI::log( __( 'Importing Users...', 'mu-migration' ) );
 
-		$this->users( array( $users[0] ), $users_assoc_args );
+		$this->users( array( $users[0] ), $users_assoc_args, false );
 
 		$tables_assoc_args = array(
 			'blog_id'		=> $blog_id,
@@ -419,16 +421,18 @@ class ImportCommand extends MUMigrationBase {
 
 		WP_CLI::log( __( 'Importing tables...', 'mu-migration' ) );
 
-		$this->tables( array( $sql[0] ), $tables_assoc_args );
+		$this->tables( array( $sql[0] ), $tables_assoc_args, false );
 
 		$postsCommand = new PostsCommand();
 
 		WP_CLI::log( __( 'Updating post_author...', 'mu-migration' ) );
+
 		$postsCommand->update_author(
 			array( $map_file ),
 			array(
 				'blog_id' => $blog_id
-			)
+			),
+			false
 		);
 
 		if ( ! empty( $plugins_folder ) ) {
@@ -458,7 +462,10 @@ class ImportCommand extends MUMigrationBase {
 
 		Helpers\delete_folder( $temp_dir );
 
-		WP_CLI::success( __( 'All done', 'mu-migration' ) );
+		WP_CLI::success( sprintf(
+			__( 'All done, your new site is available at %s', 'mu-migration' ),
+			$site_meta_data->url
+		) );
 
 	}
 

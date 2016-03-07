@@ -88,7 +88,7 @@ function delete_folder( $dirPath, $deleteParent = true ){
  * @param $source   The source folder
  * @param $dest     The destination folder
  */
-function copy_folder( $source, $dest ) {
+function move_folder( $source, $dest ) {
     if ( ! file_exists( $dest ) ) {
         mkdir( $dest );
     }
@@ -103,7 +103,10 @@ function copy_folder( $source, $dest ) {
                 mkdir( $dir );
             }
         } else {
-            copy( $item, $dest . DIRECTORY_SEPARATOR . $iterator->getSubPathName() );
+			$dest_file = $dest . DIRECTORY_SEPARATOR . $iterator->getSubPathName();
+			if ( ! file_exists( $dest_file ) ) {
+				rename( $item, $dest_file );
+			}
         }
     }
 

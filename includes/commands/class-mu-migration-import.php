@@ -257,7 +257,7 @@ class ImportCommand extends MUMigrationBase {
 
 				$old_url = Helpers\parse_url_for_search_replace( $this->assoc_args['old_url'] );
 				$new_url = Helpers\parse_url_for_search_replace( $this->assoc_args['new_url'] );
-				
+
 				$search_replace = \WP_CLI::launch_self(
 					"search-replace",
 					array(
@@ -431,16 +431,6 @@ class ImportCommand extends MUMigrationBase {
 			)
 		);
 
-		if ( Helpers\is_woocomnerce_active() ) {
-			WP_CLI::log( __( 'Updating WC Customer...', 'mu-migration' ) );
-			$postsCommand->update_wc_customer(
-				array( $map_file ),
-				array(
-					'blog_id' => $blog_id
-				)
-			);
-		}
-
 		if ( ! empty( $plugins_folder ) ) {
 			$this->move_plugins( $plugins_folder[0] );
 		}
@@ -508,7 +498,7 @@ class ImportCommand extends MUMigrationBase {
 			$dest_uploads_dir = wp_upload_dir();
 			restore_current_blog();
 
-			Helpers\copy_folder( $uploads_dir, $dest_uploads_dir['basedir'] );
+			Helpers\move_folder( $uploads_dir, $dest_uploads_dir['basedir'] );
 		}
 	}
 

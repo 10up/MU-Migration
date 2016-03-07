@@ -62,10 +62,17 @@ class PostsCommand extends MUMigrationBase {
 		$equals_id 			= array();
 		$author_not_found 	= array();
 
+		$posts_args = array(
+			'post_type' => get_post_types()
+		);
+
+		if (  Helpers\is_woocomnerce_active() ) {
+			$posts_args['post_type'] 		= array_merge( $posts_args['post_type'], wc_get_order_types() );
+			$posts_args['post_status'] 		= array_keys( wc_get_order_statuses() );
+		}
+
 		$this->all_posts(
-			array(
-				'post_type' => get_post_types(),
-			),
+			$posts_args,
 			function() use ( &$equals_id, &$author_not_found, $ids_map ) {
 				$author = get_the_author_meta( 'ID' );
 				if ( isset( $ids_map->{$author} ) ) {
@@ -109,6 +116,22 @@ class PostsCommand extends MUMigrationBase {
 
 					$author_not_found[] = absint( get_the_ID() );
 				}
+
+				if ( Helpers\is_woocomnerce_active() ) {
+					$old_customer_user = get_post_meta( get_the_ID(), '_customer_user', true );
+
+					if ( isset( $ids_map->{$old_customer_user} ) && $old_customer_user != $ids_map->{$old_customer_user} ) {
+						$new_customer_user = $ids_map->{$old_customer_user};
+
+						update_post_meta( get_the_ID(), '_customer_user', $new_customer_user );
+
+						WP_CLI::log( sprintf(
+							__( 'Updated customer_user for "%s" (ID #%d)', 'mu-migration' ),
+							get_the_title(),
+							absint( get_the_ID() )
+						) );
+					}
+				}
 			}
 		);
 
@@ -130,83 +153,6 @@ class PostsCommand extends MUMigrationBase {
 
 		restore_current_blog();
 
-	}
-
-	/**
-	 * Updates all wc customer_user values in all wp_posts records that have a customer user set
-	 *
-	 * It uses a map_file, containing the new user ID for each old user ID. This map files should be passed to the
-	 * command as an argument
-	 *
-	 * ## OPTIONS
-	 *
-	 * <inputfile>
-	 * : The name of the json map file
-	 *
-	 * ## EXAMBLES
-	 *
-	 *   wp mu-migration posts update_wc_customer map_users.json --blog_id=2
-	 *
-	 * @synopsis <inputfile> --blog_id=<blog_id>
-	 */
-	public function update_wc_customer( $args = array(), $assoc_args = array() ) {
-		$this->process_args(
-			array(
-				0 => '', // .json map file
-			),
-			$args,
-			array(
-				'blog_id'  => '',
-			),
-			$assoc_args
-		);
-
-		$filename = $this->args[0];
-
-		if ( ! Helpers\is_woocommerce_active() ) {
-			WP_CLI::error( __( 'WooCommerce is not active', 'mu-migration' ) );
-		}
-
-		if ( empty( $filename ) || ! file_exists( $filename ) ) {
-			WP_CLI::error( __( "Invalid input file", 'mu-migration' ) );
-		}
-
-		if ( empty( $this->assoc_args['blog_id'] ) ) {
-			WP_CLI::error( __( "Please, provide a blog id", 'mu-migration' ) );
-		}
-
-		switch_to_blog( (int) $this->assoc_args['blog_id'] );
-
-		$ids_map = json_decode( file_get_contents( $filename ) );
-
-		if ( NULL === $ids_map ) {
-			WP_CLI::error(
-				__( 'An error has occurred when parsing the json file', 'mu-migration' )
-			);
-		}
-
-		$this->all_posts(
-			array(
-				'post_type'     => wc_get_order_types(),
-				'post_status'   => array_keys( wc_get_order_statuses() )
-			),
-			function() use ( $ids_map ) {
-				$old_customer_user = get_post_meta( get_the_ID(), '_customer_user', true );
-
-				if ( isset( $ids_map->{$old_customer_user} ) && $old_customer_user != $ids_map->{$old_customer_user} ) {
-					$new_customer_user = $ids_map->{$old_customer_user};
-
-					update_post_meta( get_the_ID(), '_customer_user', $new_customer_user );
-
-					WP_CLI::log( sprintf(
-						__( 'Updated customer_user for "%s" (ID #%d)', 'mu-migration' ),
-						get_the_title(),
-						absint( get_the_ID() )
-					) );
-			}
-		} );
-
-		restore_current_blog();
 	}
 }
 

@@ -132,7 +132,8 @@ class PostsCommand extends MUMigrationBase {
 						), $verbose );
 					}
 				}
-			}
+			},
+			false
 		);
 
 		//Report

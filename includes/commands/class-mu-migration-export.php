@@ -89,7 +89,7 @@ class ExportCommand extends MUMigrationBase {
 		);
 
 
-		if ( 0 === $tables->return_code) {
+		if ( 0 === $tables->return_code ) {
 			$tables = $tables->stdout;
 			$tables = explode( ',', $tables );
 
@@ -341,7 +341,7 @@ class ExportCommand extends MUMigrationBase {
 		$this->users( array( $users_file ), $users_assoc_args, false );
 
 		\WP_CLI::log( __( 'Exporting tables', 'mu-migration' ) );
-		$this->tables( array( $tables_file ), false );
+		$this->tables( array( $tables_file ), array(), false );
 
 		$zippy = Zippy::load();
 

@@ -89,9 +89,10 @@ class ImportCommand extends MUMigrationBase {
 
 				if ( false === $user_exists ) {
 					$new_id = wp_insert_user( $user_data );
-					global $wpdb;
-					$wpdb->update( $wpdb->users, array( 'user_pass' => $user_data['user_pass'] ), array( 'ID' => $new_id ) );
 					if ( ! is_wp_error( $new_id ) ) {
+						global $wpdb;
+						$wpdb->update( $wpdb->users, array( 'user_pass' => $user_data['user_pass'] ), array( 'ID' => $new_id ) );
+
 						$user = new \WP_User( $new_id );
 
 						/**

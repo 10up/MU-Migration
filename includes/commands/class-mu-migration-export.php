@@ -46,7 +46,7 @@ class ExportCommand extends MUMigrationBase {
 	 *
 	 *      wp mu-migration export tables output.sql
 	 *
-	 * @synopsis <outputfile>
+	 * @synopsis <outputfile> [--blog_id=<blog_id>]
 	 */
 	public function tables( $args = array(), $assoc_args = array(), $verbose = true ) {
 		global $wpdb;
@@ -64,6 +64,9 @@ class ExportCommand extends MUMigrationBase {
 
 		$filename = $this->args[0];
 
+		if ( isset( $this->assoc_args['blog_id'] ) ) {
+			$url = get_home_url( (int) $this->assoc_args['blog_id'] );
+		}
 
 		$tables = \WP_CLI::launch_self(
 			'db tables',
@@ -74,7 +77,7 @@ class ExportCommand extends MUMigrationBase {
 			),
 			false,
 			true,
-			array()
+			array( 'url' => $url )
 		);
 
 		$tables_to_remove = array(
@@ -293,6 +296,13 @@ class ExportCommand extends MUMigrationBase {
 	public function all( $args = array(), $assoc_args = array() ) {
 		global $wpdb;
 
+		$switched = false;
+
+		if ( isset( $assoc_args['blog_id'] ) ) {
+			switch_to_blog( (int) $assoc_args['blog_id'] );
+			$switched = true;
+		}
+
 		$site_data = array(
 			'url' 			=> esc_url( home_url() ),
 			'name'			=> sanitize_text_field( get_bloginfo( 'name' ) ),
@@ -307,7 +317,9 @@ class ExportCommand extends MUMigrationBase {
 				0 => 'mu-migration-' . sanitize_title( $site_data['name'] ) . '.zip',
 			),
 			$args,
-			array(),
+			array(
+				'blog_id' => false
+			),
 			$assoc_args
 		);
 
@@ -323,6 +335,13 @@ class ExportCommand extends MUMigrationBase {
 			$users_assoc_args = array(
 				'woocomerce' => true
 			);
+		}
+
+		$tables_assoc_args = array();
+
+		if ( $this->assoc_args['blog_id'] ) {
+			$users_assoc_args['blog_id'] = (int) $this->assoc_args['blog_id'];
+			$tables_assoc_args['blog_id'] = (int) $this->assoc_args['blog_id'];
 		}
 
 		$rand = rand();
@@ -341,7 +360,7 @@ class ExportCommand extends MUMigrationBase {
 		$this->users( array( $users_file ), $users_assoc_args, false );
 
 		\WP_CLI::log( __( 'Exporting tables', 'mu-migration' ) );
-		$this->tables( array( $tables_file ), array(), false );
+		$this->tables( array( $tables_file ), $tables_assoc_args, false );
 
 		$zippy = Zippy::load();
 
@@ -394,6 +413,10 @@ class ExportCommand extends MUMigrationBase {
 
 		if ( $zip !== null ) {
 			\WP_CLI::success( sprintf( __( 'A zip file named %s has been created', 'mu-migration' ), $zip_file ) );
+		}
+
+		if ( $switched ) {
+			restore_current_blog();
 		}
 	}
 

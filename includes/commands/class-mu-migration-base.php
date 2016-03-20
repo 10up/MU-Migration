@@ -71,10 +71,16 @@ abstract class MUMigrationBase extends \WP_CLI_Command {
 
 		$counter   		= 0;
 
+		$found_posts 	= 0;
 		while( $query->have_posts() ) {
 			$query->the_post();
 
 			$callback();
+
+			if ( 0 === $counter ) {
+				$found_posts = $query->found_posts;
+			}
+
 
 			$counter++;
 
@@ -97,7 +103,7 @@ abstract class MUMigrationBase extends \WP_CLI_Command {
 						}
 					}
 				}
-
+				$this->log( sprintf( 'Posts Updated: %d/%d', $counter, $found_posts ), true );
 				$query_args['offset'] += $query_args['posts_per_page'];
 				$query = new \WP_Query( $query_args );
 			}

@@ -464,8 +464,8 @@ class ImportCommand extends MUMigrationBase {
 		Helpers\delete_folder( $temp_dir );
 
 		WP_CLI::success( sprintf(
-			__( 'All done, your new site is available at %s', 'mu-migration' ),
-			$site_meta_data->url
+			__( 'All done, your new site is available at %s. Remember to flush the cache (memcache, redis etc).', 'mu-migration' ),
+			esc_url( $site_meta_data->url )
 		) );
 
 	}

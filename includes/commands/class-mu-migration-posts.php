@@ -95,17 +95,17 @@ class PostsCommand extends MUMigrationBase {
 						);
 
 
-						WP_CLI::log( sprintf(
+						$this->log( sprintf(
 							__( 'Updated post_author for "%s" (ID #%d)', 'mu-migration' ),
 							get_the_title(),
 							absint( get_the_ID() )
-						) );
+						), $verbose );
 
 					} else {
-						WP_CLI::log( sprintf(
+						$this->log( sprintf(
 							__( '#%d New user ID equals to the old user ID'),
 							get_the_ID()
-						) );
+						), $verbose );
 						$equals_id[] = absint( get_the_ID() );
 					}
 				} else {

@@ -82,18 +82,39 @@ class ImportCommand extends MUMigrationBase {
 				}
 
 				$user_data = array_combine( $labels, $data );
+
 				$old_id = $user_data['ID'];
 				unset($user_data['ID']);
 
 				$user_exists = get_user_by( 'login', $user_data['user_login'] );
 
 				if ( false === $user_exists ) {
-					$new_id = wp_insert_user( $user_data );
+
+					/*
+					 * wp_insert_users accepts only the default user meta keys
+					 */
+					$default_user_data = array();
+					foreach( ExportCommand::getCSVHeaders() as $key ) {
+						if ( isset( $user_data[ $key ] ) ) {
+							$default_user_data[ $key ] = $user_data[ $key ];
+						}
+					}
+
+					//All custom user meta data
+					$user_meta_data = array_diff_assoc( $user_data, $default_user_data );
+
+					$new_id = wp_insert_user( $default_user_data );
+
 					if ( ! is_wp_error( $new_id ) ) {
 						global $wpdb;
 						$wpdb->update( $wpdb->users, array( 'user_pass' => $user_data['user_pass'] ), array( 'ID' => $new_id ) );
 
 						$user = new \WP_User( $new_id );
+
+						//Inserts all custom meta data
+						foreach( $user_meta_data as $meta_key => $meta_value ) {
+							update_user_meta( $new_id, $meta_key, maybe_unserialize( $meta_value ) );
+						}
 
 						/**
 						 * Fires an action before exporting the custom user data

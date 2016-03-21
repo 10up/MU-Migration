@@ -243,6 +243,8 @@ class ExportCommand extends MUMigrationBase {
 					if ( ! $can_add ) {
 						unset( $user_meta[ $user_meta_key ] );
 					}
+				} else {
+					unset( $user_meta[ $user_meta_key ] );
 				}
 			}
 

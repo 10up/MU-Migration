@@ -223,9 +223,11 @@ class ExportCommand extends MUMigrationBase {
 
 			$user_meta 	= get_user_meta( $user->data->ID );
 			$meta_keys 	= array_keys( $user_meta );
-			$diff		= array_diff( $meta_keys, $headers );
 
-			foreach( $diff as $key => $user_meta_key ) {
+			/*
+			 * Removing all unwanted meta keys
+			 */
+			foreach ( $meta_keys as $user_meta_key ) {
 				if ( ! isset( $excluded_meta_keys[ $user_meta_key ] ) ) {
 					$can_add = true;
 
@@ -238,29 +240,33 @@ class ExportCommand extends MUMigrationBase {
 						}
 					}
 
-					if ( $can_add ) {
-						$value = $user_meta[ $user_meta_key ];
-						
-						//get_user_meta always return an array whe no $key is passed
-						if ( is_array( $value ) && 1 === count( $value ) ) {
-							$value = $value[0];
-						}
-
-						//if it's still an array or object, then we need to serialize
-						if ( is_array( $value ) || is_object( $value ) ) {
-							$value = serialize( $value );
-						}
-
-						$user_data[ $user_meta_key ] = $value;
-					} else {
-						unset( $diff[ $key ] );
+					if ( ! $can_add ) {
+						unset( $user_meta[ $user_meta_key ] );
 					}
-
-				} else {
-					unset( $diff[ $key ] );
 				}
 			}
 
+			//get the meta keys again
+			$meta_keys 	= array_keys( $user_meta );
+
+			foreach( $meta_keys as  $user_meta_key ) {
+				$value = $user_meta[ $user_meta_key ];
+
+				//get_user_meta always return an array whe no $key is passed
+				if ( is_array( $value ) && 1 === count( $value ) ) {
+					$value = $value[0];
+				}
+
+				//if it's still an array or object, then we need to serialize
+				if ( is_array( $value ) || is_object( $value ) ) {
+					$value = serialize( $value );
+				}
+
+				$user_data[ $user_meta_key ] = $value;
+			}
+
+			//Adding the meta_keys that aren't in the $headers variable to the $headers variable
+			$diff		= array_diff( $meta_keys, $headers );
 			$headers 	= array_merge( $headers, $diff );
 
 			/**

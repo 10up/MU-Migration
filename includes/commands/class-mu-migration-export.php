@@ -64,6 +64,8 @@ class ExportCommand extends MUMigrationBase {
 
 		$filename = $this->args[0];
 
+		$url = get_home_url();
+		
 		if ( isset( $this->assoc_args['blog_id'] ) ) {
 			$url = get_home_url( (int) $this->assoc_args['blog_id'] );
 		}

@@ -60,9 +60,9 @@ $ wp mu-migration update_passwords --reset --blog_id=3 --send_email
 ```
 
 ### Notes ###
-If your theme and plugins have been done in the WordPress way, you should have major problem after the migration, keep in mind
+If your theme and plugins have been done in the WordPress way, you should not have major problem after the migration, keep in mind
 that some themes may experience incompatibilities issue if doing things in the wrong way. (E.g hardcoded links like '/contact' etc)
-Depending of the site you're migrating you may need to push some fixes to your code.
+Depending of the codebase of the site you're migrating you may need to push some fixes to your code.
 
 ### License (MIT) ###
 Copyright (c) 2016, Nícholas André, 10up Inc.

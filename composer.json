@@ -4,7 +4,7 @@
     "require": {
         "alchemy/zippy": "^0.3.5"
     },
-    "license": "GPLv3",
+    "license": "MIT",
     "authors": [
         {
             "name": "Nícholas André",

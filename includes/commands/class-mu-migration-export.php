@@ -64,6 +64,8 @@ class ExportCommand extends MUMigrationBase {
 
 		$filename = $this->args[0];
 
+		$url = get_home_url();
+		
 		if ( isset( $this->assoc_args['blog_id'] ) ) {
 			$url = get_home_url( (int) $this->assoc_args['blog_id'] );
 		}
@@ -159,69 +161,7 @@ class ExportCommand extends MUMigrationBase {
 			\WP_CLI::error( __( 'Impossible to create the file', 'mu-migration' ) );
 		}
 
-		$woocomerce = isset( $this->assoc_args['woocomerce'] ) ? true : false;
-
-		if ( $woocomerce ) {
-			add_filter( 'mu_migration/export/user/headers', function( $custom_headers ) {
-				$new_headers = array(
-					'billing_first_name',
-					'billing_last_name',
-					'billing_company',
-					'billing_address_1',
-					'billing_address_2',
-					'billing_city',
-					'billing_postcode',
-					'billing_state',
-					'billing_country',
-					'billing_phone',
-					'shipping_first_name',
-					'shipping_last_name',
-					'shipping_company',
-					'shipping_address_1',
-					'shipping_address_2',
-					'shipping_city',
-					'shipping_postcode',
-					'shipping_state',
-					'shipping_country',
-					'woocommerce_generate_api_key'
-				);
-
-				return array_merge( $custom_headers, $new_headers );
-
-			}, 10, 1 );
-
-			add_filter( 'mu_migration/export/user/data', function( $custom_data, $user ) {
-				$new_data = array(
-					$user->get( 'billing_first_name' ),
-					$user->get( 'billing_last_name' ),
-					$user->get( 'billing_company' ),
-					$user->get( 'billing_address_1' ),
-					$user->get( 'billing_address_2'),
-					$user->get( 'billing_city' ),
-					$user->get( 'billing_postcode' ),
-					$user->get( 'billing_state' ),
-					$user->get( 'billing_country' ),
-					$user->get( 'billing_phone' ),
-					$user->get( 'shipping_first_name' ),
-					$user->get( 'shipping_last_name' ),
-					$user->get( 'shipping_company' ),
-					$user->get( 'shipping_address_1' ),
-					$user->get( 'shipping_address_2' ),
-					$user->get( 'shipping_city' ),
-					$user->get( 'shipping_postcode' ),
-					$user->get( 'shipping_state' ),
-					$user->get( 'shipping_country' ),
-					$user->get( 'woocommerce_generate_api_key' ),
-				);
-
-				return array_merge( $custom_data, $new_data );
-			}, 10, 2);
-		}
-
-
 		$headers = self::getCSVHeaders();
-
-		fputcsv( $file_handler, $headers, $delimiter );
 
 		$users_args = array(
 			'fields' => 'all'
@@ -231,12 +171,36 @@ class ExportCommand extends MUMigrationBase {
 			$users_args['blog_id'] = (int) $this->assoc_args['blog_id'];
 		}
 
+		$excluded_meta_keys = array(
+			'session_tokens' 	=> true,
+			'primary_blog' 		=> true,
+			'source_domain'		=> true
+		);
+
+		/*
+		 * We don't want meta keys that depends on the db prefix
+		 *
+		 * @see http://stackoverflow.com/a/25316090
+		 */
+		$excluded_meta_keys_regex = array(
+			'/capabilities$/',
+			'/user_level$/',
+			'/dashboard_quick_press_last_post_id$/',
+			'/user-settings$/',
+			'/user-settings-time$/'
+		);
+
 		$count = 0;
 		$users = get_users( $users_args );
+		$user_data_arr = array();
+
+		/*
+		 * This first foreach will pragmatically find all users meta stored in the usersmeta table.
+		 */
 		foreach( $users as $user ) {
 			$role = isset( $user->roles[0] ) ? $user->roles[0] : '';
 
-			$data = array(
+			$user_data = array(
 				// General Info
 				$user->data->ID, $user->data->user_login, $user->data->user_pass, $user->data->user_nicename,
 				$user->data->user_email, $user->data->user_url, $user->data->user_registered,  $role, $user->data->user_status,
@@ -247,6 +211,67 @@ class ExportCommand extends MUMigrationBase {
 				$user->get( 'first_name' ), $user->get( 'last_name' ), $user->get( 'nickname' ), $user->get( 'aim' ),
 				$user->get( 'yim' ), $user->get( 'jabber' ), $user->get( 'description' ),
 			);
+
+			/*
+			 * Keeping arrays consistent, not all users have the same meta, so it's possible to have some users who
+			 * don't even have a given meta key, we must assure that this users have an empty column for these fields
+			 */
+			if ( count( $headers ) - count( $user_data ) > 0 ) {
+				$user_temp_data_arr = array_fill( 0, count( $headers ) - count( $user_data ), '' );
+				$user_data 			= array_merge( $user_data, $user_temp_data_arr );
+			}
+
+			$user_data	= array_combine( $headers, $user_data );
+
+			$user_meta 	= get_user_meta( $user->data->ID );
+			$meta_keys 	= array_keys( $user_meta );
+
+			/*
+			 * Removing all unwanted meta keys
+			 */
+			foreach ( $meta_keys as $user_meta_key ) {
+				if ( ! isset( $excluded_meta_keys[ $user_meta_key ] ) ) {
+					$can_add = true;
+
+					/*
+					 * Checking for unwanted meta keys
+					 */
+					foreach( $excluded_meta_keys_regex as $regex ) {
+						if ( preg_match( $regex, $user_meta_key ) ) {
+							$can_add = false;
+						}
+					}
+
+					if ( ! $can_add ) {
+						unset( $user_meta[ $user_meta_key ] );
+					}
+				} else {
+					unset( $user_meta[ $user_meta_key ] );
+				}
+			}
+
+			//get the meta keys again
+			$meta_keys 	= array_keys( $user_meta );
+
+			foreach( $meta_keys as  $user_meta_key ) {
+				$value = $user_meta[ $user_meta_key ];
+
+				//get_user_meta always return an array whe no $key is passed
+				if ( is_array( $value ) && 1 === count( $value ) ) {
+					$value = $value[0];
+				}
+
+				//if it's still an array or object, then we need to serialize
+				if ( is_array( $value ) || is_object( $value ) ) {
+					$value = serialize( $value );
+				}
+
+				$user_data[ $user_meta_key ] = $value;
+			}
+
+			//Adding the meta_keys that aren't in the $headers variable to the $headers variable
+			$diff		= array_diff( $meta_keys, $headers );
+			$headers 	= array_merge( $headers, $diff );
 
 			/**
 			 * Modify the default set of user data to be exported/imported
@@ -259,15 +284,28 @@ class ExportCommand extends MUMigrationBase {
 			$custom_user_data = apply_filters( 'mu_migration/export/user/data', array(), $user );
 
 			if ( ! empty( $custom_user_data ) ) {
-				$data = array_merge( $data, $custom_user_data );
+				$user_data = array_merge( $user_data, $custom_user_data );
 			}
 
-			if ( count( $data ) !== count( $headers ) ) {
+			if ( count( array_values( $user_data ) ) !== count( $headers ) ) {
 				\WP_CLI::error( __( 'The headers and data length are not matching', 'mu-migration' ) );
 			}
 
-			fputcsv( $file_handler, $data, $delimiter );
+			$user_data_arr[] = $user_data;
 			$count++;
+		}
+
+		/*
+		 * Now that we have all users meta keys, we can now save everything into a csv file
+		 */
+		fputcsv( $file_handler, $headers, $delimiter );
+
+		foreach ( $user_data_arr as $user_data ) {
+			if ( count( $headers ) - count( $user_data ) > 0 ) {
+				$user_temp_data_arr = array_fill( 0, count( $headers ) - count( $user_data ), '' );
+				$user_data 			= array_merge( array_values( $user_data ), $user_temp_data_arr );
+			}
+			fputcsv( $file_handler, $user_data, $delimiter );
 		}
 
 		fclose( $file_handler );

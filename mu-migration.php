@@ -12,11 +12,6 @@
  * @package TenUp\MU_Migration
  */
 
-
-if ( ! defined( 'ABSPATH' ) ) {
-	die( esc_html__( 'Cannot access pages directly.', 'mu-migration' ) );
-}
-
 // Only load this plugin once and bail if WP CLI is not present
 if ( defined( 'TENUP_MU_MIGRATION_VERSION' ) || ! defined( 'WP_CLI' ) ) {
 	return;

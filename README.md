@@ -5,8 +5,8 @@ It exports everything into a zip package which can be used to automatically impo
 
 ### Install ###
 
-Clone this repo onto `plugins/` folder and activate it. You need to install this plugin on both the site you're moving and the
-target multisite installation.
+Clone this repo onto `plugins/` folder, run `composer install` to fetch dependencies and activate the plugin. You need to install this plugin on both the site you're moving and the
+target Multisite installation.
 
 ### Why I need this? ###
 Moving single WordPress sites to a Multisite environment can be challenging, specially if you're moving more than one site to

@@ -18,12 +18,19 @@ if ( defined( 'TENUP_MU_MIGRATION_VERSION' ) || ! defined( 'WP_CLI' ) ) {
 }
 
 define( 'TENUP_MU_MIGRATION_VERSION', '0.2.0' );
-define( 'TENUP_MU_MIGRATION_URL', esc_url( plugin_dir_url( __FILE__ ), array( 'http', 'https' ) ) );
-define( 'TENUP_MU_MIGRATION_PATH', wp_normalize_path( dirname( __FILE__ ) . '/' ) );
-define( 'TENUP_MU_MIGRATION_COMMANDS_PATH', TENUP_MU_MIGRATION_PATH . 'includes/commands/' );
+define( 'TENUP_MU_MIGRATION_COMMANDS_PATH', 'includes/commands/' );
 
-require_once( TENUP_MU_MIGRATION_PATH . 'vendor/autoload.php' );
-require_once( TENUP_MU_MIGRATION_PATH . 'includes/helpers.php' );
+// we only need to require autoload if running as a plugin
+if ( defined( 'ABSPATH' ) ) {
+	if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
+		require_once( 'vendor/autoload.php' );
+	} else {
+		die( "Please, run composer install first" );
+	}
+}
+
+require_once( 'includes/helpers.php' );
+
 require_once( TENUP_MU_MIGRATION_COMMANDS_PATH . 'class-mu-migration-base.php'      );
 require_once( TENUP_MU_MIGRATION_COMMANDS_PATH . 'class-mu-migration-export.php'    );
 require_once( TENUP_MU_MIGRATION_COMMANDS_PATH . 'class-mu-migration-import.php'    );

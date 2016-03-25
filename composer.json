@@ -10,5 +10,8 @@
             "name": "Nícholas André",
             "email": "nicholas@iotecnologia.com.br"
         }
-    ]
+    ],
+  "autoload": {
+    "files": [ "mu-migration.php" ]
+  }
 }

@@ -1,6 +1,10 @@
 {
     "name": "10up/mu-migration",
     "description": "A set of WP-CLI commands to support the migration of single WordPress instances to multisite",
+    "homepage": "https://github.com/10up/MU-Migration",
+    "support": {
+        "issues": "https://github.com/10up/MU-Migration/issues"
+    },
     "require": {
         "alchemy/zippy": "^0.3.5"
     },

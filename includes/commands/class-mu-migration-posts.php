@@ -50,6 +50,8 @@ class PostsCommand extends MUMigrationBase {
 
 		switch_to_blog( (int) $this->assoc_args['blog_id'] );
 
+		$is_woocommerce = Helpers\is_woocomnerce_active();
+
 		$ids_map = json_decode( file_get_contents( $filename ) );
 
 		if ( NULL === $ids_map ) {
@@ -66,15 +68,17 @@ class PostsCommand extends MUMigrationBase {
 			'post_type' => get_post_types()
 		);
 
-		if (  Helpers\is_woocomnerce_active() ) {
-
-			$posts_args['post_type'] 		= array_merge( $posts_args['post_type'], wc_get_order_types() );
-			$posts_args['post_status'] 		= array_keys( wc_get_order_statuses() );
+		if (  $is_woocommerce ) {
+			$posts_args['post_type'] 		= array_merge( $posts_args['post_type'], array( 'shop_order', 'shop_order_refund' ) );
+			$posts_args['post_status'] 		= array(
+				'wc-pending', 'wc-processing', 'wc-on-hold', 'wc-completed',
+				'wc-cancelled', 'wc-refunded','wc-failed', 'wc-pre-ordered'
+			);
 		}
 
 		$this->all_posts(
 			$posts_args,
-			function() use ( &$equals_id, &$author_not_found, $ids_map, $verbose ) {
+			function() use ( &$equals_id, &$author_not_found, $ids_map, $verbose, $is_woocommerce ) {
 				$author = get_the_author_meta( 'ID' );
 				if ( isset( $ids_map->{$author} ) ) {
 					if ( $author != $ids_map->{$author} ) {
@@ -118,7 +122,7 @@ class PostsCommand extends MUMigrationBase {
 					$author_not_found[] = absint( get_the_ID() );
 				}
 
-				if ( Helpers\is_woocomnerce_active() ) {
+				if ( $is_woocommerce ) {
 					$old_customer_user = get_post_meta( get_the_ID(), '_customer_user', true );
 
 					if ( isset( $ids_map->{$old_customer_user} ) && $old_customer_user != $ids_map->{$old_customer_user} ) {
@@ -154,7 +158,6 @@ class PostsCommand extends MUMigrationBase {
 		}
 
 		restore_current_blog();
-
 	}
 }
 

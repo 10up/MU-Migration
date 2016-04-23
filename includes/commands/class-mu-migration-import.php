@@ -265,7 +265,7 @@ class ImportCommand extends MUMigrationBase {
 		}
 
 
-		if ( empty( $this->assoc_args[ 'blog_id' ]) ) {
+		if ( empty( $this->assoc_args[ 'blog_id' ] ) ) {
 			WP_CLI::error( __( 'Please, provide a blog_id ', 'mu-migration') );
 		}
 
@@ -309,7 +309,7 @@ class ImportCommand extends MUMigrationBase {
 					array(),
 					false,
 					false,
-					array(  'url' => $new_url )
+					array( 'url' => $new_url )
 				);
 
 				if ( 0 === $search_replace ) {
@@ -467,6 +467,20 @@ class ImportCommand extends MUMigrationBase {
 			'blog_id'	=> $blog_id
 		);
 
+		WP_CLI::log( "Moving files..." );
+
+		if ( ! empty( $plugins_folder ) ) {
+			$this->move_plugins( $plugins_folder[0] );
+		}
+
+		if ( ! empty( $uploads_folder ) ) {
+			$this->move_uploads( $uploads_folder[0], $blog_id );
+		}
+
+		if ( ! empty( $themes_folder ) ) {
+			$this->move_themes( $themes_folder[0] );
+		}
+
 		WP_CLI::log( __( 'Importing Users...', 'mu-migration' ) );
 
 		$this->users( array( $users[0] ), $users_assoc_args, $verbose );
@@ -483,18 +497,6 @@ class ImportCommand extends MUMigrationBase {
 				),
 				$verbose
 			);
-		}
-
-		if ( ! empty( $plugins_folder ) ) {
-			$this->move_plugins( $plugins_folder[0] );
-		}
-
-		if ( ! empty( $uploads_folder ) ) {
-			$this->move_uploads( $uploads_folder[0], $blog_id );
-		}
-
-		if ( ! empty( $themes_folder ) ) {
-			$this->move_themes( $themes_folder[0] );
 		}
 
 		WP_CLI::log( __( 'Flushing rewrite rules...', 'mu-migration' ) );

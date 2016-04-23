@@ -26,6 +26,8 @@ class ImportCommand extends MUMigrationBase {
 	 * @synopsis <inputfile> --map_file=<map> --blog_id=<blog_id>
 	 */
 	public function users( $args = array(), $assoc_args = array(), $verbose = true ) {
+		global $wpdb;
+
 		$this->process_args(
 			array(
 				0 => '', // .csv to import users
@@ -70,10 +72,14 @@ class ImportCommand extends MUMigrationBase {
 		$count = 0;
 		$existing_users = 0;
 		$labels = array();
+
 		if ( false !== $input_file_handler ) {
 			$this->line( sprintf( "Parsing %s...", $filename ), $verbose );
 
 			$line = 0;
+
+			switch_to_blog( $this->assoc_args[ 'blog_id' ] );
+			wp_suspend_cache_addition( true );
 			while( ( $data = fgetcsv( $input_file_handler, 0, $delimiter ) ) !== false ) {
 				//read the labels and skip
 				if ( $line++ == 0 ) {
@@ -86,9 +92,17 @@ class ImportCommand extends MUMigrationBase {
 				$old_id = $user_data['ID'];
 				unset($user_data['ID']);
 
-				$user_exists = get_user_by( 'login', $user_data['user_login'] );
+				$user_exists = $wpdb->get_col(
+					$wpdb->prepare(
+						"SELECT ID FROM {$wpdb->users} WHERE user_login = %s OR user_email = %s;",
+						$user_data['user_login'],
+						$user_data['user_email']
+					)
+				);
 
-				if ( false === $user_exists ) {
+				$user_exists = $user_exists[0];
+
+				if ( ! $user_exists ) {
 
 					/*
 					 * wp_insert_users accepts only the default user meta keys
@@ -106,7 +120,6 @@ class ImportCommand extends MUMigrationBase {
 					$new_id = wp_insert_user( $default_user_data );
 
 					if ( ! is_wp_error( $new_id ) ) {
-						global $wpdb;
 						$wpdb->update( $wpdb->users, array( 'user_pass' => $user_data['user_pass'] ), array( 'ID' => $new_id ) );
 
 						$user = new \WP_User( $new_id );
@@ -147,7 +160,7 @@ class ImportCommand extends MUMigrationBase {
 						/**
 						 * Fires an action after exporting the custom user data
 						 *
-						 * @sinec 0.1.0
+						 * @since 0.1.0
 						 *
 						 * @param Array $user_data The $user_data array
 						 * @param WP_User $user The user object
@@ -156,7 +169,7 @@ class ImportCommand extends MUMigrationBase {
 
 						$count++;
 						$ids_maps[ $old_id ] = $new_id;
-						add_user_to_blog( $this->assoc_args[ 'blog_id' ], $new_id, $user_data['role'] );
+						Helpers\light_add_user_to_blog( $this->assoc_args[ 'blog_id' ], $new_id, $user_data['role'] );
 					} else {
 						$this->warning( sprintf(
 							__( 'An error has occurred when inserting %s: %s.', 'mu-migration'),
@@ -166,16 +179,23 @@ class ImportCommand extends MUMigrationBase {
 					}
 				} else {
 					$this->warning( sprintf(
-						__( '%s exists, using his ID...', 'mu-migration'),
-						$user_data['user_login']
+						__( '%s exists, using his ID (%d)...', 'mu-migration'),
+						$user_data['user_login'],
+						$user_exists
 					), $verbose );
 
 					$existing_users++;
-					$ids_maps[ $old_id ] = $user_exists->ID;
-					add_user_to_blog( $this->assoc_args[ 'blog_id' ], $user_exists->ID, $user_data['role'] );
+					$ids_maps[ $old_id ] = $user_exists;
+					Helpers\light_add_user_to_blog( $this->assoc_args[ 'blog_id' ], $user_exists, $user_data['role'] );
 				}
 
+				unset( $user_exists );
+				unset( $user_data );
+				unset( $data );
 			}
+
+			wp_suspend_cache_addition( false );
+			restore_current_blog();
 
 			if ( ! empty( $ids_maps ) ) {
 				//Saving the ids_maps to a file
@@ -245,7 +265,7 @@ class ImportCommand extends MUMigrationBase {
 		}
 
 
-		if ( empty( $this->assoc_args[ 'blog_id' ]) ) {
+		if ( empty( $this->assoc_args[ 'blog_id' ] ) ) {
 			WP_CLI::error( __( 'Please, provide a blog_id ', 'mu-migration') );
 		}
 
@@ -289,7 +309,7 @@ class ImportCommand extends MUMigrationBase {
 					array(),
 					false,
 					false,
-					array(  'url' => $new_url )
+					array( 'url' => $new_url )
 				);
 
 				if ( 0 === $search_replace ) {
@@ -357,7 +377,7 @@ class ImportCommand extends MUMigrationBase {
 	 *
 	 *      wp mu-migration import all site.zip
 	 *
-	 * @synopsis <zipfile> [--blog_id=<blog_id>] [--new_url=<new_url>]
+	 * @synopsis <zipfile> [--blog_id=<blog_id>] [--new_url=<new_url>] [--verbose]
 	 */
 	public function all( $args = array(), $assoc_args = array() ) {
 		$this->process_args(
@@ -369,6 +389,12 @@ class ImportCommand extends MUMigrationBase {
 			),
 			$assoc_args
 		);
+
+		$verbose = false;
+
+		if ( isset( $assoc_args['verbose'] ) ) {
+			$verbose = true;
+		}
 
 		$assoc_args = $this->assoc_args;
 
@@ -416,17 +442,6 @@ class ImportCommand extends MUMigrationBase {
 			WP_CLI::error( __( 'Unable to create new site', 'mu-migration' ) );
 		}
 
-		$map_file = $temp_dir . '/users_map.json';
-
-		$users_assoc_args = array(
-			'map_file'	=> $map_file,
-			'blog_id'	=> $blog_id
-		);
-
-		WP_CLI::log( __( 'Importing Users...', 'mu-migration' ) );
-
-		$this->users( array( $users[0] ), $users_assoc_args, false );
-
 		$tables_assoc_args = array(
 			'blog_id'		=> $blog_id,
 			'old_prefix'	=> $site_meta_data->db_prefix,
@@ -443,19 +458,16 @@ class ImportCommand extends MUMigrationBase {
 
 		WP_CLI::log( __( 'Importing tables...', 'mu-migration' ) );
 
-		$this->tables( array( $sql[0] ), $tables_assoc_args, false );
+		$this->tables( array( $sql[0] ), $tables_assoc_args, $verbose );
 
-		$postsCommand = new PostsCommand();
+		$map_file = $temp_dir . '/users_map.json';
 
-		WP_CLI::log( __( 'Updating post_author...', 'mu-migration' ) );
-
-		$postsCommand->update_author(
-			array( $map_file ),
-			array(
-				'blog_id' => $blog_id
-			),
-			false
+		$users_assoc_args = array(
+			'map_file'	=> $map_file,
+			'blog_id'	=> $blog_id
 		);
+
+		WP_CLI::log( "Moving files..." );
 
 		if ( ! empty( $plugins_folder ) ) {
 			$this->move_plugins( $plugins_folder[0] );
@@ -467,6 +479,24 @@ class ImportCommand extends MUMigrationBase {
 
 		if ( ! empty( $themes_folder ) ) {
 			$this->move_themes( $themes_folder[0] );
+		}
+
+		WP_CLI::log( __( 'Importing Users...', 'mu-migration' ) );
+
+		$this->users( array( $users[0] ), $users_assoc_args, $verbose );
+
+		if ( file_exists( $map_file ) ) {
+			WP_CLI::log( __( 'Updating post_author...', 'mu-migration' ) );
+
+			$postsCommand = new PostsCommand();
+
+			$postsCommand->update_author(
+				array( $map_file ),
+				array(
+					'blog_id' => $blog_id,
+				),
+				$verbose
+			);
 		}
 
 		WP_CLI::log( __( 'Flushing rewrite rules...', 'mu-migration' ) );
@@ -583,10 +613,6 @@ class ImportCommand extends MUMigrationBase {
 		if ( ! $blog_id ) {
 			return false;
 		}
-
-		switch_to_blog( $blog_id );
-		install_blog( $blog_id, sanitize_text_field( $meta_data->name) );
-		restore_current_blog();
 
 		return $blog_id;
 	}

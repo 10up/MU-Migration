@@ -65,7 +65,7 @@ class ExportCommand extends MUMigrationBase {
 		$filename = $this->args[0];
 
 		$url = get_home_url();
-		
+
 		if ( isset( $this->assoc_args['blog_id'] ) ) {
 			$url = get_home_url( (int) $this->assoc_args['blog_id'] );
 		}
@@ -329,7 +329,7 @@ class ExportCommand extends MUMigrationBase {
 	 *
 	 *      wp mu-migration export all site.zip
 	 *
-	 * @synopsis [<zipfile>] [--blog_id=<blog_id>] [--plugins] [--themes] [--uploads]
+	 * @synopsis [<zipfile>] [--blog_id=<blog_id>] [--plugins] [--themes] [--uploads] [--verbose]
 	 */
 	public function all( $args = array(), $assoc_args = array() ) {
 		global $wpdb;
@@ -339,6 +339,12 @@ class ExportCommand extends MUMigrationBase {
 		if ( isset( $assoc_args['blog_id'] ) ) {
 			switch_to_blog( (int) $assoc_args['blog_id'] );
 			$switched = true;
+		}
+
+		$verbose = false;
+
+		if ( isset( $assoc_args['verbose'] ) ) {
+			$verbose = true;
 		}
 
 		$site_data = array(
@@ -368,13 +374,6 @@ class ExportCommand extends MUMigrationBase {
 		$include_uploads 	= isset( $this->assoc_args['uploads'] ) ? true : false;
 
 		$users_assoc_args = array();
-
-		if ( Helpers\is_woocomnerce_active() ) {
-			$users_assoc_args = array(
-				'woocomerce' => true
-			);
-		}
-
 		$tables_assoc_args = array();
 
 		if ( $this->assoc_args['blog_id'] ) {
@@ -395,10 +394,10 @@ class ExportCommand extends MUMigrationBase {
 		file_put_contents( $meta_data_file, json_encode( $site_data ) );
 
 		\WP_CLI::log( __( 'Exporting users...', 'mu-migration' ) );
-		$this->users( array( $users_file ), $users_assoc_args, false );
+		$this->users( array( $users_file ), $users_assoc_args, $verbose );
 
 		\WP_CLI::log( __( 'Exporting tables', 'mu-migration' ) );
-		$this->tables( array( $tables_file ), $tables_assoc_args, false );
+		$this->tables( array( $tables_file ), $tables_assoc_args, $verbose );
 
 		$zippy = Zippy::load();
 

@@ -12,7 +12,7 @@ Clone this repo onto `plugins/` folder, run `composer install` to fetch dependen
 
 You need to install this on both the site you're moving and the target Multisite installation.
 
-### Why I need this? ###
+### Why do I need this? ###
 Moving single WordPress sites to a Multisite environment can be challenging, specially if you're moving more than one site to
 Multisite. You'd need to replace tables prefix, update post_author and wc_customer_user (if WooCommerce is installed) with the new
 users ID (Multisite has a shared users table, so if you're moving more than one site you can't guarantee that users will have the same IDs) and more.

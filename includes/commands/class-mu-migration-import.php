@@ -416,17 +416,6 @@ class ImportCommand extends MUMigrationBase {
 			WP_CLI::error( __( 'Unable to create new site', 'mu-migration' ) );
 		}
 
-		$map_file = $temp_dir . '/users_map.json';
-
-		$users_assoc_args = array(
-			'map_file'	=> $map_file,
-			'blog_id'	=> $blog_id
-		);
-
-		WP_CLI::log( __( 'Importing Users...', 'mu-migration' ) );
-
-		$this->users( array( $users[0] ), $users_assoc_args, false );
-
 		$tables_assoc_args = array(
 			'blog_id'		=> $blog_id,
 			'old_prefix'	=> $site_meta_data->db_prefix,
@@ -445,9 +434,20 @@ class ImportCommand extends MUMigrationBase {
 
 		$this->tables( array( $sql[0] ), $tables_assoc_args, false );
 
-		$postsCommand = new PostsCommand();
+		$map_file = $temp_dir . '/users_map.json';
+
+		$users_assoc_args = array(
+			'map_file'	=> $map_file,
+			'blog_id'	=> $blog_id
+		);
+
+		WP_CLI::log( __( 'Importing Users...', 'mu-migration' ) );
+
+		$this->users( array( $users[0] ), $users_assoc_args, false );
 
 		WP_CLI::log( __( 'Updating post_author...', 'mu-migration' ) );
+
+		$postsCommand = new PostsCommand();
 
 		$postsCommand->update_author(
 			array( $map_file ),
@@ -583,10 +583,6 @@ class ImportCommand extends MUMigrationBase {
 		if ( ! $blog_id ) {
 			return false;
 		}
-
-		switch_to_blog( $blog_id );
-		install_blog( $blog_id, sanitize_text_field( $meta_data->name) );
-		restore_current_blog();
 
 		return $blog_id;
 	}

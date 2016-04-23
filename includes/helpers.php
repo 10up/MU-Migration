@@ -138,9 +138,8 @@ function extract( $filename, $dest_dir ) {
  */
 function get_db_prefix( $blog_id ) {
     global $wpdb;
-    switch_to_blog( $blog_id );
-    $new_db_prefix = $wpdb->prefix;
-    restore_current_blog();
+
+	$new_db_prefix = $wpdb->prefix . $blog_id . '_';
 
     return $new_db_prefix;
 }

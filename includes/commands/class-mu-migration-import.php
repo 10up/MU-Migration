@@ -86,7 +86,13 @@ class ImportCommand extends MUMigrationBase {
 				$old_id = $user_data['ID'];
 				unset($user_data['ID']);
 
+				//check if the same login already exists
 				$user_exists = get_user_by( 'login', $user_data['user_login'] );
+
+				//if not, let's try the email
+				if ( false === $user_exists ) {
+					$user_exists = get_user_by( 'email', $user_data['user_email'] );
+				}
 
 				if ( false === $user_exists ) {
 
@@ -357,7 +363,7 @@ class ImportCommand extends MUMigrationBase {
 	 *
 	 *      wp mu-migration import all site.zip
 	 *
-	 * @synopsis <zipfile> [--blog_id=<blog_id>] [--new_url=<new_url>]
+	 * @synopsis <zipfile> [--blog_id=<blog_id>] [--new_url=<new_url>] [--verbose]
 	 */
 	public function all( $args = array(), $assoc_args = array() ) {
 		$this->process_args(
@@ -369,6 +375,12 @@ class ImportCommand extends MUMigrationBase {
 			),
 			$assoc_args
 		);
+
+		$verbose = false;
+
+		if ( isset( $assoc_args['verbose'] ) ) {
+			$verbose = true;
+		}
 
 		$assoc_args = $this->assoc_args;
 
@@ -432,7 +444,7 @@ class ImportCommand extends MUMigrationBase {
 
 		WP_CLI::log( __( 'Importing tables...', 'mu-migration' ) );
 
-		$this->tables( array( $sql[0] ), $tables_assoc_args, false );
+		$this->tables( array( $sql[0] ), $tables_assoc_args, $verbose );
 
 		$map_file = $temp_dir . '/users_map.json';
 
@@ -443,19 +455,21 @@ class ImportCommand extends MUMigrationBase {
 
 		WP_CLI::log( __( 'Importing Users...', 'mu-migration' ) );
 
-		$this->users( array( $users[0] ), $users_assoc_args, false );
+		$this->users( array( $users[0] ), $users_assoc_args, $verbose );
 
-		WP_CLI::log( __( 'Updating post_author...', 'mu-migration' ) );
+		if ( file_exists( $map_file ) ) {
+			WP_CLI::log( __( 'Updating post_author...', 'mu-migration' ) );
 
-		$postsCommand = new PostsCommand();
+			$postsCommand = new PostsCommand();
 
-		$postsCommand->update_author(
-			array( $map_file ),
-			array(
-				'blog_id' => $blog_id
-			),
-			false
-		);
+			$postsCommand->update_author(
+				array( $map_file ),
+				array(
+					'blog_id' => $blog_id
+				),
+				$verbose
+			);
+		}
 
 		if ( ! empty( $plugins_folder ) ) {
 			$this->move_plugins( $plugins_folder[0] );

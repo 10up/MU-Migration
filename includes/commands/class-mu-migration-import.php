@@ -479,7 +479,7 @@ class ImportCommand extends MUMigrationBase {
 			$postsCommand->update_author(
 				array( $map_file ),
 				array(
-					'blog_id' => $blog_id
+					'blog_id' => $blog_id,
 				),
 				$verbose
 			);

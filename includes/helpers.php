@@ -143,3 +143,41 @@ function get_db_prefix( $blog_id ) {
 
     return $new_db_prefix;
 }
+
+/**
+ * Does the same thing that add_user_to_blog does, but without calling switch_to_blog()
+ *
+ * @param $blog_id
+ * @param $user_id
+ * @param $role
+ * @return WP_Error
+ */
+function light_add_user_to_blog( $blog_id, $user_id, $role ) {
+	$user = get_userdata( $user_id );
+
+	if ( ! $user ) {
+		restore_current_blog();
+		return new WP_Error( 'user_does_not_exist', __( 'The requested user does not exist.' ) );
+	}
+
+	if ( ! get_user_meta( $user_id, 'primary_blog', true ) ) {
+		update_user_meta( $user_id, 'primary_blog', $blog_id );
+		$details = get_blog_details( $blog_id );
+		update_user_meta( $user_id, 'source_domain', $details->domain );
+	}
+
+	$user->set_role( $role );
+
+	/**
+	 * Fires immediately after a user is added to a site.
+	 *
+	 * @since MU
+	 *
+	 * @param int    $user_id User ID.
+	 * @param string $role    User role.
+	 * @param int    $blog_id Blog ID.
+	 */
+	do_action( 'add_user_to_blog', $user_id, $role, $blog_id );
+	wp_cache_delete( $user_id, 'users' );
+	wp_cache_delete( $blog_id . '_user_count', 'blog-details' );
+}

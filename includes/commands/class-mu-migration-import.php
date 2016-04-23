@@ -26,6 +26,8 @@ class ImportCommand extends MUMigrationBase {
 	 * @synopsis <inputfile> --map_file=<map> --blog_id=<blog_id>
 	 */
 	public function users( $args = array(), $assoc_args = array(), $verbose = true ) {
+		global $wpdb;
+
 		$this->process_args(
 			array(
 				0 => '', // .csv to import users
@@ -70,10 +72,14 @@ class ImportCommand extends MUMigrationBase {
 		$count = 0;
 		$existing_users = 0;
 		$labels = array();
+
 		if ( false !== $input_file_handler ) {
 			$this->line( sprintf( "Parsing %s...", $filename ), $verbose );
 
 			$line = 0;
+
+			switch_to_blog( $this->assoc_args[ 'blog_id' ] );
+			wp_suspend_cache_addition( true );
 			while( ( $data = fgetcsv( $input_file_handler, 0, $delimiter ) ) !== false ) {
 				//read the labels and skip
 				if ( $line++ == 0 ) {
@@ -86,15 +92,17 @@ class ImportCommand extends MUMigrationBase {
 				$old_id = $user_data['ID'];
 				unset($user_data['ID']);
 
-				//check if the same login already exists
-				$user_exists = get_user_by( 'login', $user_data['user_login'] );
+				$user_exists = $wpdb->get_col(
+					$wpdb->prepare(
+						"SELECT ID FROM {$wpdb->users} WHERE user_login = %s OR user_email = %s;",
+						$user_data['user_login'],
+						$user_data['user_email']
+					)
+				);
 
-				//if not, let's try the email
-				if ( false === $user_exists ) {
-					$user_exists = get_user_by( 'email', $user_data['user_email'] );
-				}
+				$user_exists = $user_exists[0];
 
-				if ( false === $user_exists ) {
+				if ( ! $user_exists ) {
 
 					/*
 					 * wp_insert_users accepts only the default user meta keys
@@ -112,7 +120,6 @@ class ImportCommand extends MUMigrationBase {
 					$new_id = wp_insert_user( $default_user_data );
 
 					if ( ! is_wp_error( $new_id ) ) {
-						global $wpdb;
 						$wpdb->update( $wpdb->users, array( 'user_pass' => $user_data['user_pass'] ), array( 'ID' => $new_id ) );
 
 						$user = new \WP_User( $new_id );
@@ -153,7 +160,7 @@ class ImportCommand extends MUMigrationBase {
 						/**
 						 * Fires an action after exporting the custom user data
 						 *
-						 * @sinec 0.1.0
+						 * @since 0.1.0
 						 *
 						 * @param Array $user_data The $user_data array
 						 * @param WP_User $user The user object
@@ -162,7 +169,7 @@ class ImportCommand extends MUMigrationBase {
 
 						$count++;
 						$ids_maps[ $old_id ] = $new_id;
-						add_user_to_blog( $this->assoc_args[ 'blog_id' ], $new_id, $user_data['role'] );
+						Helpers\light_add_user_to_blog( $this->assoc_args[ 'blog_id' ], $new_id, $user_data['role'] );
 					} else {
 						$this->warning( sprintf(
 							__( 'An error has occurred when inserting %s: %s.', 'mu-migration'),
@@ -172,16 +179,23 @@ class ImportCommand extends MUMigrationBase {
 					}
 				} else {
 					$this->warning( sprintf(
-						__( '%s exists, using his ID...', 'mu-migration'),
-						$user_data['user_login']
+						__( '%s exists, using his ID (%d)...', 'mu-migration'),
+						$user_data['user_login'],
+						$user_exists
 					), $verbose );
 
 					$existing_users++;
-					$ids_maps[ $old_id ] = $user_exists->ID;
-					add_user_to_blog( $this->assoc_args[ 'blog_id' ], $user_exists->ID, $user_data['role'] );
+					$ids_maps[ $old_id ] = $user_exists;
+					Helpers\light_add_user_to_blog( $this->assoc_args[ 'blog_id' ], $user_exists, $user_data['role'] );
 				}
 
+				unset( $user_exists );
+				unset( $user_data );
+				unset( $data );
 			}
+
+			wp_suspend_cache_addition( false );
+			restore_current_blog();
 
 			if ( ! empty( $ids_maps ) ) {
 				//Saving the ids_maps to a file

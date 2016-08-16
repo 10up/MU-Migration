@@ -3,6 +3,8 @@
 This WP-CLI plugin makes the process of moving sites from single WordPress sites to a Multisite instance much easier.
 It exports everything into a zip package which can be used to automatically import it within the desired Multisite installation.
 
+<a href="http://10up.com/contact/"><img src="https://10updotcom-wpengine.s3.amazonaws.com/uploads/2016/08/10up_github_banner-2.png" width="850"></a>
+
 ### Install ###
 
 #### Via WP-CLI Package Manager (requires wp-cli >= 0.23)

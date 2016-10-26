@@ -421,7 +421,11 @@ class ExportCommand extends MUMigrationBase {
 		}
 
 		if ( $include_themes ) {
-			$files_to_zip[] = get_theme_root();
+			$file_to_zip[] = get_template_directory();
+			if( is_child_theme() ) {
+				$files_to_zip[] = get_stylesheet_directory();
+			}
+			
 		}
 
 		if ( $include_uploads ) {

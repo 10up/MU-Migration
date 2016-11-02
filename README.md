@@ -37,7 +37,7 @@ The following command can be used to import a site from a zip package.
 ```
 $ wp mu-migration import all site.zip
 ```
-It will create a new site within your Multisite network based on the site you have just exported, the import all command will take care
+It will create a new site within your Multisite network based on the site you have just exported, the `import all` command will take care
 of everything that needs to be done when moving a site to Multisite (replacing tables prefix, updating post_author IDs and etc).
 
 If you need to set up a new url for the site you're importing (if importing into staging or local environments for example),

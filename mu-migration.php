@@ -17,7 +17,7 @@ if ( defined( 'TENUP_MU_MIGRATION_VERSION' ) || ! defined( 'WP_CLI' ) ) {
 	return;
 }
 
-define( 'TENUP_MU_MIGRATION_VERSION', '0.2.1' );
+define( 'TENUP_MU_MIGRATION_VERSION', '0.2.2' );
 define( 'TENUP_MU_MIGRATION_COMMANDS_PATH', 'includes/commands/' );
 
 // we only need to require autoload if running as a plugin

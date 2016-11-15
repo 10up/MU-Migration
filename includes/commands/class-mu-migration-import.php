@@ -436,7 +436,11 @@ class ImportCommand extends MUMigrationBase {
 			$site_meta_data->url = $assoc_args['new_url'];
 		}
 
-		$blog_id = $this->create_new_site( $site_meta_data );
+		if( empty( $assoc_args['blog_id'] ) ) {
+			$blog_id = $this->create_new_site( $site_meta_data );
+		} else {
+			$blog_id = (int) $assoc_args['blog_id'];
+		}
 
 		if ( ! $blog_id ) {
 			WP_CLI::error( __( 'Unable to create new site', 'mu-migration' ) );

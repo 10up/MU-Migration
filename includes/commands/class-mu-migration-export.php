@@ -69,14 +69,14 @@ class ExportCommand extends MUMigrationBase {
 		if ( isset( $this->assoc_args['blog_id'] ) ) {
 			$url = get_home_url( (int) $this->assoc_args['blog_id'] );
 		}
-
+		$assoc_args = array( 'format' => 'csv' );
+		if ( $this->assoc_args['blog_id'] != 1 ) {
+			$assoc_args['all-tables-with-prefix'] = 1;
+		}
 		$tables = \WP_CLI::launch_self(
 			'db tables',
 			array(),
-			array(
-				'format' => 'csv',
-				'all-tables-with-prefix' => 1
-			),
+			$assoc_args,
 			false,
 			true,
 			array( 'url' => $url )

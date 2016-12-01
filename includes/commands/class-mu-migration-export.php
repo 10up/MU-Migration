@@ -58,21 +58,23 @@ class ExportCommand extends MUMigrationBase {
 			$args,
 			array(
 				'db_prefix'  => '',
+				'blog_id'    => 1
 			),
 			$assoc_args
 		);
 
 		$filename = $this->args[0];
 
-		$url = get_home_url();
-
 		if ( isset( $this->assoc_args['blog_id'] ) ) {
 			$url = get_home_url( (int) $this->assoc_args['blog_id'] );
 		}
+
 		$assoc_args = array( 'format' => 'csv' );
+
 		if ( $this->assoc_args['blog_id'] != 1 ) {
 			$assoc_args['all-tables-with-prefix'] = 1;
 		}
+
 		$tables = \WP_CLI::launch_self(
 			'db tables',
 			array(),
@@ -91,6 +93,7 @@ class ExportCommand extends MUMigrationBase {
 			$wpdb->prefix . 'sitemeta',
 			$wpdb->prefix . 'registration_log',
 			$wpdb->prefix . 'signups',
+			$wpdb->prefix . 'sitecategories'
 		);
 
 

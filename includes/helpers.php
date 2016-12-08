@@ -208,13 +208,10 @@ function stop_the_insanity() {
 	/*
 	 * WordPress 4.7 has a new Hook infrastructure, so we need to make sure we're accessing the global array properly
 	 */
-	if ( version_compare( $wp_version, '4.7', '>=' ) ) {
-		if ( ! isset( $wp_filter['get_term_metadata'] ) ) {
-			$wp_filter['get_term_metadata'] = new \WP_Hook();
-		}
+	if ( isset( $wp_filter['get_term_metadata'] ) && $wp_filter['get_term_metadata'] instanceof \WP_Hook ) {
 		$filter_callbacks   = &$wp_filter['get_term_metadata']->callbacks;
 	} else {
-		$filter_callbacks   = $wp_filter['get_term_metadata'];
+		$filter_callbacks   = &$wp_filter['get_term_metadata'];
 	}
 
 	if ( isset( $filter_callbacks[10] ) ) {

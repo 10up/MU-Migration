@@ -241,3 +241,25 @@ function stop_the_insanity() {
 	}
 
 }
+
+/**
+ * Add START TRANSACTION and COMMIT to the sql export
+ * shamlessly stolen from http://stackoverflow.com/questions/1760525/need-to-write-at-beginning-of-file-with-php
+ *
+ * @param $orig_filename  sql dump file name
+ *
+ */
+
+function addTransaction($orig_filename) {
+  $context = stream_context_create();
+  $orig_file = fopen($orig_filename, 'r', 1, $context);
+
+  $temp_filename = tempnam(sys_get_temp_dir(), 'php_prepend_');
+  file_put_contents($temp_filename, 'START TRANSACTION;\n');
+  file_put_contents($temp_filename, $orig_file, FILE_APPEND);
+  file_put_contents($temp_filename, 'COMMIT;', FILE_APPEND);
+
+  fclose($orig_file);
+  unlink($orig_filename);
+  rename($temp_filename, $orig_filename);
+}

@@ -119,6 +119,7 @@ class ExportCommand extends MUMigrationBase {
 			);
 
 			if ( 0 === $export ) {
+				Helpers\addTransaction($filename);
 				$this->success( __( 'The export is now complete', 'mu-migration' ), $verbose );
 			} else {
 				\WP_CLI::error( __( 'Something went wrong while trying to export the database', 'mu-migration' ) );

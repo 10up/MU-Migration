@@ -255,7 +255,7 @@ function addTransaction($orig_filename) {
   $orig_file = fopen($orig_filename, 'r', 1, $context);
 
   $temp_filename = tempnam(sys_get_temp_dir(), 'php_prepend_');
-  file_put_contents($temp_filename, 'START TRANSACTION;\n');
+  file_put_contents($temp_filename, 'START TRANSACTION;' . PHP_EOL );
   file_put_contents($temp_filename, $orig_file, FILE_APPEND);
   file_put_contents($temp_filename, 'COMMIT;', FILE_APPEND);
 

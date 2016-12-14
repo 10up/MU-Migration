@@ -47,6 +47,9 @@ you can pass it to the `import all` command.
 $ wp mu-migration import all site.zip --new_url=multisite.dev/site
 ```
 
+The import command also supports a `--mysql-single-transaction` parameter that will wrap the sql export into a single transaction to commit
+all changes from the import at one time preventing the write from overwhelming the database server, especially in clustered mysql enviroments.
+
 After the migration you can also manage users password (reset passwords and/or force users to reset their passwords).
 ```
 $ wp mu-migration update_passwords [<newpassword>] [--blog_id=<blog_id>] [--reset] [--send_email] [--include=<users_id>]  [--exclude=<users_id>]

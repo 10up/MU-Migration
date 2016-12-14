@@ -377,7 +377,7 @@ class ImportCommand extends MUMigrationBase {
 	 *
 	 *      wp mu-migration import all site.zip
 	 *
-	 * @synopsis <zipfile> [--blog_id=<blog_id>] [--new_url=<new_url>] [--verbose]
+	 * @synopsis <zipfile> [--blog_id=<blog_id>] [--new_url=<new_url>] [--verbose] [--mysql-single-transaction]
 	 */
 	public function all( $args = array(), $assoc_args = array() ) {
 		$this->process_args(
@@ -385,7 +385,8 @@ class ImportCommand extends MUMigrationBase {
 			$args,
 			array(
 				'blog_id' 	=> '',
-				'new_url'	=> ''
+				'new_url'	=> '',
+				'mysql-single-transaction' => false
 			),
 			$assoc_args
 		);
@@ -461,6 +462,14 @@ class ImportCommand extends MUMigrationBase {
 		}
 
 		WP_CLI::log( __( 'Importing tables...', 'mu-migration' ) );
+
+		/*
+		 * If the flag --mysql-single-transaction is passed, then the SQL is wrapped with
+		 * START TRANSACTION and COMMIT to insert in one single transaction
+		 */
+		if ( $assoc_args['mysql-single-transaction'] ) {
+			Helpers\addTransaction( $sql[0] );
+		}
 
 		$this->tables( array( $sql[0] ), $tables_assoc_args, $verbose );
 

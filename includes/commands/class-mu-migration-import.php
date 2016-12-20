@@ -100,7 +100,7 @@ class ImportCommand extends MUMigrationBase {
 					)
 				);
 
-				$user_exists = $user_exists[0];
+				$user_exists = $user_exists  ? $user_exists[0] : false;
 
 				if ( ! $user_exists ) {
 

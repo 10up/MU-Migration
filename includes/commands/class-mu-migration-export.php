@@ -46,7 +46,7 @@ class ExportCommand extends MUMigrationBase {
 	 *
 	 *      wp mu-migration export tables output.sql
 	 *
-	 * @synopsis <outputfile> [--blog_id=<blog_id>]
+	 * @synopsis <outputfile> [--blog_id=<blog_id>] [--tables=<table_list>] [--non-default-tables=<table_list>]
 	 */
 	public function tables( $args = array(), $assoc_args = array(), $verbose = true ) {
 		global $wpdb;
@@ -57,8 +57,10 @@ class ExportCommand extends MUMigrationBase {
 			),
 			$args,
 			array(
-				'db_prefix'  => '',
-				'blog_id'    => 1
+				'db_prefix'             => '',
+				'blog_id'               => 1,
+				'tables'                => '',
+				'non-default-tables'    => ''
 			),
 			$assoc_args
 		);
@@ -69,46 +71,61 @@ class ExportCommand extends MUMigrationBase {
 			$url = get_home_url( (int) $this->assoc_args['blog_id'] );
 		}
 
-		$assoc_args = array( 'format' => 'csv' );
+		/*
+		 * If the user hasn't supplied the tables he wants to export, let's get them automatically
+		 */
+		if ( empty( $this->assoc_args['tables'] ) ) {
+			$assoc_args = array( 'format' => 'csv' );
 
-		if ( $this->assoc_args['blog_id'] != 1 ) {
-			$assoc_args['all-tables-with-prefix'] = 1;
-		}
+			if ( empty( $this->assoc_args['non-default-tables'] ) && ( $this->assoc_args['blog_id'] != 1 || ! is_multisite() ) ) {
+				$assoc_args['all-tables-with-prefix'] = 1;
+			}
 
-		$tables = \WP_CLI::launch_self(
-			'db tables',
-			array(),
-			$assoc_args,
-			false,
-			true,
-			array( 'url' => $url )
-		);
+			$tables = \WP_CLI::launch_self(
+				'db tables',
+				array(),
+				$assoc_args,
+				false,
+				true,
+				array( 'url' => $url )
+			);
 
-		$tables_to_remove = array(
-			$wpdb->prefix . 'users',
-			$wpdb->prefix . 'usermeta',
-			$wpdb->prefix . 'blog_versions',
-			$wpdb->prefix . 'blogs',
-			$wpdb->prefix . 'site',
-			$wpdb->prefix . 'sitemeta',
-			$wpdb->prefix . 'registration_log',
-			$wpdb->prefix . 'signups',
-			$wpdb->prefix . 'sitecategories'
-		);
+			if ( 0 === $tables->return_code ) {
+				$tables = $tables->stdout;
+				$tables = explode( ',', $tables );
 
+				$tables_to_remove = array(
+					$wpdb->prefix . 'users',
+					$wpdb->prefix . 'usermeta',
+					$wpdb->prefix . 'blog_versions',
+					$wpdb->prefix . 'blogs',
+					$wpdb->prefix . 'site',
+					$wpdb->prefix . 'sitemeta',
+					$wpdb->prefix . 'registration_log',
+					$wpdb->prefix . 'signups',
+					$wpdb->prefix . 'sitecategories'
+				);
 
-		if ( 0 === $tables->return_code ) {
-			$tables = $tables->stdout;
-			$tables = explode( ',', $tables );
+				foreach ( $tables as $key => &$table ) {
+					$table = trim( $table );
 
-			foreach( $tables as $key => &$table ) {
-				$table = trim( $table );
-
-				if ( in_array( $table, $tables_to_remove ) ) {
-					unset( $tables[$key] );
+					if ( in_array( $table, $tables_to_remove ) ) {
+						unset( $tables[$key] );
+					}
 				}
 			}
 
+			if ( ! empty( $this->assoc_args['non-default-tables'] ) ) {
+				$non_default_tables =explode( ',', $this->assoc_args['non-default-tables'] );
+
+				$tables = array_unique( array_merge( $tables, $non_default_tables ) );
+			}
+		} else {
+			//get the user supplied tables list
+			$tables = explode( ',', $this->assoc_args['tables'] );
+		}
+
+		if ( is_array( $tables ) && ! empty( $tables ) ) {
 			$export = \WP_CLI::launch_self(
 				"db export",
 				array( $filename ),
@@ -123,10 +140,9 @@ class ExportCommand extends MUMigrationBase {
 			} else {
 				\WP_CLI::error( __( 'Something went wrong while trying to export the database', 'mu-migration' ) );
 			}
-
+		} else {
+			\WP_CLI::error( __( 'Unable to get the list of tables to be exported', 'mu-migration' ) );
 		}
-
-
 	}
 
 	/**
@@ -332,7 +348,7 @@ class ExportCommand extends MUMigrationBase {
 	 *
 	 *      wp mu-migration export all site.zip
 	 *
-	 * @synopsis [<zipfile>] [--blog_id=<blog_id>] [--plugins] [--themes] [--uploads] [--verbose]
+	 * @synopsis [<zipfile>] [--blog_id=<blog_id>] [--tables=<table_list>] [--non-default-tables=<table_list>] [--plugins] [--themes] [--uploads] [--verbose]
 	 */
 	public function all( $args = array(), $assoc_args = array() ) {
 		global $wpdb;
@@ -365,7 +381,9 @@ class ExportCommand extends MUMigrationBase {
 			),
 			$args,
 			array(
-				'blog_id' => false
+				'blog_id'            => false,
+				'tables'             => '',
+				'non-default-tables' => ''
 			),
 			$assoc_args
 		);
@@ -376,8 +394,11 @@ class ExportCommand extends MUMigrationBase {
 		$include_themes 	= isset( $this->assoc_args['themes'] ) 	? true : false;
 		$include_uploads 	= isset( $this->assoc_args['uploads'] ) ? true : false;
 
-		$users_assoc_args = array();
-		$tables_assoc_args = array();
+		$users_assoc_args   = array();
+		$tables_assoc_args  = array(
+			'tables'             => $this->assoc_args['tables'],
+			'non-default-tables' => $this->assoc_args['non-default-tables']
+		);
 
 		if ( $this->assoc_args['blog_id'] ) {
 			$users_assoc_args['blog_id'] = (int) $this->assoc_args['blog_id'];

@@ -50,6 +50,24 @@ $ wp mu-migration import all site.zip --new_url=multisite.dev/site
 The import command also supports a `--mysql-single-transaction` parameter that will wrap the sql export into a single transaction to commit
 all changes from the import at one time preventing the write from overwhelming the database server, especially in clustered mysql enviroments.
 
+You can also export subsites from another multisite instance, to do so pass the `--blog_id` parameter. E.g:
+
+```
+$ wp mu-migration export all subsite.zip --blog_id=2
+```
+
+The `import` commando also supports `--blog_id`, in that case the import will override an existing subsite.
+
+In some edge cases it's possible that MU-Migration won't be able to recognize all custom tables while doing the export of a subsite in multisite
+so if you need to make sure to move non-default tables, you can use `--tables` or `--non-default-tables` param. E.g
+
+```
+$ wp mu-migration export all subsite.zip --blog_id=1 --non-default-tables=wp_my_custom_table,wp_my_custom_table_2
+```
+
+If you pass `--tables` it will export only the tables you have passed. So if you use it make sure to pass all tables that you want
+to be exported, including the default tables.
+
 After the migration you can also manage users password (reset passwords and/or force users to reset their passwords).
 ```
 $ wp mu-migration update_passwords [<newpassword>] [--blog_id=<blog_id>] [--reset] [--send_email] [--include=<users_id>]  [--exclude=<users_id>]

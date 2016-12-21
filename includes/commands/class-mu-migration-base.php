@@ -99,26 +99,70 @@ abstract class MUMigrationBase extends \WP_CLI_Command {
 		), $verbose );
 	}
 
+	/**
+	 * Run through all records on a specific table
+	 *
+	 * @param $message
+	 * @param $table
+	 * @param $callback
+	 */
+	protected function all_records( $message, $table, $callback ) {
+		global $wpdb;
 
-	public function line( $msg, $verbose ) {
+		$offset = 0;
+		$step = 1000;
+
+		$found_posts = $wpdb->get_col( "SELECT COUNT(ID) FROM {$table}");
+
+		if ( ! $found_posts ) {
+			return false;
+		}
+
+		$found_posts = $found_posts[0];
+
+		$progress_bar = \WP_CLI\Utils\make_progress_bar( sprintf("[%d] %s", $found_posts, $message ), (int) $found_posts, 1 );
+		$progress_bar->display();
+
+		do {
+			$results = $wpdb->get_results(
+				$wpdb->prepare(
+					"SELECT * FROM {$table} LIMIT %d OFFSET %d", array(
+					$step,
+					$offset
+				) )
+			);
+
+			if ( $results ) {
+				foreach ( $results as $result ) {
+					$callback( $result );
+					$progress_bar->tick();
+				}
+			}
+
+			$offset += $step;
+
+		} while( $results );
+	}
+
+	protected function line( $msg, $verbose ) {
 		if ( $verbose ) {
 			WP_CLI::line( $msg );
 		}
 	}
 
-	public function log( $msg, $verbose ) {
+	protected function log( $msg, $verbose ) {
 		if ( $verbose ) {
 			WP_CLI::log( $msg );
 		}
 	}
 
-	public function success( $msg, $verbose ) {
+	protected function success( $msg, $verbose ) {
 		if ( $verbose ) {
 			WP_CLI::success( $msg );
 		}
 	}
 
-	public function warning( $msg, $verbose ) {
+	protected function warning( $msg, $verbose ) {
 		if ( $verbose ) {
 			WP_CLI::warning( $msg );
 		}

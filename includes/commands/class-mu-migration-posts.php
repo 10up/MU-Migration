@@ -27,6 +27,8 @@ class PostsCommand extends MUMigrationBase {
 	 * @synopsis <inputfile> --blog_id=<blog_id>
 	 */
 	public function update_author( $args = array(), $assoc_args = array(), $verbose = true ) {
+		global $wpdb;
+
 		$this->process_args(
 			array(
 				0 => '', // .json map file
@@ -60,85 +62,64 @@ class PostsCommand extends MUMigrationBase {
 			);
 		}
 
-
 		$equals_id 			= array();
 		$author_not_found 	= array();
 
-		$posts_args = array(
-			'post_type' => get_post_types()
-		);
+		$this->all_records(
+			__( 'Updating posts authors', 'mu-migration' ),
+			$wpdb->posts,
+			function( $result ) use ( &$equals_id, &$author_not_found, $ids_map, $verbose, $is_woocommerce ) {
+				$author = $result->post_author;
 
-		if (  $is_woocommerce ) {
-			$posts_args['post_type'] 		= array_merge( $posts_args['post_type'], array( 'shop_order', 'shop_order_refund' ) );
-			$posts_args['post_status'] 		= array(
-				'wc-pending', 'wc-processing', 'wc-on-hold', 'wc-completed',
-				'wc-cancelled', 'wc-refunded','wc-failed', 'wc-pre-ordered'
-			);
-		}
-
-		$this->all_posts(
-			$posts_args,
-			function() use ( &$equals_id, &$author_not_found, $ids_map, $verbose, $is_woocommerce ) {
-				$author = get_the_author_meta( 'ID' );
 				if ( isset( $ids_map->{$author} ) ) {
 					if ( $author != $ids_map->{$author} ) {
 						global $wpdb;
 
 						$wpdb->update( $wpdb->posts,
-							array(
-								'post_author' => $ids_map->{$author}
-							),
-							array(
-								'ID' => get_the_ID()
-							),
-							array(
-								'%d'
-							),
-							array(
-								'%d'
-							)
+							array( 'post_author' => $ids_map->{$author} ),
+							array( 'ID' => $result->ID ),
+							array( '%d' ),
+							array( '%d' )
 						);
-
 
 						$this->log( sprintf(
 							__( 'Updated post_author for "%s" (ID #%d)', 'mu-migration' ),
-							get_the_title(),
-							absint( get_the_ID() )
+							$result->post_title,
+							absint( $result->ID )
 						), $verbose );
 
 					} else {
 						$this->log( sprintf(
 							__( '#%d New user ID equals to the old user ID'),
-							get_the_ID()
+							$result->ID
 						), $verbose );
-						$equals_id[] = absint( get_the_ID() );
+						$equals_id[] = absint( $result->ID );
 					}
 				} else {
 					$this->log( sprintf(
 						__( "#%d New user ID not found or it's already been updated", 'mu-migration'),
-						absint( get_the_ID() )
+						absint( $result->ID )
 					), $verbose );
 
-					$author_not_found[] = absint( get_the_ID() );
+					$author_not_found[] = absint( $result->ID );
 				}
 
 				if ( $is_woocommerce ) {
-					$old_customer_user = get_post_meta( get_the_ID(), '_customer_user', true );
+					$old_customer_user = get_post_meta( (int) $result->ID, '_customer_user', true );
 
 					if ( isset( $ids_map->{$old_customer_user} ) && $old_customer_user != $ids_map->{$old_customer_user} ) {
 						$new_customer_user = $ids_map->{$old_customer_user};
 
-						update_post_meta( get_the_ID(), '_customer_user', $new_customer_user );
+						update_post_meta( (int) $result->ID, '_customer_user', $new_customer_user );
 
 						$this->log( sprintf(
 							__( 'Updated customer_user for "%s" (ID #%d)', 'mu-migration' ),
-							get_the_title(),
-							absint( get_the_ID() )
+							$result->post_title,
+							absint( $result->ID )
 						), $verbose );
 					}
 				}
-			},
-			false
+			}
 		);
 
 		//Report

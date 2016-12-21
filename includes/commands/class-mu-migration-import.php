@@ -499,8 +499,6 @@ class ImportCommand extends MUMigrationBase {
 		$this->users( array( $users[0] ), $users_assoc_args, $verbose );
 
 		if ( file_exists( $map_file ) ) {
-			WP_CLI::log( __( 'Updating post_author...', 'mu-migration' ) );
-
 			$postsCommand = new PostsCommand();
 
 			$postsCommand->update_author(

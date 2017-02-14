@@ -441,19 +441,21 @@ class ExportCommand extends MUMigrationBase {
 		);
 
 		if ( $include_plugins ) {
-			$files_to_zip[] = WP_PLUGIN_DIR;
+			$files_to_zip['wp-content/plugins'] = WP_PLUGIN_DIR;
 		}
 
 		if ( $include_themes ) {
-			$files_to_zip[] = get_template_directory();
-			if( is_child_theme() ) {
-				$files_to_zip[] = get_stylesheet_directory();
+			$theme_dir = get_template_directory();
+			$files_to_zip[ 'wp-content/themes/' . basename( $theme_dir ) ] = $theme_dir;
+			if ( is_child_theme() ) {
+				$child_theme_dir = get_stylesheet_directory();
+				$files_to_zip[ 'wp-content/themes/' . basename( $child_theme_dir ) ] = $child_theme_dir;
 			}
 		}
 
 		if ( $include_uploads ) {
 			$upload_dir = wp_upload_dir();
-			$files_to_zip[] = $upload_dir['basedir'];
+			$files_to_zip['wp-content/uploads'] = $upload_dir['basedir'];
 		}
 
 		try{

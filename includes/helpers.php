@@ -3,11 +3,11 @@ namespace TenUp\MU_Migration\Helpers;
 use Alchemy\Zippy\Zippy;
 
 /**
- * Checks for the presence of Woocomerce
+ * Checks for the presence of WooCommerce
  *
- * @return bool True if WooComerce is active, false otherwise
+ * @return bool True if WooCommerce is active, false otherwise
  */
-function is_woocomnerce_active() {
+function is_woocommerce_active() {
     return in_array(
         'woocommerce/woocommerce.php',
         apply_filters( 'active_plugins', get_option('active_plugins') )
@@ -187,7 +187,7 @@ function light_add_user_to_blog( $blog_id, $user_id, $role ) {
 }
 
 /**
- * Free ups memory for long running processes
+ * Frees up memory for long running processes
  */
 function stop_the_insanity() {
 	global $wpdb, $wp_actions, $wp_filter, $wp_object_cache;
@@ -244,7 +244,7 @@ function stop_the_insanity() {
 
 /**
  * Add START TRANSACTION and COMMIT to the sql export
- * shamlessly stolen from http://stackoverflow.com/questions/1760525/need-to-write-at-beginning-of-file-with-php
+ * shamelessly stolen from http://stackoverflow.com/questions/1760525/need-to-write-at-beginning-of-file-with-php
  *
  * @param $orig_filename  sql dump file name
  *

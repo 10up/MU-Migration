@@ -22,7 +22,7 @@ abstract class MUMigrationBase extends \WP_CLI_Command {
 	/**
 	 * Process the provided arguments
 	 *
-	 * @sinec 0.2.0
+	 * @since 0.2.0
 	 *
 	 * @param array $default_args
 	 * @param array $args
@@ -35,7 +35,7 @@ abstract class MUMigrationBase extends \WP_CLI_Command {
 	}
 
 	/**
-	 * Run through all posts and executes the provided callback for each post
+	 * Run through all posts and execute the provided callback for each post
 	 *
 	 * @param $query_args
 	 * @param $callback
@@ -85,7 +85,7 @@ abstract class MUMigrationBase extends \WP_CLI_Command {
 			if ( 0 === $counter % $query_args['posts_per_page'] ) {
 				Helpers\stop_the_insanity();
 
-				$this->log( sprintf( 'Posts Updated: %d/%d', $counter, $found_posts ), true );
+				$this->log( sprintf( __( 'Posts Updated: %d/%d', 'mu-migration' ), $counter, $found_posts ), true );
 				$query_args['offset'] += $query_args['posts_per_page'];
 				$query = new \WP_Query( $query_args );
 			}

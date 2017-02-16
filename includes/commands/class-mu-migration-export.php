@@ -42,7 +42,7 @@ class ExportCommand extends MUMigrationBase {
 	 * <outputfile>
 	 * : The name of the exported sql file
 	 *
-	 * ## EXAMBLES
+	 * ## EXAMPLES
 	 *
 	 *      wp mu-migration export tables output.sql
 	 *
@@ -153,7 +153,7 @@ class ExportCommand extends MUMigrationBase {
 	 * <outputfile>
 	 * : The name of the exported .csv file
 	 *
-	 * ## EXAMBLES
+	 * ## EXAMPLES
 	 *
 	 *      wp mu-migration export users output.dev --blog_id=2 --woocomerce
 	 *
@@ -337,14 +337,14 @@ class ExportCommand extends MUMigrationBase {
 	}
 
 	/**
-	 * Export the whole site onto a zip file
+	 * Export the whole site into a zip file
 	 *
 	 * ## OPTIONS
 	 *
 	 * <outputfile>
 	 * : The name of the exported .zip file
 	 *
-	 * ## EXAMBLES
+	 * ## EXAMPLES
 	 *
 	 *      wp mu-migration export all site.zip
 	 *

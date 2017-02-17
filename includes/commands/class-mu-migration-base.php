@@ -1,4 +1,7 @@
 <?php
+/**
+ * @package TenUp\MU_Migration
+ */
 namespace TenUp\MU_Migration\Commands;
 
 use WP_CLI;
@@ -8,14 +11,14 @@ abstract class MUMigrationBase extends \WP_CLI_Command {
 	/**
 	 * Holds the command arguments
 	 *
-	 * @var Array
+	 * @var array
 	 */
 	protected $args;
 
 	/**
 	 * Holds the command assoc arguments
 	 *
-	 * @var Array
+	 * @var array
 	 */
 	protected $assoc_args;
 
@@ -37,8 +40,9 @@ abstract class MUMigrationBase extends \WP_CLI_Command {
 	/**
 	 * Run through all posts and execute the provided callback for each post
 	 *
-	 * @param $query_args
-	 * @param $callback
+	 * @param array    $query_args
+	 * @param callable $callback
+	 * @param bool     $verbose
 	 */
 	protected function all_posts( $query_args, $callback, $verbose = true ) {
 		if ( ! is_callable( $callback ) ) {
@@ -60,7 +64,7 @@ abstract class MUMigrationBase extends \WP_CLI_Command {
 		 *
 		 * @since 0.2.0
 		 *
-		 * @param Array $default_args The default args
+		 * @param array $default_args The default args
 		 */
 		$default_args 	= apply_filters( 'mu-migration/all_posts/default_args', $default_args );
 
@@ -102,9 +106,10 @@ abstract class MUMigrationBase extends \WP_CLI_Command {
 	/**
 	 * Run through all records on a specific table
 	 *
-	 * @param $message
-	 * @param $table
-	 * @param $callback
+	 * @param string   $message
+	 * @param string   $table
+	 * @param callable $callback
+	 * @return bool
 	 */
 	protected function all_records( $message, $table, $callback ) {
 		global $wpdb;
@@ -144,24 +149,48 @@ abstract class MUMigrationBase extends \WP_CLI_Command {
 		} while( $results );
 	}
 
+	/**
+	 * Output a line
+	 *
+	 * @param string $msg
+	 * @param bool   $verbose
+	 */
 	protected function line( $msg, $verbose ) {
 		if ( $verbose ) {
 			WP_CLI::line( $msg );
 		}
 	}
 
+	/**
+	 * Output a log message
+	 *
+	 * @param string $msg
+	 * @param bool   $verbose
+	 */
 	protected function log( $msg, $verbose ) {
 		if ( $verbose ) {
 			WP_CLI::log( $msg );
 		}
 	}
 
+	/**
+	 * Output a success message
+	 *
+	 * @param string $msg
+	 * @param bool   $verbose
+	 */
 	protected function success( $msg, $verbose ) {
 		if ( $verbose ) {
 			WP_CLI::success( $msg );
 		}
 	}
 
+	/**
+	 * Output a warning
+	 *
+	 * @param string $msg
+	 * @param bool   $verbose
+	 */
 	protected function warning( $msg, $verbose ) {
 		if ( $verbose ) {
 			WP_CLI::warning( $msg );

@@ -1,4 +1,7 @@
 <?php
+/**
+ * @package TenUp\MU_Migration
+ */
 namespace TenUp\MU_Migration\Helpers;
 use Alchemy\Zippy\Zippy;
 
@@ -17,7 +20,7 @@ function is_woocommerce_active() {
 /**
  * Checks if $filename is a zip file by checking it's first few bytes sequence
  *
- * @param $filename The filename to check for
+ * @param string $filename The filename to check for
  * @return bool
  */
 function is_zip_file( $filename ) {
@@ -41,7 +44,7 @@ function is_zip_file( $filename ) {
 /**
  * Parses a url for use in search-replace by removing protocol
  *
- * @param $url
+ * @param string $url
  * @return string
  */
 function parse_url_for_search_replace( $url ) {
@@ -55,8 +58,8 @@ function parse_url_for_search_replace( $url ) {
 /**
  * Recursively removes a directory and its files
  *
- * @param $dirPath Dir Path to delete
- * @param bool $deleteParent
+ * @param string $dirPath      Dir Path to delete
+ * @param bool   $deleteParent If the parent should be deleted
  */
 function delete_folder( $dirPath, $deleteParent = true ){
     $limit = 0;
@@ -85,8 +88,8 @@ function delete_folder( $dirPath, $deleteParent = true ){
 /**
  * Recursively copies a directory and its files
  *
- * @param $source   The source folder
- * @param $dest     The destination folder
+ * @param string $source The source folder
+ * @param string $dest   The destination folder
  */
 function move_folder( $source, $dest ) {
     if ( ! file_exists( $dest ) ) {
@@ -117,8 +120,8 @@ function move_folder( $source, $dest ) {
  *
  * @uses Zippy
  *
- * @param $filename
- * @param $dest_dir
+ * @param string $filename
+ * @param string $dest_dir
  */
 function extract( $filename, $dest_dir ) {
     $zippy = Zippy::load();
@@ -133,7 +136,7 @@ function extract( $filename, $dest_dir ) {
  *
  * @uses wpdb
  *
- * @param $blog_id
+ * @param int $blog_id
  * @return string
  */
 function get_db_prefix( $blog_id ) {
@@ -151,10 +154,10 @@ function get_db_prefix( $blog_id ) {
 /**
  * Does the same thing that add_user_to_blog does, but without calling switch_to_blog()
  *
- * @param $blog_id
- * @param $user_id
- * @param $role
- * @return WP_Error
+ * @param int    $blog_id
+ * @param int    $user_id
+ * @param string $role
+ * @return \WP_Error
  */
 function light_add_user_to_blog( $blog_id, $user_id, $role ) {
 	$user = get_userdata( $user_id );
@@ -177,9 +180,9 @@ function light_add_user_to_blog( $blog_id, $user_id, $role ) {
 	 *
 	 * @since MU
 	 *
-	 * @param int    $user_id User ID.
-	 * @param string $role    User role.
-	 * @param int    $blog_id Blog ID.
+	 * @param int    $user_id User ID
+	 * @param string $role    User role
+	 * @param int    $blog_id Blog ID
 	 */
 	do_action( 'add_user_to_blog', $user_id, $role, $blog_id );
 	wp_cache_delete( $user_id, 'users' );
@@ -246,10 +249,8 @@ function stop_the_insanity() {
  * Add START TRANSACTION and COMMIT to the sql export
  * shamelessly stolen from http://stackoverflow.com/questions/1760525/need-to-write-at-beginning-of-file-with-php
  *
- * @param $orig_filename  sql dump file name
- *
+ * @param string $orig_filename SQL dump file name
  */
-
 function addTransaction($orig_filename) {
   $context = stream_context_create();
   $orig_file = fopen($orig_filename, 'r', 1, $context);

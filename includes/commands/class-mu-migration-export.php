@@ -1,7 +1,6 @@
 <?php
 /**
- *  @package TenUp\MU_Migration
- *
+ * @package TenUp\MU_Migration
  */
 namespace TenUp\MU_Migration\Commands;
 use TenUp\MU_Migration\Helpers;
@@ -47,6 +46,10 @@ class ExportCommand extends MUMigrationBase {
 	 *      wp mu-migration export tables output.sql
 	 *
 	 * @synopsis <outputfile> [--blog_id=<blog_id>] [--tables=<table_list>] [--non-default-tables=<table_list>]
+	 *
+	 * @param array $args
+	 * @param array $assoc_args
+	 * @param bool  $verbose
 	 */
 	public function tables( $args = array(), $assoc_args = array(), $verbose = true ) {
 		global $wpdb;
@@ -158,6 +161,10 @@ class ExportCommand extends MUMigrationBase {
 	 *      wp mu-migration export users output.dev --blog_id=2 --woocomerce
 	 *
 	 * @synopsis <outputfile> [--blog_id=<blog_id>] [--woocomerce]
+	 *
+	 * @param array $args
+	 * @param array $assoc_args
+	 * @param bool  $verbose
 	 */
 	public function users( $args = array(), $assoc_args = array(), $verbose = true ) {
 		$this->process_args(
@@ -297,8 +304,8 @@ class ExportCommand extends MUMigrationBase {
 			 *
 			 * @since 0.1.0
 			 *
-			 * @param Array
-			 * @param WP_User $user object for the current user
+			 * @param array
+			 * @param \WP_User $user object for the current user
 			 */
 			$custom_user_data = apply_filters( 'mu_migration/export/user/data', array(), $user );
 
@@ -349,6 +356,9 @@ class ExportCommand extends MUMigrationBase {
 	 *      wp mu-migration export all site.zip
 	 *
 	 * @synopsis [<zipfile>] [--blog_id=<blog_id>] [--tables=<table_list>] [--non-default-tables=<table_list>] [--plugins] [--themes] [--uploads] [--verbose]
+	 *
+	 * @param array $args
+	 * @param array $assoc_args
 	 */
 	public function all( $args = array(), $assoc_args = array() ) {
 		global $wpdb;

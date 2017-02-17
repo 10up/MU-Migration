@@ -1,7 +1,6 @@
 <?php
 /**
- *  @package TenUp\MU_Migration
- *
+ * @package TenUp\MU_Migration
  */
 namespace TenUp\MU_Migration\Commands;
 use TenUp\MU_Migration\Helpers;
@@ -25,6 +24,10 @@ class PostsCommand extends MUMigrationBase {
 	 *   wp mu-migration posts update_author map_users.json --blog_id=2
 	 *
 	 * @synopsis <inputfile> --blog_id=<blog_id>
+	 *
+	 * @param array $args
+	 * @param array $assoc_args
+	 * @param bool  $verbose
 	 */
 	public function update_author( $args = array(), $assoc_args = array(), $verbose = true ) {
 		global $wpdb;

@@ -1,6 +1,6 @@
 <?php
 /**
- *  @package TenUp\MU_Migration
+ * @package TenUp\MU_Migration
  */
 namespace TenUp\MU_Migration\Commands;
 use TenUp\MU_Migration\Helpers;
@@ -24,6 +24,10 @@ class ImportCommand extends MUMigrationBase {
 	 *   wp mu-migration import users users.csv --map_file=ids_maps.json
 	 *
 	 * @synopsis <inputfile> --map_file=<map> --blog_id=<blog_id>
+	 *
+	 * @param array $args
+	 * @param array $assoc_args
+	 * @param bool  $verbose
 	 */
 	public function users( $args = array(), $assoc_args = array(), $verbose = true ) {
 		global $wpdb;
@@ -134,8 +138,8 @@ class ImportCommand extends MUMigrationBase {
 						 *
 						 * @since 0.1.0
 						 *
-						 * @param Array $user_data The $user_data array
-						 * @param WP_User $user The user object
+						 * @param array    $user_data The $user_data array
+						 * @param \WP_User $user      The user object
 						 */
 						do_action( 'mu_migration/import/user/custom_data_before', $user_data, $user );
 
@@ -144,8 +148,8 @@ class ImportCommand extends MUMigrationBase {
 						 *
 						 * @since 0.1.0
 						 *
-						 * @param Array
-						 * @param WP_User $user object for the current user
+						 * @param array
+						 * @param \WP_User $user The user object
 						 */
 						$custom_user_data = apply_filters( 'mu_migration/export/user/data', array(), $user );
 
@@ -162,8 +166,8 @@ class ImportCommand extends MUMigrationBase {
 						 *
 						 * @since 0.1.0
 						 *
-						 * @param Array $user_data The $user_data array
-						 * @param WP_User $user The user object
+						 * @param array    $user_data The $user_data array
+						 * @param \WP_User $user      The user object
 						 */
 						do_action( 'mu_migration/import/user/custom_data_after', $user_data, $user );
 
@@ -238,6 +242,10 @@ class ImportCommand extends MUMigrationBase {
 	 *   wp mu-migration import tables site.sql --old_prefix=wp_ --old_url=old_domain.com --new_url=new_domain.com
 	 *
 	 * @synopsis <inputfile> --blog_id=<blog_id> --old_prefix=<old> --new_prefix=<new> [--old_url=<olddomain>] [--new_url=<newdomain>]
+	 *
+	 * @param array $args
+	 * @param array $assoc_args
+	 * @param bool  $verbose
 	 */
 	public function tables( $args = array(), $assoc_args = array(), $verbose = true ) {
 		global $wpdb;
@@ -378,6 +386,9 @@ class ImportCommand extends MUMigrationBase {
 	 *      wp mu-migration import all site.zip
 	 *
 	 * @synopsis <zipfile> [--blog_id=<blog_id>] [--new_url=<new_url>] [--verbose] [--mysql-single-transaction]
+	 *
+	 * @param array $args
+	 * @param array $assoc_args
 	 */
 	public function all( $args = array(), $assoc_args = array() ) {
 		$this->process_args(
@@ -535,7 +546,7 @@ class ImportCommand extends MUMigrationBase {
 	/**
 	 * Moves the plugins to the right directory
 	 *
-	 * @param $plugins_dir The path to the plugins to be moved over
+	 * @param string $plugins_dir The path to the plugins to be moved over
 	 */
 	private function move_plugins( $plugins_dir ) {
 		if ( file_exists( $plugins_dir ) ){
@@ -559,7 +570,8 @@ class ImportCommand extends MUMigrationBase {
 	/**
 	 * Moves the uploads folder to the right location
 	 *
-	 * @param $uploads_dir
+	 * @param string $uploads_dir
+	 * @param int    $blog_id
 	 */
 	private function move_uploads( $uploads_dir, $blog_id ) {
 		if ( file_exists( $uploads_dir ) ){
@@ -575,7 +587,7 @@ class ImportCommand extends MUMigrationBase {
 	/**
 	 * Moves the themes to the right location
 	 *
-	 * @param $themes_dir
+	 * @param string $themes_dir
 	 */
 	private function move_themes( $themes_dir ) {
 		if ( file_exists( $themes_dir ) ){
@@ -608,7 +620,7 @@ class ImportCommand extends MUMigrationBase {
 	/**
 	 * Creates a new site within multisite
 	 *
-	 * @param $meta_data
+	 * @param object $meta_data
 	 * @return bool|false|int
 	 */
 	private function create_new_site( $meta_data ) {
@@ -631,9 +643,9 @@ class ImportCommand extends MUMigrationBase {
 	/**
 	 * Replaces the db_prefix with a new one using sed
 	 *
-	 * @param $filename The filename of the sql file to which the db prefix should be replaced
-	 * @param $old_db_prefix The db prefix to be replaced
-	 * @param $new_db_prefix The new db prefix
+	 * @param string $filename      The filename of the sql file to which the db prefix should be replaced
+	 * @param string $old_db_prefix The db prefix to be replaced
+	 * @param string $new_db_prefix The new db prefix
 	 */
 	private function replace_db_prefix( $filename, $old_db_prefix, $new_db_prefix ) {
 		$new_prefix = $new_db_prefix;

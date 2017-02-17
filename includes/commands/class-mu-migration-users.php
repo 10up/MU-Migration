@@ -1,7 +1,6 @@
 <?php
 /**
- *  @package TenUp\MU_Migration
- *
+ * @package TenUp\MU_Migration
  */
 namespace TenUp\MU_Migration\Commands;
 
@@ -23,6 +22,9 @@ class UsersCommand extends MUMigrationBase {
 	 *   wp mu-migration users update_passwords --reset --blog_id=2 --send_email
 	 *
 	 * @synopsis [<newpassword>] [--blog_id=<blog_id>] [--reset] [--send_email] [--include=<users_id>]  [--exclude=<users_id>]
+	 *
+	 * @param array $args
+	 * @param array $assoc_args
 	 */
 	public function update_passwords( $args = array(), $assoc_args = array() ) {
 		$this->process_args(
@@ -128,9 +130,9 @@ class UsersCommand extends MUMigrationBase {
 		 * @since 2.8.0
 		 * @since 4.4.0 Added the `$user_login` and `$user_data` parameters.
 		 *
-		 * @param string  $title      Default email title.
-		 * @param string  $user_login The username for the user.
-		 * @param WP_User $user_data  WP_User object.
+		 * @param string   $title      Default email title
+		 * @param string   $user_login The username for the user
+		 * @param \WP_User $user_data  WP_User object
 		 */
 		$title = apply_filters( 'retrieve_password_title', $title, $user_login, $user_data );
 
@@ -140,10 +142,10 @@ class UsersCommand extends MUMigrationBase {
 		 * @since 2.8.0
 		 * @since 4.1.0 Added `$user_login` and `$user_data` parameters.
 		 *
-		 * @param string  $message    Default mail message.
-		 * @param string  $key        The activation key.
-		 * @param string  $user_login The username for the user.
-		 * @param WP_User $user_data  WP_User object.
+		 * @param string   $message    Default mail message
+		 * @param string   $key        The activation key
+		 * @param string   $user_login The username for the user
+		 * @param \WP_User $user_data  WP_User object
 		 */
 		$message = apply_filters( 'retrieve_password_message', $message, $key, $user_login, $user_data );
 

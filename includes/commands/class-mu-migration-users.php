@@ -9,8 +9,7 @@ use WP_CLI;
 class UsersCommand extends MUMigrationBase {
 
 	/**
-	 * Updates/resets users passwords and optionally send a email reset link
-	 *
+	 * Updates/resets users passwords and optionally sends an email reset link.
 	 *
 	 * ## OPTIONS
 	 *
@@ -90,11 +89,10 @@ class UsersCommand extends MUMigrationBase {
 	}
 
 	/**
-	 * Based on retrieve_passwords
+	 * Handles sending password retrieval email to user (based on retrieve_password).
 	 *
 	 * @param $user_data
-	 *
-	 * @return bool|string|\WP_Error
+	 * @return bool|\WP_Error
 	 */
 	private function send_reset_link( $user_data ) {
 
@@ -130,9 +128,9 @@ class UsersCommand extends MUMigrationBase {
 		 * @since 2.8.0
 		 * @since 4.4.0 Added the `$user_login` and `$user_data` parameters.
 		 *
-		 * @param string   $title      Default email title
-		 * @param string   $user_login The username for the user
-		 * @param \WP_User $user_data  WP_User object
+		 * @param string   $title      Default email title.
+		 * @param string   $user_login The username for the user.
+		 * @param \WP_User $user_data  WP_User object.
 		 */
 		$title = apply_filters( 'retrieve_password_title', $title, $user_login, $user_data );
 
@@ -142,10 +140,10 @@ class UsersCommand extends MUMigrationBase {
 		 * @since 2.8.0
 		 * @since 4.1.0 Added `$user_login` and `$user_data` parameters.
 		 *
-		 * @param string   $message    Default mail message
-		 * @param string   $key        The activation key
-		 * @param string   $user_login The username for the user
-		 * @param \WP_User $user_data  WP_User object
+		 * @param string   $message    Default mail message.
+		 * @param string   $key        The activation key.
+		 * @param string   $user_login The username for the user.
+		 * @param \WP_User $user_data  WP_User object.
 		 */
 		$message = apply_filters( 'retrieve_password_message', $message, $key, $user_login, $user_data );
 

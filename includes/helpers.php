@@ -6,9 +6,9 @@ namespace TenUp\MU_Migration\Helpers;
 use Alchemy\Zippy\Zippy;
 
 /**
- * Checks for the presence of WooCommerce
+ * Checks if WooCommerce is active.
  *
- * @return bool True if WooCommerce is active, false otherwise
+ * @return bool
  */
 function is_woocommerce_active() {
     return in_array(
@@ -18,9 +18,9 @@ function is_woocommerce_active() {
 }
 
 /**
- * Checks if $filename is a zip file by checking it's first few bytes sequence
+ * Checks if $filename is a zip file by checking it's first few bytes sequence.
  *
- * @param string $filename The filename to check for
+ * @param string $filename
  * @return bool
  */
 function is_zip_file( $filename ) {
@@ -42,7 +42,7 @@ function is_zip_file( $filename ) {
 }
 
 /**
- * Parses a url for use in search-replace by removing protocol
+ * Parses a url for use in search-replace by removing its protocol.
  *
  * @param string $url
  * @return string
@@ -56,10 +56,10 @@ function parse_url_for_search_replace( $url ) {
 }
 
 /**
- * Recursively removes a directory and its files
+ * Recursively removes a directory and its files.
  *
- * @param string $dirPath      Dir Path to delete
- * @param bool   $deleteParent If the parent should be deleted
+ * @param string $dirPath
+ * @param bool   $deleteParent
  */
 function delete_folder( $dirPath, $deleteParent = true ){
     $limit = 0;
@@ -68,7 +68,7 @@ function delete_folder( $dirPath, $deleteParent = true ){
      * We may hit the recursion depth,
      * so let's keep trying until everything has been deleted.
      *
-     * The limit check avoids infinite loops
+     * The limit check avoids infinite loops.
      */
     while( file_exists( $dirPath ) && $limit++ < 10 ) {
         foreach(
@@ -86,10 +86,10 @@ function delete_folder( $dirPath, $deleteParent = true ){
 }
 
 /**
- * Recursively copies a directory and its files
+ * Recursively copies a directory and its files.
  *
- * @param string $source The source folder
- * @param string $dest   The destination folder
+ * @param string $source
+ * @param string $dest
  */
 function move_folder( $source, $dest ) {
     if ( ! file_exists( $dest ) ) {
@@ -116,7 +116,7 @@ function move_folder( $source, $dest ) {
 }
 
 /**
- * Extracts a zip file to the dest_dir
+ * Extracts a zip file to the $dest_dir.
  *
  * @uses Zippy
  *
@@ -132,7 +132,7 @@ function extract( $filename, $dest_dir ) {
 }
 
 /**
- * Retrieves the db prefix based on the blog_id
+ * Retrieves the db prefix based on the $blog_id.
  *
  * @uses wpdb
  *
@@ -152,7 +152,7 @@ function get_db_prefix( $blog_id ) {
 }
 
 /**
- * Does the same thing that add_user_to_blog does, but without calling switch_to_blog()
+ * Does the same thing that add_user_to_blog does, but without calling switch_to_blog().
  *
  * @param int    $blog_id
  * @param int    $user_id
@@ -180,9 +180,9 @@ function light_add_user_to_blog( $blog_id, $user_id, $role ) {
 	 *
 	 * @since MU
 	 *
-	 * @param int    $user_id User ID
-	 * @param string $role    User role
-	 * @param int    $blog_id Blog ID
+	 * @param int    $user_id User ID.
+	 * @param string $role    User role.
+	 * @param int    $blog_id Blog ID.
 	 */
 	do_action( 'add_user_to_blog', $user_id, $role, $blog_id );
 	wp_cache_delete( $user_id, 'users' );
@@ -190,7 +190,7 @@ function light_add_user_to_blog( $blog_id, $user_id, $role ) {
 }
 
 /**
- * Frees up memory for long running processes
+ * Frees up memory for long running processes.
  */
 function stop_the_insanity() {
 	global $wpdb, $wp_actions, $wp_filter, $wp_object_cache;
@@ -246,10 +246,10 @@ function stop_the_insanity() {
 }
 
 /**
- * Add START TRANSACTION and COMMIT to the sql export
+ * Add START TRANSACTION and COMMIT to the sql export.
  * shamelessly stolen from http://stackoverflow.com/questions/1760525/need-to-write-at-beginning-of-file-with-php
  *
- * @param string $orig_filename SQL dump file name
+ * @param string $orig_filename SQL dump file name.
  */
 function addTransaction($orig_filename) {
   $context = stream_context_create();

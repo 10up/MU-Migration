@@ -10,7 +10,7 @@ use Alchemy\Zippy\Zippy;
 class ExportCommand extends MUMigrationBase {
 
 	/**
-	 * Returns the Headers (first row) for the CSV export file
+	 * Returns the Headers (first row) for the CSV export file.
 	 *
 	 * @return array
 	 * @internal
@@ -34,7 +34,7 @@ class ExportCommand extends MUMigrationBase {
 	}
 
 	/**
-	 * Export the site's table and optionally replaces the database prefix
+	 * Export the site's table and optionally replaces the database prefix.
 	 *
 	 * ## OPTIONS
 	 *
@@ -149,7 +149,7 @@ class ExportCommand extends MUMigrationBase {
 	}
 
 	/**
-	 * Export all users to a .csv file
+	 * Export all users to a .csv file.
 	 *
 	 * ## OPTIONS
 	 *
@@ -300,12 +300,12 @@ class ExportCommand extends MUMigrationBase {
 			$headers 	= array_merge( $headers, $diff );
 
 			/**
-			 * Modify the default set of user data to be exported/imported
+			 * Modify the default set of user data to be exported/imported.
 			 *
 			 * @since 0.1.0
 			 *
 			 * @param array
-			 * @param \WP_User $user object for the current user
+			 * @param \WP_User $user The user object.
 			 */
 			$custom_user_data = apply_filters( 'mu_migration/export/user/data', array(), $user );
 
@@ -344,7 +344,7 @@ class ExportCommand extends MUMigrationBase {
 	}
 
 	/**
-	 * Export the whole site into a zip file
+	 * Export the whole site into a zip file.
 	 *
 	 * ## OPTIONS
 	 *

@@ -9,21 +9,21 @@ use TenUp\MU_Migration\Helpers;
 
 abstract class MUMigrationBase extends \WP_CLI_Command {
 	/**
-	 * Holds the command arguments
+	 * Holds the command arguments.
 	 *
 	 * @var array
 	 */
 	protected $args;
 
 	/**
-	 * Holds the command assoc arguments
+	 * Holds the command assoc arguments.
 	 *
 	 * @var array
 	 */
 	protected $assoc_args;
 
 	/**
-	 * Process the provided arguments
+	 * Process the provided arguments.
 	 *
 	 * @since 0.2.0
 	 *
@@ -150,7 +150,7 @@ abstract class MUMigrationBase extends \WP_CLI_Command {
 	}
 
 	/**
-	 * Output a line
+	 * Output a line.
 	 *
 	 * @param string $msg
 	 * @param bool   $verbose
@@ -162,7 +162,7 @@ abstract class MUMigrationBase extends \WP_CLI_Command {
 	}
 
 	/**
-	 * Output a log message
+	 * Output a log message.
 	 *
 	 * @param string $msg
 	 * @param bool   $verbose
@@ -174,7 +174,7 @@ abstract class MUMigrationBase extends \WP_CLI_Command {
 	}
 
 	/**
-	 * Output a success message
+	 * Output a success message.
 	 *
 	 * @param string $msg
 	 * @param bool   $verbose
@@ -186,7 +186,7 @@ abstract class MUMigrationBase extends \WP_CLI_Command {
 	}
 
 	/**
-	 * Output a warning
+	 * Output a warning.
 	 *
 	 * @param string $msg
 	 * @param bool   $verbose

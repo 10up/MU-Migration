@@ -9,10 +9,10 @@ use WP_CLI;
 class PostsCommand extends MUMigrationBase {
 
 	/**
-	 * Updates all post_author values in all wp_posts records that have post_author != 0
+	 * Updates all post_author values in all wp_posts records that have post_author != 0.
 	 *
 	 * It uses a map_file, containing the new user ID for each old user ID. This map files should be passed to the
-	 * command as an argument
+	 * command as an argument.
 	 *
 	 * ## OPTIONS
 	 *

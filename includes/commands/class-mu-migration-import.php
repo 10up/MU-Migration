@@ -10,7 +10,8 @@ use Alchemy\Zippy\Zippy;
 class ImportCommand extends MUMigrationBase {
 
 	/**
-	 * Imports all users from .csv file
+	 * Imports all users from .csv file.
+	 *
 	 * This command will create a map file containing the new user_id for each user, we do this because with this map file
 	 * we can update the post_author of all posts with the corresponding new user ID.
 	 *
@@ -64,7 +65,7 @@ class ImportCommand extends MUMigrationBase {
 		$delimiter = ',';
 
 		/**
-		 * This array will hold the new id for each old id
+		 * This array will hold the new id for each old id.
 		 *
 		 * Ex:
 		 * array(
@@ -134,22 +135,22 @@ class ImportCommand extends MUMigrationBase {
 						}
 
 						/**
-						 * Fires an action before exporting the custom user data
+						 * Fires an action before exporting the custom user data.
 						 *
 						 * @since 0.1.0
 						 *
-						 * @param array    $user_data The $user_data array
-						 * @param \WP_User $user      The user object
+						 * @param array    $user_data The $user_data array.
+						 * @param \WP_User $user      The user object.
 						 */
 						do_action( 'mu_migration/import/user/custom_data_before', $user_data, $user );
 
 						/**
-						 * Modify the default set of user data to be exported/imported
+						 * Modify the default set of user data to be exported/imported.
 						 *
 						 * @since 0.1.0
 						 *
 						 * @param array
-						 * @param \WP_User $user The user object
+						 * @param \WP_User $user The user object.
 						 */
 						$custom_user_data = apply_filters( 'mu_migration/export/user/data', array(), $user );
 
@@ -162,12 +163,12 @@ class ImportCommand extends MUMigrationBase {
 						}
 
 						/**
-						 * Fires an action after exporting the custom user data
+						 * Fires an action after exporting the custom user data.
 						 *
 						 * @since 0.1.0
 						 *
-						 * @param array    $user_data The $user_data array
-						 * @param \WP_User $user      The user object
+						 * @param array    $user_data The $user_data array.
+						 * @param \WP_User $user      The user object.
 						 */
 						do_action( 'mu_migration/import/user/custom_data_after', $user_data, $user );
 
@@ -227,10 +228,10 @@ class ImportCommand extends MUMigrationBase {
 	}
 
 	/**
-	 * Imports the tables from a single site instance
+	 * Imports the tables from a single site instance.
 	 *
-	 * This command will perform the search-replace as well as the necessary updates to make the new tables work with
-	 * multisite
+	 * This command will perform the search-replace as well as
+	 * the necessary updates to make the new tables work with multisite.
 	 *
 	 * ## OPTIONS
 	 *
@@ -374,7 +375,7 @@ class ImportCommand extends MUMigrationBase {
 	}
 
 	/**
-	 * Import a new site into multisite from a zip package
+	 * Import a new site into multisite from a zip package.
 	 *
 	 * ## OPTIONS
 	 *
@@ -544,9 +545,9 @@ class ImportCommand extends MUMigrationBase {
 	}
 
 	/**
-	 * Moves the plugins to the right directory
+	 * Moves the plugins to the right location.
 	 *
-	 * @param string $plugins_dir The path to the plugins to be moved over
+	 * @param string $plugins_dir
 	 */
 	private function move_plugins( $plugins_dir ) {
 		if ( file_exists( $plugins_dir ) ){
@@ -568,7 +569,7 @@ class ImportCommand extends MUMigrationBase {
 	}
 
 	/**
-	 * Moves the uploads folder to the right location
+	 * Moves the uploads folder to the right location.
 	 *
 	 * @param string $uploads_dir
 	 * @param int    $blog_id
@@ -585,7 +586,7 @@ class ImportCommand extends MUMigrationBase {
 	}
 
 	/**
-	 * Moves the themes to the right location
+	 * Moves the themes to the right location.
 	 *
 	 * @param string $themes_dir
 	 */
@@ -618,7 +619,7 @@ class ImportCommand extends MUMigrationBase {
 	}
 
 	/**
-	 * Creates a new site within multisite
+	 * Creates a new site within multisite.
 	 *
 	 * @param object $meta_data
 	 * @return bool|false|int
@@ -641,11 +642,11 @@ class ImportCommand extends MUMigrationBase {
 	}
 
 	/**
-	 * Replaces the db_prefix with a new one using sed
+	 * Replaces the db_prefix with a new one using sed.
 	 *
-	 * @param string $filename      The filename of the sql file to which the db prefix should be replaced
-	 * @param string $old_db_prefix The db prefix to be replaced
-	 * @param string $new_db_prefix The new db prefix
+	 * @param string $filename      The filename of the sql file to which the db prefix should be replaced.
+	 * @param string $old_db_prefix The db prefix to be replaced.
+	 * @param string $new_db_prefix The new db prefix.
 	 */
 	private function replace_db_prefix( $filename, $old_db_prefix, $new_db_prefix ) {
 		$new_prefix = $new_db_prefix;
@@ -678,10 +679,10 @@ class ImportCommand extends MUMigrationBase {
 	}
 
 	/**
-	 * Checks whether sed is available or not
+	 * Checks whether sed is available or not.
 	 *
-	 * @param bool $exit_on_error If set to true the script will be terminated if sed is not available
-	 * @return bool True if sed is available, false otherwise
+	 * @param bool $exit_on_error If set to true the script will be terminated if sed is not available.
+	 * @return bool True if sed is available, false otherwise.
 	 */
 	private function check_for_sed_presence( $exit_on_error = false ) {
 		$sed = \WP_CLI::launch( 'sed --version', false, false );

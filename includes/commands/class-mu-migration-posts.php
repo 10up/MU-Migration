@@ -4,6 +4,7 @@
  *
  */
 namespace TenUp\MU_Migration\Commands;
+
 use TenUp\MU_Migration\Helpers;
 use WP_CLI;
 
@@ -26,7 +27,7 @@ class PostsCommand extends MUMigrationBase {
 	 *
 	 * @synopsis <inputfile> --blog_id=<blog_id>
 	 */
-	public function update_author( $args = array(), $assoc_args = array(), $verbose = true ) {
+	public function update_author( array $args = array(), array $assoc_args = array(), $verbose = true ) {
 		global $wpdb;
 
 		$this->process_args(

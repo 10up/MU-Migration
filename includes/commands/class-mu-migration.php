@@ -1,5 +1,6 @@
 <?php
 namespace TenUp\MU_Migration\Commands;
+
 use WP_CLI;
 
 class MUMigration extends \WP_CLI_Command {

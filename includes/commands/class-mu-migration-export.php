@@ -4,9 +4,8 @@
  *
  */
 namespace TenUp\MU_Migration\Commands;
-use TenUp\MU_Migration\Helpers;
-use Alchemy\Zippy\Zippy;
 
+use Alchemy\Zippy\Zippy;
 
 class ExportCommand extends MUMigrationBase {
 
@@ -48,7 +47,7 @@ class ExportCommand extends MUMigrationBase {
 	 *
 	 * @synopsis <outputfile> [--blog_id=<blog_id>] [--tables=<table_list>] [--non-default-tables=<table_list>]
 	 */
-	public function tables( $args = array(), $assoc_args = array(), $verbose = true ) {
+	public function tables( array $args = array(), array $assoc_args = array(), $verbose = true ) {
 		global $wpdb;
 
 		$this->process_args(
@@ -159,7 +158,7 @@ class ExportCommand extends MUMigrationBase {
 	 *
 	 * @synopsis <outputfile> [--blog_id=<blog_id>] [--woocomerce]
 	 */
-	public function users( $args = array(), $assoc_args = array(), $verbose = true ) {
+	public function users( array $args = array(), array $assoc_args = array(), $verbose = true ) {
 		$this->process_args(
 			array(
 				0 => 'users.csv',
@@ -350,7 +349,7 @@ class ExportCommand extends MUMigrationBase {
 	 *
 	 * @synopsis [<zipfile>] [--blog_id=<blog_id>] [--tables=<table_list>] [--non-default-tables=<table_list>] [--plugins] [--themes] [--uploads] [--verbose]
 	 */
-	public function all( $args = array(), $assoc_args = array() ) {
+	public function all( array $args = array(), array $assoc_args = array() ) {
 		global $wpdb;
 
 		$switched = false;

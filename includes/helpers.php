@@ -1,5 +1,6 @@
 <?php
 namespace TenUp\MU_Migration\Helpers;
+
 use Alchemy\Zippy\Zippy;
 
 /**
@@ -161,7 +162,7 @@ function light_add_user_to_blog( $blog_id, $user_id, $role ) {
 
 	if ( ! $user ) {
 		restore_current_blog();
-		return new WP_Error( 'user_does_not_exist', __( 'The requested user does not exist.' ) );
+		return new \WP_Error( 'user_does_not_exist', __( 'The requested user does not exist.' ) );
 	}
 
 	if ( ! get_user_meta( $user_id, 'primary_blog', true ) ) {

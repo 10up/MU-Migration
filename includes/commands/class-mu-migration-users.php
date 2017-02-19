@@ -24,7 +24,7 @@ class UsersCommand extends MUMigrationBase {
 	 *
 	 * @synopsis [<newpassword>] [--blog_id=<blog_id>] [--reset] [--send_email] [--include=<users_id>]  [--exclude=<users_id>]
 	 */
-	public function update_passwords( $args = array(), $assoc_args = array() ) {
+	public function update_passwords( array $args = array(), array $assoc_args = array() ) {
 		$this->process_args(
 			array(
 				0 => '' //new password

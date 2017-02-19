@@ -33,8 +33,8 @@ abstract class MUMigrationBase extends \WP_CLI_Command {
 	 * @param array $assoc_args
 	 */
 	protected function process_args( $default_args = array(), $args = array(), $default_assoc_args = array(), $assoc_args = array() ) {
-		$this->args 		= $args + $default_args;
-		$this->assoc_args 	= wp_parse_args( $assoc_args, $default_assoc_args );
+		$this->args       = $args + $default_args;
+		$this->assoc_args = wp_parse_args( $assoc_args, $default_assoc_args );
 	}
 
 	/**
@@ -56,7 +56,7 @@ abstract class MUMigrationBase extends \WP_CLI_Command {
 			'cache_results '            => false,
 			'update_post_meta_cache'    => false,
 			'update_post_term_cache'    => false,
-			'offset'                    => 0
+			'offset'                    => 0,
 		);
 
 		/**
@@ -75,7 +75,7 @@ abstract class MUMigrationBase extends \WP_CLI_Command {
 		$counter   		= 0;
 
 		$found_posts 	= 0;
-		while( $query->have_posts() ) {
+		while ( $query->have_posts() ) {
 			$query->the_post();
 
 			$callback();
@@ -98,7 +98,7 @@ abstract class MUMigrationBase extends \WP_CLI_Command {
 		wp_reset_postdata();
 
 		$this->success( sprintf(
-			__("%d posts were updated", 'mu-migration'),
+			__( '%d posts were updated', 'mu-migration' ),
 			$counter
 		), $verbose );
 	}
@@ -117,7 +117,7 @@ abstract class MUMigrationBase extends \WP_CLI_Command {
 		$offset = 0;
 		$step = 1000;
 
-		$found_posts = $wpdb->get_col( "SELECT COUNT(ID) FROM {$table}");
+		$found_posts = $wpdb->get_col( "SELECT COUNT(ID) FROM {$table}" );
 
 		if ( ! $found_posts ) {
 			return false;
@@ -125,7 +125,7 @@ abstract class MUMigrationBase extends \WP_CLI_Command {
 
 		$found_posts = $found_posts[0];
 
-		$progress_bar = \WP_CLI\Utils\make_progress_bar( sprintf("[%d] %s", $found_posts, $message ), (int) $found_posts, 1 );
+		$progress_bar = \WP_CLI\Utils\make_progress_bar( sprintf( '[%d] %s', $found_posts, $message ), (int) $found_posts, 1 );
 		$progress_bar->display();
 
 		do {
@@ -133,7 +133,7 @@ abstract class MUMigrationBase extends \WP_CLI_Command {
 				$wpdb->prepare(
 					"SELECT * FROM {$table} LIMIT %d OFFSET %d", array(
 					$step,
-					$offset
+					$offset,
 				) )
 			);
 
@@ -146,7 +146,7 @@ abstract class MUMigrationBase extends \WP_CLI_Command {
 
 			$offset += $step;
 
-		} while( $results );
+		} while ( $results );
 	}
 
 	/**

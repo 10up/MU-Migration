@@ -113,13 +113,13 @@ class ExportCommand extends MUMigrationBase {
 					$table = trim( $table );
 
 					if ( in_array( $table, $tables_to_remove ) ) {
-						unset( $tables[$key] );
+						unset( $tables[ $key ] );
 					}
 				}
 			}
 
 			if ( ! empty( $this->assoc_args['non-default-tables'] ) ) {
-				$non_default_tables =explode( ',', $this->assoc_args['non-default-tables'] );
+				$non_default_tables = explode( ',', $this->assoc_args['non-default-tables'] );
 
 				$tables = array_unique( array_merge( $tables, $non_default_tables ) );
 			}
@@ -130,7 +130,7 @@ class ExportCommand extends MUMigrationBase {
 
 		if ( is_array( $tables ) && ! empty( $tables ) ) {
 			$export = \WP_CLI::launch_self(
-				"db export",
+				'db export',
 				array( $filename ),
 				array( 'tables' => implode( ',', $tables ) ),
 				false,
@@ -181,7 +181,7 @@ class ExportCommand extends MUMigrationBase {
 		$filename = $this->args[0];
 		$delimiter = ',';
 
-		$file_handler = fopen( $filename , 'w+' );
+		$file_handler = fopen( $filename, 'w+' );
 
 		if ( ! $file_handler ) {
 			\WP_CLI::error( __( 'Impossible to create the file', 'mu-migration' ) );
@@ -190,7 +190,7 @@ class ExportCommand extends MUMigrationBase {
 		$headers = self::getCSVHeaders();
 
 		$users_args = array(
-			'fields' => 'all'
+			'fields' => 'all',
 		);
 
 		if ( ! empty( $this->assoc_args['blog_id'] ) ) {
@@ -223,7 +223,7 @@ class ExportCommand extends MUMigrationBase {
 		/*
 		 * This first foreach will pragmatically find all users meta stored in the usersmeta table.
 		 */
-		foreach( $users as $user ) {
+		foreach ( $users as $user ) {
 			$role = isset( $user->roles[0] ) ? $user->roles[0] : '';
 
 			$user_data = array(
@@ -244,13 +244,13 @@ class ExportCommand extends MUMigrationBase {
 			 */
 			if ( count( $headers ) - count( $user_data ) > 0 ) {
 				$user_temp_data_arr = array_fill( 0, count( $headers ) - count( $user_data ), '' );
-				$user_data 			= array_merge( $user_data, $user_temp_data_arr );
+				$user_data          = array_merge( $user_data, $user_temp_data_arr );
 			}
 
-			$user_data	= array_combine( $headers, $user_data );
+			$user_data = array_combine( $headers, $user_data );
 
-			$user_meta 	= get_user_meta( $user->data->ID );
-			$meta_keys 	= array_keys( $user_meta );
+			$user_meta = get_user_meta( $user->data->ID );
+			$meta_keys = array_keys( $user_meta );
 
 			/*
 			 * Removing all unwanted meta keys.
@@ -262,7 +262,7 @@ class ExportCommand extends MUMigrationBase {
 					/*
 					 * Checking for unwanted meta keys.
 					 */
-					foreach( $excluded_meta_keys_regex as $regex ) {
+					foreach ( $excluded_meta_keys_regex as $regex ) {
 						if ( preg_match( $regex, $user_meta_key ) ) {
 							$can_add = false;
 						}
@@ -277,9 +277,9 @@ class ExportCommand extends MUMigrationBase {
 			}
 
 			// Get the meta keys again.
-			$meta_keys 	= array_keys( $user_meta );
+			$meta_keys = array_keys( $user_meta );
 
-			foreach( $meta_keys as  $user_meta_key ) {
+			foreach ( $meta_keys as $user_meta_key ) {
 				$value = $user_meta[ $user_meta_key ];
 
 				// get_user_meta always return an array whe no $key is passed.
@@ -468,10 +468,10 @@ class ExportCommand extends MUMigrationBase {
 			$files_to_zip['wp-content/uploads'] = $upload_dir['basedir'];
 		}
 
-		try{
+		try {
 			\WP_CLI::log( __( 'Zipping files....', 'mu-migration' ) );
-			$zip = $zippy->create( $zip_file , $files_to_zip, true );
-		} catch(\Exception $e) {
+			$zip = $zippy->create( $zip_file, $files_to_zip, true );
+		} catch ( \Exception $e ) {
 			\WP_CLI::warning( __( 'Unable to create the zip file', 'mu-migration' ) );
 		}
 

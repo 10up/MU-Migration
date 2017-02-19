@@ -25,7 +25,7 @@ if ( defined( 'ABSPATH' ) ) {
 	if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
 		require_once( 'vendor/autoload.php' );
 	} else {
-		die( "Please, run composer install first" );
+		die( 'Please, run composer install first' );
 	}
 }
 

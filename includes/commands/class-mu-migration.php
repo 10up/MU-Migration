@@ -14,10 +14,10 @@ class MUMigration extends \WP_CLI_Command {
 	 * @param array $assoc_args
 	 */
 	public function __invoke( $args, $assoc_args ) {
-		\cli\line( "MU-Migration version: %Yv" . TENUP_MU_MIGRATION_VERSION  . '%n');
+		\cli\line( 'MU-Migration version: %Yv' . TENUP_MU_MIGRATION_VERSION . '%n' );
 		\cli\line();
-		\cli\line( "Created by Nícholas André at 10up");
-		\cli\line("Github: https://github.com/10up/MU-Migration");
+		\cli\line( 'Created by Nícholas André at 10up' );
+		\cli\line( 'Github: https://github.com/10up/MU-Migration' );
 		\cli\line();
 	}
 }

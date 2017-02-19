@@ -125,7 +125,7 @@ class PostsCommand extends MUMigrationBase {
 			}
 		);
 
-		//Report
+		// Report.
 		if ( ! empty( $author_not_found ) ) {
 			$this->warning( sprintf(
 				__( '%d records failed to update its post_author: %s', 'mu-migration' ),

@@ -28,7 +28,7 @@ class UsersCommand extends MUMigrationBase {
 	public function update_passwords( $args = array(), $assoc_args = array() ) {
 		$this->process_args(
 			array(
-				0 => '' //new password
+				0 => '' // New password.
 			),
 			$args,
 			array(
@@ -123,7 +123,7 @@ class UsersCommand extends MUMigrationBase {
 		$title = sprintf( __('[%s] Password Reset'), $blogname );
 
 		/**
-		 * Filter the subject of the password reset email.
+		 * Filters the subject of the password reset email.
 		 *
 		 * @since 2.8.0
 		 * @since 4.4.0 Added the `$user_login` and `$user_data` parameters.
@@ -135,7 +135,7 @@ class UsersCommand extends MUMigrationBase {
 		$title = apply_filters( 'retrieve_password_title', $title, $user_login, $user_data );
 
 		/**
-		 * Filter the message body of the password reset mail.
+		 * Filters the message body of the password reset mail.
 		 *
 		 * @since 2.8.0
 		 * @since 4.1.0 Added `$user_login` and `$user_data` parameters.

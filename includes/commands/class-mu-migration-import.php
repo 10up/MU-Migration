@@ -35,7 +35,7 @@ class ImportCommand extends MUMigrationBase {
 
 		$this->process_args(
 			array(
-				0 => '', // .csv to import users
+				0 => '', // .csv to import users.
 			),
 			$args,
 			array(
@@ -67,11 +67,10 @@ class ImportCommand extends MUMigrationBase {
 		/**
 		 * This array will hold the new id for each old id.
 		 *
-		 * Ex:
-		 * array(
-		 *  'OLD_ID' => 'NEW_ID'
-		 * )
-		 *
+		 * Example:
+		 *    array(
+		 *      'OLD_ID' => 'NEW_ID'
+		 *    );
 		 */
 		$ids_maps = array();
 		$count = 0;
@@ -86,7 +85,7 @@ class ImportCommand extends MUMigrationBase {
 			switch_to_blog( $this->assoc_args[ 'blog_id' ] );
 			wp_suspend_cache_addition( true );
 			while( ( $data = fgetcsv( $input_file_handler, 0, $delimiter ) ) !== false ) {
-				//read the labels and skip
+				// Read the labels and skip.
 				if ( $line++ == 0 ) {
 					$labels = $data;
 					continue;
@@ -110,7 +109,7 @@ class ImportCommand extends MUMigrationBase {
 				if ( ! $user_exists ) {
 
 					/*
-					 * wp_insert_users accepts only the default user meta keys
+					 * wp_insert_users accepts only the default user meta keys.
 					 */
 					$default_user_data = array();
 					foreach( ExportCommand::getCSVHeaders() as $key ) {
@@ -119,7 +118,7 @@ class ImportCommand extends MUMigrationBase {
 						}
 					}
 
-					//All custom user meta data
+					// All custom user meta data.
 					$user_meta_data = array_diff_assoc( $user_data, $default_user_data );
 
 					$new_id = wp_insert_user( $default_user_data );
@@ -135,7 +134,7 @@ class ImportCommand extends MUMigrationBase {
 						}
 
 						/**
-						 * Fires an action before exporting the custom user data.
+						 * Fires before exporting the custom user data.
 						 *
 						 * @since 0.1.0
 						 *
@@ -145,7 +144,7 @@ class ImportCommand extends MUMigrationBase {
 						do_action( 'mu_migration/import/user/custom_data_before', $user_data, $user );
 
 						/**
-						 * Modify the default set of user data to be exported/imported.
+						 * Filters the default set of user data to be exported/imported.
 						 *
 						 * @since 0.1.0
 						 *
@@ -163,7 +162,7 @@ class ImportCommand extends MUMigrationBase {
 						}
 
 						/**
-						 * Fires an action after exporting the custom user data.
+						 * Fires after exporting the custom user data.
 						 *
 						 * @since 0.1.0
 						 *
@@ -203,7 +202,7 @@ class ImportCommand extends MUMigrationBase {
 			restore_current_blog();
 
 			if ( ! empty( $ids_maps ) ) {
-				//Saving the ids_maps to a file
+				// Saving the ids_maps to a file.
 				$output_file_handler = fopen( $this->assoc_args['map_file'], 'w+' );
 				fwrite( $output_file_handler, json_encode( $ids_maps ) );
 				fclose( $output_file_handler );
@@ -253,7 +252,7 @@ class ImportCommand extends MUMigrationBase {
 
 		$this->process_args(
 			array(
-				0 => '', // .sql file to import
+				0 => '', // .sql file to import.
 			),
 			$args,
 			array(
@@ -282,10 +281,10 @@ class ImportCommand extends MUMigrationBase {
 			WP_CLI::error( __( 'You should be running multisite in order to run this command', 'mu-migration' ) );
 		}
 
-		//terminates the script if sed is not installed
+		// Terminates the script if sed is not installed.
 		$this->check_for_sed_presence( true );
 
-		//replaces the db prefix and saves back the modifications to the sql file
+		// Replaces the db prefix and saves back the modifications to the sql file.
 		if ( ! empty( $this->assoc_args['new_prefix'] ) ) {
 			$this->replace_db_prefix( $filename, $this->assoc_args['old_prefix'], $this->assoc_args['new_prefix'] );
 		}
@@ -302,7 +301,7 @@ class ImportCommand extends MUMigrationBase {
 		if ( 0 === $import ) {
 			$this->log( __( 'Database imported', 'mu-migration' ), $verbose );
 
-			//perform search and replace
+			// Perform search and replace.
 			if ( ! empty( $this->assoc_args['old_url'] ) && ! empty( $this->assoc_args['new_url'] ) ) {
 				$this->log( __( 'Running search-replace', 'mu-migration' ), $verbose);
 
@@ -328,7 +327,7 @@ class ImportCommand extends MUMigrationBase {
 				$this->log( __( 'Running Search and Replace for uploads paths', 'mu-migration' ), $verbose );
 
                 /*
-                 * If the $blog_id equals 1 the upload path remains the same
+                 * If the $blog_id equals 1 the upload path remains the same.
                  */
                 if ( $this->assoc_args['blog_id'] > 1 ) {
                     $search_replace = \WP_CLI::launch_self(
@@ -348,12 +347,11 @@ class ImportCommand extends MUMigrationBase {
 
 			switch_to_blog( (int) $this->assoc_args['blog_id'] );
 
-			//Update the new tables to work properly with Multisite
-
+			// Update the new tables to work properly with multisite.
 			$new_wp_roles_option_key = $wpdb->prefix . 'user_roles';
 			$old_wp_roles_option_key = $this->assoc_args['old_prefix'] . 'user_roles';
 
-			//Updating user_roles option key
+			// Updating user_roles option key.
 			$wpdb->update(
 				$wpdb->options,
 				array(
@@ -375,7 +373,7 @@ class ImportCommand extends MUMigrationBase {
 	}
 
 	/**
-	 * Import a new site into multisite from a zip package.
+	 * Imports a new site into multisite from a zip package.
 	 *
 	 * ## OPTIONS
 	 *
@@ -466,7 +464,7 @@ class ImportCommand extends MUMigrationBase {
 		);
 
 		/*
-		 * If changing URL, then set the proper params to force search-replace in the tables method
+		 * If changing URL, then set the proper params to force search-replace in the tables method.
 		 */
 		if ( ! empty( $assoc_args[ 'new_url' ] ) ) {
 			$tables_assoc_args['new_url'] = esc_url( $assoc_args['new_url'] );
@@ -477,7 +475,7 @@ class ImportCommand extends MUMigrationBase {
 
 		/*
 		 * If the flag --mysql-single-transaction is passed, then the SQL is wrapped with
-		 * START TRANSACTION and COMMIT to insert in one single transaction
+		 * START TRANSACTION and COMMIT to insert in one single transaction.
 		 */
 		if ( $assoc_args['mysql-single-transaction'] ) {
 			Helpers\addTransaction( $sql[0] );
@@ -526,7 +524,7 @@ class ImportCommand extends MUMigrationBase {
 
 		add_action( 'init', function() use ( $blog_id ) {
 			/*
-			 * Flush the rewrite rules for the newly created site, just in case
+			 * Flush the rewrite rules for the newly created site, just in case.
 			 */
 			switch_to_blog( $blog_id );
 			flush_rewrite_rules();
@@ -682,7 +680,7 @@ class ImportCommand extends MUMigrationBase {
 	 * Checks whether sed is available or not.
 	 *
 	 * @param bool $exit_on_error If set to true the script will be terminated if sed is not available.
-	 * @return bool True if sed is available, false otherwise.
+	 * @return bool
 	 */
 	private function check_for_sed_presence( $exit_on_error = false ) {
 		$sed = \WP_CLI::launch( 'sed --version', false, false );

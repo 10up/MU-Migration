@@ -23,7 +23,7 @@ abstract class MUMigrationBase extends \WP_CLI_Command {
 	protected $assoc_args;
 
 	/**
-	 * Process the provided arguments.
+	 * Processes the provided arguments.
 	 *
 	 * @since 0.2.0
 	 *
@@ -38,7 +38,7 @@ abstract class MUMigrationBase extends \WP_CLI_Command {
 	}
 
 	/**
-	 * Run through all posts and execute the provided callback for each post
+	 * Runs through all posts and executes the provided callback for each post.
 	 *
 	 * @param array    $query_args
 	 * @param callable $callback
@@ -60,11 +60,11 @@ abstract class MUMigrationBase extends \WP_CLI_Command {
 		);
 
 		/**
-		 * Change the default args for querying posts in the all_posts method.
+		 * Filters the default args for querying posts in the all_posts method.
 		 *
 		 * @since 0.2.0
 		 *
-		 * @param array $default_args The default args
+		 * @param array $default_args
 		 */
 		$default_args 	= apply_filters( 'mu-migration/all_posts/default_args', $default_args );
 
@@ -104,7 +104,7 @@ abstract class MUMigrationBase extends \WP_CLI_Command {
 	}
 
 	/**
-	 * Run through all records on a specific table
+	 * Runs through all records on a specific table.
 	 *
 	 * @param string   $message
 	 * @param string   $table
@@ -150,7 +150,7 @@ abstract class MUMigrationBase extends \WP_CLI_Command {
 	}
 
 	/**
-	 * Output a line.
+	 * Outputs a line.
 	 *
 	 * @param string $msg
 	 * @param bool   $verbose
@@ -162,7 +162,7 @@ abstract class MUMigrationBase extends \WP_CLI_Command {
 	}
 
 	/**
-	 * Output a log message.
+	 * Outputs a log message.
 	 *
 	 * @param string $msg
 	 * @param bool   $verbose
@@ -174,7 +174,7 @@ abstract class MUMigrationBase extends \WP_CLI_Command {
 	}
 
 	/**
-	 * Output a success message.
+	 * Outputs a success message.
 	 *
 	 * @param string $msg
 	 * @param bool   $verbose
@@ -186,7 +186,7 @@ abstract class MUMigrationBase extends \WP_CLI_Command {
 	}
 
 	/**
-	 * Output a warning.
+	 * Outputs a warning.
 	 *
 	 * @param string $msg
 	 * @param bool   $verbose

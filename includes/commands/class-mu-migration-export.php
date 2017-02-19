@@ -34,7 +34,7 @@ class ExportCommand extends MUMigrationBase {
 	}
 
 	/**
-	 * Export the site's table and optionally replaces the database prefix.
+	 * Exports the site's table and optionally replaces the database prefix.
 	 *
 	 * ## OPTIONS
 	 *
@@ -149,7 +149,7 @@ class ExportCommand extends MUMigrationBase {
 	}
 
 	/**
-	 * Export all users to a .csv file.
+	 * Exports all users to a .csv file.
 	 *
 	 * ## OPTIONS
 	 *
@@ -227,12 +227,12 @@ class ExportCommand extends MUMigrationBase {
 			$role = isset( $user->roles[0] ) ? $user->roles[0] : '';
 
 			$user_data = array(
-				// General Info
+				// General Info.
 				$user->data->ID, $user->data->user_login, $user->data->user_pass, $user->data->user_nicename,
 				$user->data->user_email, $user->data->user_url, $user->data->user_registered,  $role, $user->data->user_status,
 				$user->data->display_name,
 
-				//User Meta
+				// User Meta.
 				$user->get( 'rich_editing' ), $user->get( 'admin_color' ), $user->get( 'show_admin_bar_front' ),
 				$user->get( 'first_name' ), $user->get( 'last_name' ), $user->get( 'nickname' ), $user->get( 'aim' ),
 				$user->get( 'yim' ), $user->get( 'jabber' ), $user->get( 'description' ),
@@ -240,7 +240,7 @@ class ExportCommand extends MUMigrationBase {
 
 			/*
 			 * Keeping arrays consistent, not all users have the same meta, so it's possible to have some users who
-			 * don't even have a given meta key, we must assure that this users have an empty column for these fields
+			 * don't even have a given meta key. We must assure that these users have an empty column for these fields.
 			 */
 			if ( count( $headers ) - count( $user_data ) > 0 ) {
 				$user_temp_data_arr = array_fill( 0, count( $headers ) - count( $user_data ), '' );
@@ -253,14 +253,14 @@ class ExportCommand extends MUMigrationBase {
 			$meta_keys 	= array_keys( $user_meta );
 
 			/*
-			 * Removing all unwanted meta keys
+			 * Removing all unwanted meta keys.
 			 */
 			foreach ( $meta_keys as $user_meta_key ) {
 				if ( ! isset( $excluded_meta_keys[ $user_meta_key ] ) ) {
 					$can_add = true;
 
 					/*
-					 * Checking for unwanted meta keys
+					 * Checking for unwanted meta keys.
 					 */
 					foreach( $excluded_meta_keys_regex as $regex ) {
 						if ( preg_match( $regex, $user_meta_key ) ) {
@@ -276,18 +276,18 @@ class ExportCommand extends MUMigrationBase {
 				}
 			}
 
-			//get the meta keys again
+			// Get the meta keys again.
 			$meta_keys 	= array_keys( $user_meta );
 
 			foreach( $meta_keys as  $user_meta_key ) {
 				$value = $user_meta[ $user_meta_key ];
 
-				//get_user_meta always return an array whe no $key is passed
+				// get_user_meta always return an array whe no $key is passed.
 				if ( is_array( $value ) && 1 === count( $value ) ) {
 					$value = $value[0];
 				}
 
-				//if it's still an array or object, then we need to serialize
+				// If it's still an array or object, then we need to serialize.
 				if ( is_array( $value ) || is_object( $value ) ) {
 					$value = serialize( $value );
 				}
@@ -295,12 +295,12 @@ class ExportCommand extends MUMigrationBase {
 				$user_data[ $user_meta_key ] = $value;
 			}
 
-			//Adding the meta_keys that aren't in the $headers variable to the $headers variable
+			// Adding the meta_keys that aren't in the $headers variable to the $headers variable.
 			$diff		= array_diff( $meta_keys, $headers );
 			$headers 	= array_merge( $headers, $diff );
 
 			/**
-			 * Modify the default set of user data to be exported/imported.
+			 * Filters the default set of user data to be exported/imported.
 			 *
 			 * @since 0.1.0
 			 *
@@ -322,7 +322,7 @@ class ExportCommand extends MUMigrationBase {
 		}
 
 		/*
-		 * Now that we have all users meta keys, we can now save everything into a csv file
+		 * Now that we have all users meta keys, we can save everything into a csv file.
 		 */
 		fputcsv( $file_handler, $headers, $delimiter );
 
@@ -344,7 +344,7 @@ class ExportCommand extends MUMigrationBase {
 	}
 
 	/**
-	 * Export the whole site into a zip file.
+	 * Exports the whole site into a zip file.
 	 *
 	 * ## OPTIONS
 	 *
@@ -418,7 +418,7 @@ class ExportCommand extends MUMigrationBase {
 		$rand = rand();
 
 		/*
-		 * Adding rand() to the temporary file names to guarantee uniqueness
+		 * Adding rand() to the temporary file names to guarantee uniqueness.
 		 */
 		$users_file 	= 'mu-migration-' . $rand . sanitize_title( $site_data['name'] ) . '.csv';
 		$tables_file 	= 'mu-migration-' . $rand . sanitize_title( $site_data['name'] ) . '.sql';
@@ -438,7 +438,7 @@ class ExportCommand extends MUMigrationBase {
 		$zip = null;
 
 		/*
-		 * Removing previous $zip_file, if any
+		 * Removing previous $zip_file, if any.
 		 */
 		if ( file_exists( $zip_file ) ) {
 			unlink( $zip_file );

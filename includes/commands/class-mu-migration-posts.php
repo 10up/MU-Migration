@@ -20,7 +20,7 @@ class PostsCommand extends MUMigrationBase {
 	 * <inputfile>
 	 * : The name of the json map file
 	 *
-	 * ## EXAMBLES
+	 * ## EXAMPLES
 	 *
 	 *   wp mu-migration posts update_author map_users.json --blog_id=2
 	 *
@@ -52,7 +52,7 @@ class PostsCommand extends MUMigrationBase {
 
 		switch_to_blog( (int) $this->assoc_args['blog_id'] );
 
-		$is_woocommerce = Helpers\is_woocomnerce_active();
+		$is_woocommerce = Helpers\is_woocommerce_active();
 
 		$ids_map = json_decode( file_get_contents( $filename ) );
 
@@ -125,7 +125,7 @@ class PostsCommand extends MUMigrationBase {
 		//Report
 		if ( ! empty( $author_not_found ) ) {
 			$this->warning( sprintf(
-				__( '%d records failed to update its post_author %s', 'mu-migration' ),
+				__( '%d records failed to update its post_author: %s', 'mu-migration' ),
 				count( $author_not_found ),
 				implode( ',', $author_not_found )
 			), $verbose );
@@ -133,7 +133,7 @@ class PostsCommand extends MUMigrationBase {
 
 		if ( ! empty( $equals_id ) ) {
 			$this->warning( sprintf(
-				__( 'The following records have the new ID equal to the old ID', 'mu-migration' ),
+				__( 'The following records have the new ID equal to the old ID: %s', 'mu-migration' ),
 				implode( ',', $equals_id )
 			), $verbose );
 		}

@@ -19,7 +19,7 @@ class ImportCommand extends MUMigrationBase {
 	 * <inputfile>
 	 * : The name of the exported .csv file
 	 *
-	 * ## EXAMBLES
+	 * ## EXAMPLES
 	 *
 	 *   wp mu-migration import users users.csv --map_file=ids_maps.json
 	 *
@@ -74,7 +74,7 @@ class ImportCommand extends MUMigrationBase {
 		$labels = array();
 
 		if ( false !== $input_file_handler ) {
-			$this->line( sprintf( "Parsing %s...", $filename ), $verbose );
+			$this->line( sprintf( __( 'Parsing %s...', 'mu-migration' ), $filename ), $verbose );
 
 			$line = 0;
 
@@ -132,7 +132,7 @@ class ImportCommand extends MUMigrationBase {
 						/**
 						 * Fires an action before exporting the custom user data
 						 *
-						 * @sinec 0.1.0
+						 * @since 0.1.0
 						 *
 						 * @param Array $user_data The $user_data array
 						 * @param WP_User $user The user object
@@ -233,7 +233,7 @@ class ImportCommand extends MUMigrationBase {
 	 * <inputfile>
 	 * : The name of the exported .sql file
 	 *
-	 * ## EXAMBLES
+	 * ## EXAMPLES
 	 *
 	 *   wp mu-migration import tables site.sql --old_prefix=wp_ --old_url=old_domain.com --new_url=new_domain.com
 	 *
@@ -373,7 +373,7 @@ class ImportCommand extends MUMigrationBase {
 	 * <file>
 	 * : The name of the exported .zip file
 	 *
-	 * ## EXAMBLES
+	 * ## EXAMPLES
 	 *
 	 *      wp mu-migration import all site.zip
 	 *
@@ -480,7 +480,7 @@ class ImportCommand extends MUMigrationBase {
 			'blog_id'	=> $blog_id
 		);
 
-		WP_CLI::log( "Moving files..." );
+		WP_CLI::log( __( 'Moving files...', 'mu-migration' ) );
 
 		if ( ! empty( $plugins_folder ) ) {
 			$this->move_plugins( $plugins_folder[0] );
@@ -539,7 +539,7 @@ class ImportCommand extends MUMigrationBase {
 	 */
 	private function move_plugins( $plugins_dir ) {
 		if ( file_exists( $plugins_dir ) ){
-			WP_CLI::log( 'Moving Plugins...' );
+			WP_CLI::log( __( 'Moving Plugins...', 'mu-migration' ) );
 			$plugins 			= new \DirectoryIterator( $plugins_dir );
 			$installed_plugins 	= WP_PLUGIN_DIR;
 
@@ -563,7 +563,7 @@ class ImportCommand extends MUMigrationBase {
 	 */
 	private function move_uploads( $uploads_dir, $blog_id ) {
 		if ( file_exists( $uploads_dir ) ){
-			\WP_CLI::log( 'Moving Uploads...' );
+			\WP_CLI::log( __( 'Moving Uploads...', 'mu-migration' ) );
 			switch_to_blog( $blog_id );
 			$dest_uploads_dir = wp_upload_dir();
 			restore_current_blog();
@@ -579,7 +579,7 @@ class ImportCommand extends MUMigrationBase {
 	 */
 	private function move_themes( $themes_dir ) {
 		if ( file_exists( $themes_dir ) ){
-			WP_CLI::log( 'Moving Themes...' );
+			WP_CLI::log( __( 'Moving Themes...', 'mu-migration' ) );
 			$themes 			= new \DirectoryIterator( $themes_dir );
 			$installed_themes 	= get_theme_root();
 

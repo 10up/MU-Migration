@@ -18,7 +18,7 @@ class UsersCommand extends MUMigrationBase {
 	 * <newpassword>
 	 * : The new password for the users set
 	 *
-	 * ## EXAMBLES
+	 * ## EXAMPLES
 	 *
 	 *   wp mu-migration users update_passwords --reset --blog_id=2 --send_email
 	 *
@@ -78,7 +78,7 @@ class UsersCommand extends MUMigrationBase {
 
 			wp_set_password( $new_password, $user->data->ID );
 
-			WP_CLI::log( __( sprintf( 'Password updated for user #%d:%s', $user->data->ID, $user->data->user_login ), 'mu-migration') );
+			WP_CLI::log( sprintf( __( 'Password updated for user #%d:%s', 'mu-migration' ), $user->data->ID, $user->data->user_login ) );
 
 			if ( $send_email ) {
 				$this->send_reset_link( $user->data );

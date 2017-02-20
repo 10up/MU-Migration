@@ -32,7 +32,7 @@ abstract class MUMigrationBase extends \WP_CLI_Command {
 	 * @param array $default_assoc_args
 	 * @param array $assoc_args
 	 */
-	protected function process_args( $default_args = array(), $args = array(), $default_assoc_args = array(), $assoc_args = array() ) {
+	protected function process_args( array $default_args = array(), array $args = array(), array $default_assoc_args = array(), array $assoc_args = array() ) {
 		$this->args 		= $args + $default_args;
 		$this->assoc_args 	= wp_parse_args( $assoc_args, $default_assoc_args );
 	}
@@ -46,7 +46,7 @@ abstract class MUMigrationBase extends \WP_CLI_Command {
 	 */
 	protected function all_posts( $query_args, $callback, $verbose = true ) {
 		if ( ! is_callable( $callback ) ) {
-			self::error( __( "The provided callback is invalid", 'mu-migration' ) );
+			WP_CLI::error( __( "The provided callback is invalid", 'mu-migration' ) );
 		}
 
 		$default_args = array(
@@ -147,6 +147,8 @@ abstract class MUMigrationBase extends \WP_CLI_Command {
 			$offset += $step;
 
 		} while( $results );
+
+		return true;
 	}
 
 	/**

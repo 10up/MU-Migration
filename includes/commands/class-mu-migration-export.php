@@ -3,9 +3,8 @@
  * @package TenUp\MU_Migration
  */
 namespace TenUp\MU_Migration\Commands;
-use TenUp\MU_Migration\Helpers;
-use Alchemy\Zippy\Zippy;
 
+use Alchemy\Zippy\Zippy;
 
 class ExportCommand extends MUMigrationBase {
 
@@ -51,7 +50,7 @@ class ExportCommand extends MUMigrationBase {
 	 * @param array $assoc_args
 	 * @param bool  $verbose
 	 */
-	public function tables( $args = array(), $assoc_args = array(), $verbose = true ) {
+	public function tables( array $args = array(), array $assoc_args = array(), $verbose = true ) {
 		global $wpdb;
 
 		$this->process_args(
@@ -166,7 +165,7 @@ class ExportCommand extends MUMigrationBase {
 	 * @param array $assoc_args
 	 * @param bool  $verbose
 	 */
-	public function users( $args = array(), $assoc_args = array(), $verbose = true ) {
+	public function users( array $args = array(), array $assoc_args = array(), $verbose = true ) {
 		$this->process_args(
 			array(
 				0 => 'users.csv',
@@ -360,7 +359,7 @@ class ExportCommand extends MUMigrationBase {
 	 * @param array $args
 	 * @param array $assoc_args
 	 */
-	public function all( $args = array(), $assoc_args = array() ) {
+	public function all( array $args = array(), array $assoc_args = array() ) {
 		global $wpdb;
 
 		$switched = false;

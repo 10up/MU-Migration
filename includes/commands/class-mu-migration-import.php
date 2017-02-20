@@ -3,9 +3,9 @@
  * @package TenUp\MU_Migration
  */
 namespace TenUp\MU_Migration\Commands;
+
 use TenUp\MU_Migration\Helpers;
 use WP_CLI;
-use Alchemy\Zippy\Zippy;
 
 class ImportCommand extends MUMigrationBase {
 
@@ -30,7 +30,7 @@ class ImportCommand extends MUMigrationBase {
 	 * @param array $assoc_args
 	 * @param bool  $verbose
 	 */
-	public function users( $args = array(), $assoc_args = array(), $verbose = true ) {
+	public function users( array $args = array(), array $assoc_args = array(), $verbose = true ) {
 		global $wpdb;
 
 		$this->process_args(
@@ -247,7 +247,7 @@ class ImportCommand extends MUMigrationBase {
 	 * @param array $assoc_args
 	 * @param bool  $verbose
 	 */
-	public function tables( $args = array(), $assoc_args = array(), $verbose = true ) {
+	public function tables( array $args = array(), array $assoc_args = array(), $verbose = true ) {
 		global $wpdb;
 
 		$this->process_args(
@@ -389,7 +389,7 @@ class ImportCommand extends MUMigrationBase {
 	 * @param array $args
 	 * @param array $assoc_args
 	 */
-	public function all( $args = array(), $assoc_args = array() ) {
+	public function all( array $args = array(), array $assoc_args = array() ) {
 		$this->process_args(
 			array(),
 			$args,

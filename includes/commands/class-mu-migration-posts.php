@@ -3,6 +3,7 @@
  * @package TenUp\MU_Migration
  */
 namespace TenUp\MU_Migration\Commands;
+
 use TenUp\MU_Migration\Helpers;
 use WP_CLI;
 
@@ -29,7 +30,7 @@ class PostsCommand extends MUMigrationBase {
 	 * @param array $assoc_args
 	 * @param bool  $verbose
 	 */
-	public function update_author( $args = array(), $assoc_args = array(), $verbose = true ) {
+	public function update_author( array $args = array(), array $assoc_args = array(), $verbose = true ) {
 		global $wpdb;
 
 		$this->process_args(

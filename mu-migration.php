@@ -18,7 +18,7 @@ if ( defined( 'TENUP_MU_MIGRATION_VERSION' ) || ! defined( 'WP_CLI' ) ) {
 }
 
 define( 'TENUP_MU_MIGRATION_VERSION', '0.2.7' );
-define( 'TENUP_MU_MIGRATION_COMMANDS_PATH', __DIR__ . '/includes/commands/' );
+define( 'TENUP_MU_MIGRATION_COMMANDS_PATH', __DIR__ . '/includes/commands' );
 
 // we only need to require autoload if running as a plugin
 if ( defined( 'ABSPATH' ) ) {
@@ -31,9 +31,9 @@ if ( defined( 'ABSPATH' ) ) {
 
 require_once __DIR__ . '/includes/helpers.php';
 
-require_once TENUP_MU_MIGRATION_COMMANDS_PATH . 'class-mu-migration.php';
-require_once TENUP_MU_MIGRATION_COMMANDS_PATH . 'class-mu-migration-base.php';
-require_once TENUP_MU_MIGRATION_COMMANDS_PATH . 'class-mu-migration-export.php';
-require_once TENUP_MU_MIGRATION_COMMANDS_PATH . 'class-mu-migration-import.php';
-require_once TENUP_MU_MIGRATION_COMMANDS_PATH . 'class-mu-migration-posts.php';
-require_once TENUP_MU_MIGRATION_COMMANDS_PATH . 'class-mu-migration-users.php';
+require_once TENUP_MU_MIGRATION_COMMANDS_PATH . '/class-mu-migration.php';
+require_once TENUP_MU_MIGRATION_COMMANDS_PATH . '/class-mu-migration-base.php';
+require_once TENUP_MU_MIGRATION_COMMANDS_PATH . '/class-mu-migration-export.php';
+require_once TENUP_MU_MIGRATION_COMMANDS_PATH . '/class-mu-migration-import.php';
+require_once TENUP_MU_MIGRATION_COMMANDS_PATH . '/class-mu-migration-posts.php';
+require_once TENUP_MU_MIGRATION_COMMANDS_PATH . '/class-mu-migration-users.php';

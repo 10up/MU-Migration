@@ -1,7 +1,6 @@
 <?php
 /**
- *  @package TenUp\MU_Migration
- *
+ * @package TenUp\MU_Migration
  */
 namespace TenUp\MU_Migration\Commands;
 
@@ -10,8 +9,7 @@ use WP_CLI;
 class UsersCommand extends MUMigrationBase {
 
 	/**
-	 * Updates/resets users passwords and optionally send a email reset link
-	 *
+	 * Updates/resets users passwords and optionally sends an email reset link.
 	 *
 	 * ## OPTIONS
 	 *
@@ -23,11 +21,14 @@ class UsersCommand extends MUMigrationBase {
 	 *   wp mu-migration users update_passwords --reset --blog_id=2 --send_email
 	 *
 	 * @synopsis [<newpassword>] [--blog_id=<blog_id>] [--reset] [--send_email] [--include=<users_id>]  [--exclude=<users_id>]
+	 *
+	 * @param array $args
+	 * @param array $assoc_args
 	 */
 	public function update_passwords( $args = array(), $assoc_args = array() ) {
 		$this->process_args(
 			array(
-				0 => '' //new password
+				0 => '' // New password.
 			),
 			$args,
 			array(
@@ -88,11 +89,10 @@ class UsersCommand extends MUMigrationBase {
 	}
 
 	/**
-	 * Based on retrieve_passwords
+	 * Handles sending password retrieval email to user (based on retrieve_password).
 	 *
 	 * @param $user_data
-	 *
-	 * @return bool|string|\WP_Error
+	 * @return bool|\WP_Error
 	 */
 	private function send_reset_link( $user_data ) {
 
@@ -123,27 +123,27 @@ class UsersCommand extends MUMigrationBase {
 		$title = sprintf( __('[%s] Password Reset'), $blogname );
 
 		/**
-		 * Filter the subject of the password reset email.
+		 * Filters the subject of the password reset email.
 		 *
 		 * @since 2.8.0
 		 * @since 4.4.0 Added the `$user_login` and `$user_data` parameters.
 		 *
-		 * @param string  $title      Default email title.
-		 * @param string  $user_login The username for the user.
-		 * @param WP_User $user_data  WP_User object.
+		 * @param string   $title      Default email title.
+		 * @param string   $user_login The username for the user.
+		 * @param \WP_User $user_data  WP_User object.
 		 */
 		$title = apply_filters( 'retrieve_password_title', $title, $user_login, $user_data );
 
 		/**
-		 * Filter the message body of the password reset mail.
+		 * Filters the message body of the password reset mail.
 		 *
 		 * @since 2.8.0
 		 * @since 4.1.0 Added `$user_login` and `$user_data` parameters.
 		 *
-		 * @param string  $message    Default mail message.
-		 * @param string  $key        The activation key.
-		 * @param string  $user_login The username for the user.
-		 * @param WP_User $user_data  WP_User object.
+		 * @param string   $message    Default mail message.
+		 * @param string   $key        The activation key.
+		 * @param string   $user_login The username for the user.
+		 * @param \WP_User $user_data  WP_User object.
 		 */
 		$message = apply_filters( 'retrieve_password_message', $message, $key, $user_login, $user_data );
 

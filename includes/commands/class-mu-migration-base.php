@@ -1,4 +1,7 @@
 <?php
+/**
+ * @package TenUp\MU_Migration
+ */
 namespace TenUp\MU_Migration\Commands;
 
 use WP_CLI;
@@ -6,21 +9,21 @@ use TenUp\MU_Migration\Helpers;
 
 abstract class MUMigrationBase extends \WP_CLI_Command {
 	/**
-	 * Holds the command arguments
+	 * Holds the command arguments.
 	 *
-	 * @var Array
+	 * @var array
 	 */
 	protected $args;
 
 	/**
-	 * Holds the command assoc arguments
+	 * Holds the command assoc arguments.
 	 *
-	 * @var Array
+	 * @var array
 	 */
 	protected $assoc_args;
 
 	/**
-	 * Process the provided arguments
+	 * Processes the provided arguments.
 	 *
 	 * @since 0.2.0
 	 *
@@ -35,10 +38,11 @@ abstract class MUMigrationBase extends \WP_CLI_Command {
 	}
 
 	/**
-	 * Run through all posts and execute the provided callback for each post
+	 * Runs through all posts and executes the provided callback for each post.
 	 *
-	 * @param $query_args
-	 * @param $callback
+	 * @param array    $query_args
+	 * @param callable $callback
+	 * @param bool     $verbose
 	 */
 	protected function all_posts( $query_args, $callback, $verbose = true ) {
 		if ( ! is_callable( $callback ) ) {
@@ -56,11 +60,11 @@ abstract class MUMigrationBase extends \WP_CLI_Command {
 		);
 
 		/**
-		 * Change the default args for querying posts in the all_posts method.
+		 * Filters the default args for querying posts in the all_posts method.
 		 *
 		 * @since 0.2.0
 		 *
-		 * @param Array $default_args The default args
+		 * @param array $default_args
 		 */
 		$default_args 	= apply_filters( 'mu-migration/all_posts/default_args', $default_args );
 
@@ -100,11 +104,12 @@ abstract class MUMigrationBase extends \WP_CLI_Command {
 	}
 
 	/**
-	 * Run through all records on a specific table
+	 * Runs through all records on a specific table.
 	 *
-	 * @param $message
-	 * @param $table
-	 * @param $callback
+	 * @param string   $message
+	 * @param string   $table
+	 * @param callable $callback
+	 * @return bool
 	 */
 	protected function all_records( $message, $table, $callback ) {
 		global $wpdb;
@@ -144,24 +149,48 @@ abstract class MUMigrationBase extends \WP_CLI_Command {
 		} while( $results );
 	}
 
+	/**
+	 * Outputs a line.
+	 *
+	 * @param string $msg
+	 * @param bool   $verbose
+	 */
 	protected function line( $msg, $verbose ) {
 		if ( $verbose ) {
 			WP_CLI::line( $msg );
 		}
 	}
 
+	/**
+	 * Outputs a log message.
+	 *
+	 * @param string $msg
+	 * @param bool   $verbose
+	 */
 	protected function log( $msg, $verbose ) {
 		if ( $verbose ) {
 			WP_CLI::log( $msg );
 		}
 	}
 
+	/**
+	 * Outputs a success message.
+	 *
+	 * @param string $msg
+	 * @param bool   $verbose
+	 */
 	protected function success( $msg, $verbose ) {
 		if ( $verbose ) {
 			WP_CLI::success( $msg );
 		}
 	}
 
+	/**
+	 * Outputs a warning.
+	 *
+	 * @param string $msg
+	 * @param bool   $verbose
+	 */
 	protected function warning( $msg, $verbose ) {
 		if ( $verbose ) {
 			WP_CLI::warning( $msg );

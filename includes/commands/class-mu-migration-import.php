@@ -3,6 +3,7 @@
  * @package TenUp\MU_Migration
  */
 namespace TenUp\MU_Migration\Commands;
+
 use TenUp\MU_Migration\Helpers;
 use WP_CLI;
 use Alchemy\Zippy\Zippy;
@@ -72,10 +73,10 @@ class ImportCommand extends MUMigrationBase {
 		 *      'OLD_ID' => 'NEW_ID'
 		 *    );
 		 */
-		$ids_maps = array();
-		$count = 0;
+		$ids_maps       = array();
+		$labels         = array();
+		$count          = 0;
 		$existing_users = 0;
-		$labels = array();
 
 		if ( false !== $input_file_handler ) {
 			$this->line( sprintf( __( 'Parsing %s...', 'mu-migration' ), $filename ), $verbose );
@@ -104,7 +105,7 @@ class ImportCommand extends MUMigrationBase {
 					)
 				);
 
-				$user_exists = $user_exists  ? $user_exists[0] : false;
+				$user_exists = $user_exists ? $user_exists[0] : false;
 
 				if ( ! $user_exists ) {
 
@@ -256,11 +257,11 @@ class ImportCommand extends MUMigrationBase {
 			),
 			$args,
 			array(
-				'blog_id'       => '',
-				'old_url'       => '',
-				'new_url'       => '',
-				'old_prefix'    => $wpdb->prefix,
-				'new_prefix'	=> ''
+				'blog_id'    => '',
+				'old_url'    => '',
+				'new_url'    => '',
+				'old_prefix' => $wpdb->prefix,
+				'new_prefix' => '',
 			),
 			$assoc_args
 		);
@@ -271,7 +272,6 @@ class ImportCommand extends MUMigrationBase {
 		if ( empty( $filename ) || ! file_exists( $filename ) ) {
 			WP_CLI::error( __( 'Invalid input file', 'mu-migration' ) );
 		}
-
 
 		if ( empty( $this->assoc_args['blog_id'] ) ) {
 			WP_CLI::error( __( 'Please, provide a blog_id ', 'mu-migration' ) );
@@ -326,23 +326,23 @@ class ImportCommand extends MUMigrationBase {
 
 				$this->log( __( 'Running Search and Replace for uploads paths', 'mu-migration' ), $verbose );
 
-                /*
-                 * If the $blog_id equals 1 the upload path remains the same.
-                 */
-                if ( $this->assoc_args['blog_id'] > 1 ) {
-                    $search_replace = \WP_CLI::launch_self(
-                        "search-replace",
-                        array( 'wp-content/uploads', 'wp-content/uploads/sites/' . $this->assoc_args['blog_id'] ),
-                        array(),
-                        false,
-                        false,
-                        array( 'url' => $new_url )
-                    );
+				/*
+				 * If the $blog_id equals 1 the upload path remains the same.
+				 */
+				if ( $this->assoc_args['blog_id'] > 1 ) {
+					$search_replace = \WP_CLI::launch_self(
+						'search-replace',
+						array( 'wp-content/uploads', 'wp-content/uploads/sites/' . $this->assoc_args['blog_id'] ),
+						array(),
+						false,
+						false,
+						array( 'url' => $new_url )
+					);
 
-                    if ( 0 === $search_replace ) {
-                        $this->log( __( 'Uploads paths have been successfully updated', 'mu-migration' ), $verbose );
-                    }
-                }
+					if ( 0 === $search_replace ) {
+						$this->log( __( 'Uploads paths have been successfully updated', 'mu-migration' ), $verbose );
+					}
+				}
 			}
 
 			switch_to_blog( (int) $this->assoc_args['blog_id'] );
@@ -355,16 +355,16 @@ class ImportCommand extends MUMigrationBase {
 			$wpdb->update(
 				$wpdb->options,
 				array(
-					'option_name' => $new_wp_roles_option_key
+					'option_name' => $new_wp_roles_option_key,
 				),
 				array(
-					'option_name' => $old_wp_roles_option_key
+					'option_name' => $old_wp_roles_option_key,
 				),
 				array(
-					'%s'
+					'%s',
 				),
 				array(
-					'%s'
+					'%s',
 				)
 			);
 
@@ -394,9 +394,9 @@ class ImportCommand extends MUMigrationBase {
 			array(),
 			$args,
 			array(
-				'blog_id' 	=> '',
-				'new_url'	=> '',
-				'mysql-single-transaction' => false
+				'blog_id'                  => '',
+				'new_url'                  => '',
+				'mysql-single-transaction' => false,
 			),
 			$assoc_args
 		);
@@ -428,12 +428,12 @@ class ImportCommand extends MUMigrationBase {
 		 * Looks for required (.json, .csv and .sql) files and for the optional folders
 		 * that can live in the zip package (plugins, themes and uploads).
 		 */
-		$site_meta_data     = glob( $temp_dir . '/*.json' 	);
-		$users      		= glob( $temp_dir . '/*.csv' 	);
-		$sql 				= glob( $temp_dir . '/*.sql' 	);
-		$plugins_folder 	= glob( $temp_dir . '/wp-content/plugins' );
-		$themes_folder 		= glob( $temp_dir . '/wp-content/themes'  );
-		$uploads_folder 	= glob( $temp_dir . '/wp-content/uploads' );
+		$site_meta_data = glob( $temp_dir . '/*.json' );
+		$users          = glob( $temp_dir . '/*.csv' );
+		$sql            = glob( $temp_dir . '/*.sql' );
+		$plugins_folder = glob( $temp_dir . '/wp-content/plugins' );
+		$themes_folder  = glob( $temp_dir . '/wp-content/themes' );
+		$uploads_folder = glob( $temp_dir . '/wp-content/uploads' );
 
 		if ( empty( $site_meta_data ) || empty( $users ) || empty( $sql ) ) {
 			WP_CLI::error( __( "There's something wrong with your zip package, unable to find required files", 'mu-migration' ) );
@@ -458,9 +458,9 @@ class ImportCommand extends MUMigrationBase {
 		}
 
 		$tables_assoc_args = array(
-			'blog_id'		=> $blog_id,
-			'old_prefix'	=> $site_meta_data->db_prefix,
-			'new_prefix'	=> Helpers\get_db_prefix( $blog_id )
+			'blog_id'    => $blog_id,
+			'old_prefix' => $site_meta_data->db_prefix,
+			'new_prefix' => Helpers\get_db_prefix( $blog_id ),
 		);
 
 		/*
@@ -624,7 +624,7 @@ class ImportCommand extends MUMigrationBase {
 	 */
 	private function create_new_site( $meta_data ) {
 		$parsed_url = parse_url( esc_url( $meta_data->url ) );
-		$site_id 	= 1;
+		$site_id    = 1;
 
 		if ( domain_exists( $parsed_url['host'], $parsed_url['path'], $site_id ) ) {
 			return false;
@@ -667,7 +667,7 @@ class ImportCommand extends MUMigrationBase {
 
 			foreach ( $sed_commands as $sed_command ) {
 				$full_command = "sed '$sed_command' -i $filename";
-				$sed_result = \WP_CLI::launch( $full_command, false, false );
+				$sed_result   = \WP_CLI::launch( $full_command, false, false );
 
 				if ( 0 !== $sed_result ) {
 					\WP_CLI::warning( __( 'Something went wrong while running sed', 'mu-migration' ) );

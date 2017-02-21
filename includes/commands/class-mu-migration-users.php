@@ -32,10 +32,10 @@ class UsersCommand extends MUMigrationBase {
 			),
 			$args,
 			array(
-				'blog_id'   => '',
-				'role'      => '',
-				'exclude'   => '',
-				'include'   => '',
+				'blog_id' => '',
+				'role'    => '',
+				'exclude' => '',
+				'include' => '',
 			),
 			$assoc_args
 		);
@@ -59,10 +59,10 @@ class UsersCommand extends MUMigrationBase {
 		}
 
 		$users_args = array(
-			'fields'    => 'all',
-			'role'      => $this->assoc_args['role'],
-			'include'   => ! empty( $this->assoc_args['include'] ) ? explode( ',', $this->assoc_args['include'] ) : array(),
-			'exclude'   => ! empty( $this->assoc_args['exclude'] ) ? explode( ',', $this->assoc_args['exclude'] ) : array()
+			'fields'  => 'all',
+			'role'    => $this->assoc_args['role'],
+			'include' => ! empty( $this->assoc_args['include'] ) ? explode( ',', $this->assoc_args['include'] ) : array(),
+			'exclude' => ! empty( $this->assoc_args['exclude'] ) ? explode( ',', $this->assoc_args['exclude'] ) : array(),
 		);
 
 		if ( ! empty( $this->assoc_args['blog_id'] ) ) {
@@ -85,7 +85,6 @@ class UsersCommand extends MUMigrationBase {
 				$this->send_reset_link( $user->data );
 			}
 		}
-
 	}
 
 	/**
@@ -98,7 +97,7 @@ class UsersCommand extends MUMigrationBase {
 
 		$user_login = $user_data->user_login;
 		$user_email = $user_data->user_email;
-		$key = get_password_reset_key( $user_data );
+		$key        = get_password_reset_key( $user_data );
 
 		if ( is_wp_error( $key ) ) {
 			return $key;

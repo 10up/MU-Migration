@@ -4,8 +4,8 @@
  */
 namespace TenUp\MU_Migration\Commands;
 
-use WP_CLI;
 use TenUp\MU_Migration\Helpers;
+use WP_CLI;
 
 abstract class MUMigrationBase extends \WP_CLI_Command {
 	/**
@@ -50,13 +50,13 @@ abstract class MUMigrationBase extends \WP_CLI_Command {
 		}
 
 		$default_args = array(
-			'post_type'                 => 'post',
-			'posts_per_page'            => 1000,
-			'post_status'               => array( 'publish', 'pending', 'draft', 'future', 'private' ),
-			'cache_results '            => false,
-			'update_post_meta_cache'    => false,
-			'update_post_term_cache'    => false,
-			'offset'                    => 0,
+			'post_type'              => 'post',
+			'posts_per_page'         => 1000,
+			'post_status'            => array( 'publish', 'pending', 'draft', 'future', 'private' ),
+			'cache_results '         => false,
+			'update_post_meta_cache' => false,
+			'update_post_term_cache' => false,
+			'offset'                 => 0,
 		);
 
 		/**
@@ -66,15 +66,13 @@ abstract class MUMigrationBase extends \WP_CLI_Command {
 		 *
 		 * @param array $default_args
 		 */
-		$default_args 	= apply_filters( 'mu-migration/all_posts/default_args', $default_args );
+		$default_args = apply_filters( 'mu-migration/all_posts/default_args', $default_args );
 
-		$query_args 	= wp_parse_args( $query_args, $default_args );
+		$query_args = wp_parse_args( $query_args, $default_args );
+		$query      = new \WP_Query( $query_args );
 
-		$query      	= new \WP_Query( $query_args );
-
-		$counter   		= 0;
-
-		$found_posts 	= 0;
+		$counter     = 0;
+		$found_posts = 0;
 		while ( $query->have_posts() ) {
 			$query->the_post();
 
@@ -115,7 +113,7 @@ abstract class MUMigrationBase extends \WP_CLI_Command {
 		global $wpdb;
 
 		$offset = 0;
-		$step = 1000;
+		$step   = 1000;
 
 		$found_posts = $wpdb->get_col( "SELECT COUNT(ID) FROM {$table}" );
 

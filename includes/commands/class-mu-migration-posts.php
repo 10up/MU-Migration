@@ -3,6 +3,7 @@
  * @package TenUp\MU_Migration
  */
 namespace TenUp\MU_Migration\Commands;
+
 use TenUp\MU_Migration\Helpers;
 use WP_CLI;
 
@@ -38,7 +39,7 @@ class PostsCommand extends MUMigrationBase {
 			),
 			$args,
 			array(
-				'blog_id'  => '',
+				'blog_id' => '',
 			),
 			$assoc_args
 		);
@@ -65,8 +66,8 @@ class PostsCommand extends MUMigrationBase {
 			);
 		}
 
-		$equals_id 			= array();
-		$author_not_found 	= array();
+		$equals_id        = array();
+		$author_not_found = array();
 
 		$this->all_records(
 			__( 'Updating posts authors', 'mu-migration' ),

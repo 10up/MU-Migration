@@ -3,6 +3,7 @@
  * @package TenUp\MU_Migration
  */
 namespace TenUp\MU_Migration\Helpers;
+
 use Alchemy\Zippy\Zippy;
 
 /**
@@ -11,10 +12,10 @@ use Alchemy\Zippy\Zippy;
  * @return bool
  */
 function is_woocommerce_active() {
-    return in_array(
-        'woocommerce/woocommerce.php',
-        apply_filters( 'active_plugins', get_option('active_plugins') )
-    );
+	return in_array(
+		'woocommerce/woocommerce.php',
+		apply_filters( 'active_plugins', get_option( 'active_plugins' ) )
+	);
 }
 
 /**
@@ -24,21 +25,21 @@ function is_woocommerce_active() {
  * @return bool
  */
 function is_zip_file( $filename ) {
-    $fh = fopen( $filename, 'r' );
+	$fh = fopen( $filename, 'r' );
 
-    if ( ! $fh ) {
-        return false;
-    }
+	if ( ! $fh ) {
+		return false;
+	}
 
-    $blob = fgets( $fh, 5 );
+	$blob = fgets( $fh, 5 );
 
-    fclose( $fh );
+	fclose( $fh );
 
-    if ( strpos( $blob, 'PK' ) !== false ) {
-        return true;
-    } else {
-        return false;
-    }
+	if ( strpos( $blob, 'PK' ) !== false ) {
+		return true;
+	} else {
+		return false;
+	}
 }
 
 /**
@@ -48,11 +49,11 @@ function is_zip_file( $filename ) {
  * @return string
  */
 function parse_url_for_search_replace( $url ) {
-    $parsed_url = parse_url( esc_url( $url ) );
+	$parsed_url = parse_url( esc_url( $url ) );
 
-    $path = isset( $parsed_url['path'] ) ? $parsed_url['path'] : '';
+	$path = isset( $parsed_url['path'] ) ? $parsed_url['path'] : '';
 
-    return $parsed_url['host'] . $path;
+	return $parsed_url['host'] . $path;
 }
 
 /**
@@ -61,28 +62,29 @@ function parse_url_for_search_replace( $url ) {
  * @param string $dirPath
  * @param bool   $deleteParent
  */
-function delete_folder( $dirPath, $deleteParent = true ){
-    $limit = 0;
+function delete_folder( $dirPath, $deleteParent = true ) {
+	$limit = 0;
 
-    /*
-     * We may hit the recursion depth,
-     * so let's keep trying until everything has been deleted.
-     *
-     * The limit check avoids infinite loops.
-     */
-    while( file_exists( $dirPath ) && $limit++ < 10 ) {
-        foreach(
-            new \RecursiveIteratorIterator(
-                new \RecursiveDirectoryIterator( $dirPath, \FilesystemIterator::SKIP_DOTS ),
-                \RecursiveIteratorIterator::CHILD_FIRST
-            ) as $path ) {
-            $path->isFile() ? @unlink( $path->getPathname() ) : @rmdir( $path->getPathname() );
-        }
+	/*
+	 * We may hit the recursion depth,
+	 * so let's keep trying until everything has been deleted.
+	 *
+	 * The limit check avoids infinite loops.
+	 */
+	while ( file_exists( $dirPath ) && $limit++ < 10 ) {
+		foreach (
+			new \RecursiveIteratorIterator(
+				new \RecursiveDirectoryIterator( $dirPath, \FilesystemIterator::SKIP_DOTS ),
+				\RecursiveIteratorIterator::CHILD_FIRST
+			) as $path
+		) {
+			$path->isFile() ? @unlink( $path->getPathname() ) : @rmdir( $path->getPathname() );
+		}
 
-        if( $deleteParent ) {
-            rmdir( $dirPath );
-        }
-    }
+		if ( $deleteParent ) {
+			rmdir( $dirPath );
+		}
+	}
 }
 
 /**
@@ -92,26 +94,27 @@ function delete_folder( $dirPath, $deleteParent = true ){
  * @param string $dest
  */
 function move_folder( $source, $dest ) {
-    if ( ! file_exists( $dest ) ) {
-        mkdir( $dest );
-    }
+	if ( ! file_exists( $dest ) ) {
+		mkdir( $dest );
+	}
 
-    foreach (
-        $iterator = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator( $source, \RecursiveDirectoryIterator::SKIP_DOTS ),
-            \RecursiveIteratorIterator::SELF_FIRST ) as $item) {
-        if ( $item->isDir() ) {
-            $dir = $dest . DIRECTORY_SEPARATOR . $iterator->getSubPathName();
-            if ( ! file_exists( $dir ) ) {
-                mkdir( $dir );
-            }
-        } else {
+	foreach (
+		$iterator = new \RecursiveIteratorIterator(
+			new \RecursiveDirectoryIterator( $source, \RecursiveDirectoryIterator::SKIP_DOTS ),
+			\RecursiveIteratorIterator::SELF_FIRST ) as $item
+	) {
+		if ( $item->isDir() ) {
+			$dir = $dest . DIRECTORY_SEPARATOR . $iterator->getSubPathName();
+			if ( ! file_exists( $dir ) ) {
+				mkdir( $dir );
+			}
+		} else {
 			$dest_file = $dest . DIRECTORY_SEPARATOR . $iterator->getSubPathName();
 			if ( ! file_exists( $dest_file ) ) {
 				rename( $item, $dest_file );
 			}
-        }
-    }
+		}
+	}
 
 }
 
@@ -124,11 +127,11 @@ function move_folder( $source, $dest ) {
  * @param string $dest_dir
  */
 function extract( $filename, $dest_dir ) {
-    $zippy = Zippy::load();
+	$zippy = Zippy::load();
 
-    $site_package = $zippy->open( $filename );
-    mkdir( $dest_dir );
-    $site_package->extract( $dest_dir );
+	$site_package = $zippy->open( $filename );
+	mkdir( $dest_dir );
+	$site_package->extract( $dest_dir );
 }
 
 /**
@@ -140,7 +143,7 @@ function extract( $filename, $dest_dir ) {
  * @return string
  */
 function get_db_prefix( $blog_id ) {
-    global $wpdb;
+	global $wpdb;
 
 	if ( $blog_id > 1 ) {
 		$new_db_prefix = $wpdb->prefix . $blog_id . '_';
@@ -148,7 +151,7 @@ function get_db_prefix( $blog_id ) {
 		$new_db_prefix = $wpdb->prefix;
 	}
 
-    return $new_db_prefix;
+	return $new_db_prefix;
 }
 
 /**
@@ -229,9 +232,9 @@ function stop_the_insanity() {
 	     * we're accessing the global array properly.
 		 */
 		if ( class_exists( 'WP_Hook' ) && $wp_filter['get_term_metadata'] instanceof \WP_Hook ) {
-			$filter_callbacks   = &$wp_filter['get_term_metadata']->callbacks;
+			$filter_callbacks = &$wp_filter['get_term_metadata']->callbacks;
 		} else {
-			$filter_callbacks   = &$wp_filter['get_term_metadata'];
+			$filter_callbacks = &$wp_filter['get_term_metadata'];
 		}
 
 		if ( isset( $filter_callbacks[10] ) ) {
@@ -251,16 +254,16 @@ function stop_the_insanity() {
  *
  * @param string $orig_filename SQL dump file name.
  */
-function addTransaction($orig_filename) {
-  $context = stream_context_create();
-  $orig_file = fopen($orig_filename, 'r', 1, $context);
+function addTransaction( $orig_filename ) {
+	$context   = stream_context_create();
+	$orig_file = fopen( $orig_filename, 'r', 1, $context );
 
-  $temp_filename = tempnam(sys_get_temp_dir(), 'php_prepend_');
-  file_put_contents($temp_filename, 'START TRANSACTION;' . PHP_EOL );
-  file_put_contents($temp_filename, $orig_file, FILE_APPEND);
-  file_put_contents($temp_filename, 'COMMIT;', FILE_APPEND);
+	$temp_filename = tempnam( sys_get_temp_dir(), 'php_prepend_' );
+	file_put_contents( $temp_filename, 'START TRANSACTION;' . PHP_EOL );
+	file_put_contents( $temp_filename, $orig_file, FILE_APPEND );
+	file_put_contents( $temp_filename, 'COMMIT;', FILE_APPEND );
 
-  fclose($orig_file);
-  unlink($orig_filename);
-  rename($temp_filename, $orig_filename);
+	fclose( $orig_file );
+	unlink( $orig_filename );
+	rename( $temp_filename, $orig_filename );
 }

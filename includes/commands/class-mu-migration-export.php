@@ -3,9 +3,9 @@
  * @package TenUp\MU_Migration
  */
 namespace TenUp\MU_Migration\Commands;
+
 use TenUp\MU_Migration\Helpers;
 use Alchemy\Zippy\Zippy;
-
 
 class ExportCommand extends MUMigrationBase {
 
@@ -17,11 +17,29 @@ class ExportCommand extends MUMigrationBase {
 	 */
 	public static function getCSVHeaders() {
 		$headers = array(
-			'ID' , 'user_login', 'user_pass', 'user_nicename','user_email', 'user_url', 'user_registered', 'role',
-			'user_status', 'display_name',
-			// User Meta
-			'rich_editing', 'admin_color', 'show_admin_bar_front', 'first_name', 'last_name', 'nickname',
-			'aim', 'yim', 'jabber', 'description',
+			// General Info.
+			'ID',
+			'user_login',
+			'user_pass',
+			'user_nicename',
+			'user_email',
+			'user_url',
+			'user_registered',
+			'role',
+			'user_status',
+			'display_name',
+
+			// User Meta.
+			'rich_editing',
+			'admin_color',
+			'show_admin_bar_front',
+			'first_name',
+			'last_name',
+			'nickname',
+			'aim',
+			'yim',
+			'jabber',
+			'description',
 		);
 
 		$custom_headers = apply_filters( 'mu_migration/export/user/headers', array() );
@@ -60,10 +78,10 @@ class ExportCommand extends MUMigrationBase {
 			),
 			$args,
 			array(
-				'db_prefix'             => '',
-				'blog_id'               => 1,
-				'tables'                => '',
-				'non-default-tables'    => ''
+				'db_prefix'          => '',
+				'blog_id'            => 1,
+				'tables'             => '',
+				'non-default-tables' => '',
 			),
 			$assoc_args
 		);
@@ -106,20 +124,20 @@ class ExportCommand extends MUMigrationBase {
 					$wpdb->prefix . 'sitemeta',
 					$wpdb->prefix . 'registration_log',
 					$wpdb->prefix . 'signups',
-					$wpdb->prefix . 'sitecategories'
+					$wpdb->prefix . 'sitecategories',
 				);
 
 				foreach ( $tables as $key => &$table ) {
 					$table = trim( $table );
 
 					if ( in_array( $table, $tables_to_remove ) ) {
-						unset( $tables[$key] );
+						unset( $tables[ $key ] );
 					}
 				}
 			}
 
 			if ( ! empty( $this->assoc_args['non-default-tables'] ) ) {
-				$non_default_tables =explode( ',', $this->assoc_args['non-default-tables'] );
+				$non_default_tables = explode( ',', $this->assoc_args['non-default-tables'] );
 
 				$tables = array_unique( array_merge( $tables, $non_default_tables ) );
 			}
@@ -130,7 +148,7 @@ class ExportCommand extends MUMigrationBase {
 
 		if ( is_array( $tables ) && ! empty( $tables ) ) {
 			$export = \WP_CLI::launch_self(
-				"db export",
+				'db export',
 				array( $filename ),
 				array( 'tables' => implode( ',', $tables ) ),
 				false,
@@ -178,10 +196,10 @@ class ExportCommand extends MUMigrationBase {
 			$assoc_args
 		);
 
-		$filename = $this->args[0];
+		$filename  = $this->args[0];
 		$delimiter = ',';
 
-		$file_handler = fopen( $filename , 'w+' );
+		$file_handler = fopen( $filename, 'w+' );
 
 		if ( ! $file_handler ) {
 			\WP_CLI::error( __( 'Impossible to create the file', 'mu-migration' ) );
@@ -190,7 +208,7 @@ class ExportCommand extends MUMigrationBase {
 		$headers = self::getCSVHeaders();
 
 		$users_args = array(
-			'fields' => 'all'
+			'fields' => 'all',
 		);
 
 		if ( ! empty( $this->assoc_args['blog_id'] ) ) {
@@ -198,9 +216,9 @@ class ExportCommand extends MUMigrationBase {
 		}
 
 		$excluded_meta_keys = array(
-			'session_tokens' 	=> true,
-			'primary_blog' 		=> true,
-			'source_domain'		=> true
+			'session_tokens' => true,
+			'primary_blog'   => true,
+			'source_domain'  => true,
 		);
 
 		/*
@@ -213,7 +231,7 @@ class ExportCommand extends MUMigrationBase {
 			'/user_level$/',
 			'/dashboard_quick_press_last_post_id$/',
 			'/user-settings$/',
-			'/user-settings-time$/'
+			'/user-settings-time$/',
 		);
 
 		$count = 0;
@@ -223,19 +241,33 @@ class ExportCommand extends MUMigrationBase {
 		/*
 		 * This first foreach will pragmatically find all users meta stored in the usersmeta table.
 		 */
-		foreach( $users as $user ) {
+		foreach ( $users as $user ) {
 			$role = isset( $user->roles[0] ) ? $user->roles[0] : '';
 
 			$user_data = array(
 				// General Info.
-				$user->data->ID, $user->data->user_login, $user->data->user_pass, $user->data->user_nicename,
-				$user->data->user_email, $user->data->user_url, $user->data->user_registered,  $role, $user->data->user_status,
+				$user->data->ID,
+				$user->data->user_login,
+				$user->data->user_pass,
+				$user->data->user_nicename,
+				$user->data->user_email,
+				$user->data->user_url,
+				$user->data->user_registered,
+				$role,
+				$user->data->user_status,
 				$user->data->display_name,
 
 				// User Meta.
-				$user->get( 'rich_editing' ), $user->get( 'admin_color' ), $user->get( 'show_admin_bar_front' ),
-				$user->get( 'first_name' ), $user->get( 'last_name' ), $user->get( 'nickname' ), $user->get( 'aim' ),
-				$user->get( 'yim' ), $user->get( 'jabber' ), $user->get( 'description' ),
+				$user->get( 'rich_editing' ),
+				$user->get( 'admin_color' ),
+				$user->get( 'show_admin_bar_front' ),
+				$user->get( 'first_name' ),
+				$user->get( 'last_name' ),
+				$user->get( 'nickname' ),
+				$user->get( 'aim' ),
+				$user->get( 'yim' ),
+				$user->get( 'jabber' ),
+				$user->get( 'description' ),
 			);
 
 			/*
@@ -244,13 +276,13 @@ class ExportCommand extends MUMigrationBase {
 			 */
 			if ( count( $headers ) - count( $user_data ) > 0 ) {
 				$user_temp_data_arr = array_fill( 0, count( $headers ) - count( $user_data ), '' );
-				$user_data 			= array_merge( $user_data, $user_temp_data_arr );
+				$user_data          = array_merge( $user_data, $user_temp_data_arr );
 			}
 
-			$user_data	= array_combine( $headers, $user_data );
+			$user_data = array_combine( $headers, $user_data );
 
-			$user_meta 	= get_user_meta( $user->data->ID );
-			$meta_keys 	= array_keys( $user_meta );
+			$user_meta = get_user_meta( $user->data->ID );
+			$meta_keys = array_keys( $user_meta );
 
 			/*
 			 * Removing all unwanted meta keys.
@@ -262,7 +294,7 @@ class ExportCommand extends MUMigrationBase {
 					/*
 					 * Checking for unwanted meta keys.
 					 */
-					foreach( $excluded_meta_keys_regex as $regex ) {
+					foreach ( $excluded_meta_keys_regex as $regex ) {
 						if ( preg_match( $regex, $user_meta_key ) ) {
 							$can_add = false;
 						}
@@ -277,9 +309,9 @@ class ExportCommand extends MUMigrationBase {
 			}
 
 			// Get the meta keys again.
-			$meta_keys 	= array_keys( $user_meta );
+			$meta_keys = array_keys( $user_meta );
 
-			foreach( $meta_keys as  $user_meta_key ) {
+			foreach ( $meta_keys as $user_meta_key ) {
 				$value = $user_meta[ $user_meta_key ];
 
 				// get_user_meta always return an array whe no $key is passed.
@@ -296,8 +328,8 @@ class ExportCommand extends MUMigrationBase {
 			}
 
 			// Adding the meta_keys that aren't in the $headers variable to the $headers variable.
-			$diff		= array_diff( $meta_keys, $headers );
-			$headers 	= array_merge( $headers, $diff );
+			$diff    = array_diff( $meta_keys, $headers );
+			$headers = array_merge( $headers, $diff );
 
 			/**
 			 * Filters the default set of user data to be exported/imported.
@@ -329,7 +361,7 @@ class ExportCommand extends MUMigrationBase {
 		foreach ( $user_data_arr as $user_data ) {
 			if ( count( $headers ) - count( $user_data ) > 0 ) {
 				$user_temp_data_arr = array_fill( 0, count( $headers ) - count( $user_data ), '' );
-				$user_data 			= array_merge( array_values( $user_data ), $user_temp_data_arr );
+				$user_data          = array_merge( array_values( $user_data ), $user_temp_data_arr );
 			}
 			fputcsv( $file_handler, $user_data, $delimiter );
 		}
@@ -377,12 +409,12 @@ class ExportCommand extends MUMigrationBase {
 		}
 
 		$site_data = array(
-			'url' 			=> esc_url( home_url() ),
-			'name'			=> sanitize_text_field( get_bloginfo( 'name' ) ),
-			'admin_email'	=> sanitize_text_field( get_bloginfo( 'admin_email' ) ),
+			'url'           => esc_url( home_url() ),
+			'name'          => sanitize_text_field( get_bloginfo( 'name' ) ),
+			'admin_email'   => sanitize_text_field( get_bloginfo( 'admin_email' ) ),
 			'site_language' => sanitize_text_field( get_bloginfo( 'language' ) ),
-			'db_prefix'		=> $wpdb->prefix,
-			'plugins'		=> get_plugins()
+			'db_prefix'     => $wpdb->prefix,
+			'plugins'       => get_plugins(),
 		);
 
 		$this->process_args(
@@ -393,25 +425,25 @@ class ExportCommand extends MUMigrationBase {
 			array(
 				'blog_id'            => false,
 				'tables'             => '',
-				'non-default-tables' => ''
+				'non-default-tables' => '',
 			),
 			$assoc_args
 		);
 
 		$zip_file = $this->args[0];
 
-		$include_plugins 	= isset( $this->assoc_args['plugins'] ) ? true : false;
-		$include_themes 	= isset( $this->assoc_args['themes'] ) 	? true : false;
-		$include_uploads 	= isset( $this->assoc_args['uploads'] ) ? true : false;
+		$include_plugins = isset( $this->assoc_args['plugins'] ) ? true : false;
+		$include_themes  = isset( $this->assoc_args['themes'] ) ? true : false;
+		$include_uploads = isset( $this->assoc_args['uploads'] ) ? true : false;
 
-		$users_assoc_args   = array();
-		$tables_assoc_args  = array(
+		$users_assoc_args  = array();
+		$tables_assoc_args = array(
 			'tables'             => $this->assoc_args['tables'],
-			'non-default-tables' => $this->assoc_args['non-default-tables']
+			'non-default-tables' => $this->assoc_args['non-default-tables'],
 		);
 
 		if ( $this->assoc_args['blog_id'] ) {
-			$users_assoc_args['blog_id'] = (int) $this->assoc_args['blog_id'];
+			$users_assoc_args['blog_id']  = (int) $this->assoc_args['blog_id'];
 			$tables_assoc_args['blog_id'] = (int) $this->assoc_args['blog_id'];
 		}
 
@@ -420,8 +452,8 @@ class ExportCommand extends MUMigrationBase {
 		/*
 		 * Adding rand() to the temporary file names to guarantee uniqueness.
 		 */
-		$users_file 	= 'mu-migration-' . $rand . sanitize_title( $site_data['name'] ) . '.csv';
-		$tables_file 	= 'mu-migration-' . $rand . sanitize_title( $site_data['name'] ) . '.sql';
+		$users_file     = 'mu-migration-' . $rand . sanitize_title( $site_data['name'] ) . '.csv';
+		$tables_file    = 'mu-migration-' . $rand . sanitize_title( $site_data['name'] ) . '.sql';
 		$meta_data_file = 'mu-migration-' . $rand . sanitize_title( $site_data['name'] ) . '.json';
 
 		\WP_CLI::log( __( 'Exporting site meta data...', 'mu-migration' ) );
@@ -447,7 +479,7 @@ class ExportCommand extends MUMigrationBase {
 		$files_to_zip = array(
 			$users_file,
 			$tables_file,
-			$meta_data_file
+			$meta_data_file,
 		);
 
 		if ( $include_plugins ) {
@@ -468,10 +500,10 @@ class ExportCommand extends MUMigrationBase {
 			$files_to_zip['wp-content/uploads'] = $upload_dir['basedir'];
 		}
 
-		try{
+		try {
 			\WP_CLI::log( __( 'Zipping files....', 'mu-migration' ) );
-			$zip = $zippy->create( $zip_file , $files_to_zip, true );
-		} catch(\Exception $e) {
+			$zip = $zippy->create( $zip_file, $files_to_zip, true );
+		} catch ( \Exception $e ) {
 			\WP_CLI::warning( __( 'Unable to create the zip file', 'mu-migration' ) );
 		}
 

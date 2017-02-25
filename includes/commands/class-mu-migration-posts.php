@@ -3,6 +3,7 @@
  * @package TenUp\MU_Migration
  */
 namespace TenUp\MU_Migration\Commands;
+
 use TenUp\MU_Migration\Helpers;
 use WP_CLI;
 
@@ -38,7 +39,7 @@ class PostsCommand extends MUMigrationBase {
 			),
 			$args,
 			array(
-				'blog_id'  => '',
+				'blog_id' => '',
 			),
 			$assoc_args
 		);
@@ -46,11 +47,11 @@ class PostsCommand extends MUMigrationBase {
 		$filename = $this->args[0];
 
 		if ( empty( $filename ) || ! file_exists( $filename ) ) {
-			WP_CLI::error( __( "Invalid input file", 'mu-migration' ) );
+			WP_CLI::error( __( 'Invalid input file', 'mu-migration' ) );
 		}
 
 		if ( empty( $this->assoc_args['blog_id'] ) ) {
-			WP_CLI::error( __( "Please, provide a blog id", 'mu-migration' ) );
+			WP_CLI::error( __( 'Please, provide a blog id', 'mu-migration' ) );
 		}
 
 		switch_to_blog( (int) $this->assoc_args['blog_id'] );
@@ -59,19 +60,19 @@ class PostsCommand extends MUMigrationBase {
 
 		$ids_map = json_decode( file_get_contents( $filename ) );
 
-		if ( NULL === $ids_map ) {
+		if ( null === $ids_map ) {
 			WP_CLI::error(
 				__( 'An error has occurred when parsing the json file', 'mu-migration' )
 			);
 		}
 
-		$equals_id 			= array();
-		$author_not_found 	= array();
+		$equals_id        = array();
+		$author_not_found = array();
 
 		$this->all_records(
 			__( 'Updating posts authors', 'mu-migration' ),
 			$wpdb->posts,
-			function( $result ) use ( &$equals_id, &$author_not_found, $ids_map, $verbose, $is_woocommerce ) {
+			function ( $result ) use ( &$equals_id, &$author_not_found, $ids_map, $verbose, $is_woocommerce ) {
 				$author = $result->post_author;
 
 				if ( isset( $ids_map->{$author} ) ) {
@@ -93,14 +94,14 @@ class PostsCommand extends MUMigrationBase {
 
 					} else {
 						$this->log( sprintf(
-							__( '#%d New user ID equals to the old user ID'),
+							__( '#%d New user ID equals to the old user ID' ),
 							$result->ID
 						), $verbose );
 						$equals_id[] = absint( $result->ID );
 					}
 				} else {
 					$this->log( sprintf(
-						__( "#%d New user ID not found or it's already been updated", 'mu-migration'),
+						__( "#%d New user ID not found or it's already been updated", 'mu-migration' ),
 						absint( $result->ID )
 					), $verbose );
 

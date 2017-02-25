@@ -32,10 +32,10 @@ class UsersCommand extends MUMigrationBase {
 			),
 			$args,
 			array(
-				'blog_id'   => '',
-				'role'      => '',
-				'exclude'   => '',
-				'include'   => '',
+				'blog_id' => '',
+				'role'    => '',
+				'exclude' => '',
+				'include' => '',
 			),
 			$assoc_args
 		);
@@ -59,10 +59,10 @@ class UsersCommand extends MUMigrationBase {
 		}
 
 		$users_args = array(
-			'fields'    => 'all',
-			'role'      => $this->assoc_args['role'],
-			'include'   => ! empty( $this->assoc_args['include'] ) ? explode( ',', $this->assoc_args['include'] ) : array(),
-			'exclude'   => ! empty( $this->assoc_args['exclude'] ) ? explode( ',', $this->assoc_args['exclude'] ) : array()
+			'fields'  => 'all',
+			'role'    => $this->assoc_args['role'],
+			'include' => ! empty( $this->assoc_args['include'] ) ? explode( ',', $this->assoc_args['include'] ) : array(),
+			'exclude' => ! empty( $this->assoc_args['exclude'] ) ? explode( ',', $this->assoc_args['exclude'] ) : array(),
 		);
 
 		if ( ! empty( $this->assoc_args['blog_id'] ) ) {
@@ -71,7 +71,7 @@ class UsersCommand extends MUMigrationBase {
 
 		$users = get_users( $users_args );
 
-		foreach( $users as $user ) {
+		foreach ( $users as $user ) {
 
 			if ( $reset_passwords ) {
 				$new_password = wp_generate_password( 12, false );
@@ -85,7 +85,6 @@ class UsersCommand extends MUMigrationBase {
 				$this->send_reset_link( $user->data );
 			}
 		}
-
 	}
 
 	/**
@@ -98,29 +97,30 @@ class UsersCommand extends MUMigrationBase {
 
 		$user_login = $user_data->user_login;
 		$user_email = $user_data->user_email;
-		$key = get_password_reset_key( $user_data );
+		$key        = get_password_reset_key( $user_data );
 
 		if ( is_wp_error( $key ) ) {
 			return $key;
 		}
 
-		$message = __('A password reset has been requested for the following account:') . "\r\n\r\n";
+		$message = __( 'A password reset has been requested for the following account:' ) . "\r\n\r\n";
 		$message .= network_home_url( '/' ) . "\r\n\r\n";
-		$message .= sprintf(__('Username: %s'), $user_login) . "\r\n\r\n";
-		$message .= __('In order to log in again you have to reset your password.') . "\r\n\r\n";
-		$message .= __('To reset your password, visit the following address:') . "\r\n\r\n";
-		$message .= '<' . network_site_url("wp-login.php?action=rp&key=$key&login=" . rawurlencode($user_login), 'login') . ">\r\n";
+		$message .= sprintf( __( 'Username: %s' ), $user_login ) . "\r\n\r\n";
+		$message .= __( 'In order to log in again you have to reset your password.' ) . "\r\n\r\n";
+		$message .= __( 'To reset your password, visit the following address:' ) . "\r\n\r\n";
+		$message .= '<' . network_site_url( "wp-login.php?action=rp&key=$key&login=" . rawurlencode( $user_login ), 'login' ) . ">\r\n";
 
-		if ( is_multisite() )
+		if ( is_multisite() ) {
 			$blogname = $GLOBALS['current_site']->site_name;
-		else
+		} else {
 			/*
 			 * The blogname option is escaped with esc_html on the way into the database
 			 * in sanitize_option we want to reverse this for the plain text arena of emails.
 			 */
-			$blogname = wp_specialchars_decode( get_option('blogname'), ENT_QUOTES );
+			$blogname = wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES );
+		}
 
-		$title = sprintf( __('[%s] Password Reset'), $blogname );
+		$title = sprintf( __( '[%s] Password Reset' ), $blogname );
 
 		/**
 		 * Filters the subject of the password reset email.
@@ -147,7 +147,7 @@ class UsersCommand extends MUMigrationBase {
 		 */
 		$message = apply_filters( 'retrieve_password_message', $message, $key, $user_login, $user_data );
 
-		if ( $message && !wp_mail( $user_email, wp_specialchars_decode( $title ), $message ) ) {
+		if ( $message && ! wp_mail( $user_email, wp_specialchars_decode( $title ), $message ) ) {
 			WP_CLI::log( __( 'The email could not be sent', 'mu-migration' ) );
 		}
 

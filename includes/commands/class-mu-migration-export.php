@@ -415,7 +415,12 @@ class ExportCommand extends MUMigrationBase {
 			'site_language' => sanitize_text_field( get_bloginfo( 'language' ) ),
 			'db_prefix'     => $wpdb->prefix,
 			'plugins'       => get_plugins(),
+			'blog_id'       => 1
 		);
+
+		if ( isset( $assoc_args['blog_id'] ) ) {
+			$site_data['blog_id'] = get_current_blog_id();
+		}
 
 		$this->process_args(
 			array(

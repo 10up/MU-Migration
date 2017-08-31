@@ -34,6 +34,8 @@ class ImportCommand extends MUMigrationBase {
 	public function users( $args = array(), $assoc_args = array(), $verbose = true ) {
 		global $wpdb;
 
+		$is_multisite = is_multisite();
+
 		$this->process_args(
 			array(
 				0 => '', // .csv to import users.
@@ -55,10 +57,6 @@ class ImportCommand extends MUMigrationBase {
 
 		if ( empty( $this->assoc_args['blog_id'] ) ) {
 			WP_CLI::error( __( 'Please, provide a blog_id ', 'mu-migration' ) );
-		}
-
-		if ( ! is_multisite() ) {
-			WP_CLI::error( __( 'You should be running multisite in order to run this command', 'mu-migration' ) );
 		}
 
 		$input_file_handler = fopen( $filename, 'r' );
@@ -83,7 +81,10 @@ class ImportCommand extends MUMigrationBase {
 
 			$line = 0;
 
-			switch_to_blog( $this->assoc_args['blog_id'] );
+			if ( $is_multisite ) {
+				switch_to_blog( $this->assoc_args['blog_id'] );
+			}
+
 			wp_suspend_cache_addition( true );
 			while ( false !== ( $data = fgetcsv( $input_file_handler, 0, $delimiter ) ) ) {
 				// Read the labels and skip.
@@ -174,7 +175,9 @@ class ImportCommand extends MUMigrationBase {
 
 						$count++;
 						$ids_maps[ $old_id ] = $new_id;
-						Helpers\light_add_user_to_blog( $this->assoc_args['blog_id'], $new_id, $user_data['role'] );
+						if ( $is_multisite ) {
+							Helpers\light_add_user_to_blog( $this->assoc_args['blog_id'], $new_id, $user_data['role'] );
+						}
 					} else {
 						$this->warning( sprintf(
 							__( 'An error has occurred when inserting %s: %s.', 'mu-migration' ),
@@ -191,7 +194,9 @@ class ImportCommand extends MUMigrationBase {
 
 					$existing_users++;
 					$ids_maps[ $old_id ] = $user_exists;
-					Helpers\light_add_user_to_blog( $this->assoc_args['blog_id'], $user_exists, $user_data['role'] );
+					if ( $is_multisite ) {
+						Helpers\light_add_user_to_blog( $this->assoc_args['blog_id'], $user_exists, $user_data['role'] );
+					}
 				}
 
 				unset( $user_exists );
@@ -200,7 +205,10 @@ class ImportCommand extends MUMigrationBase {
 			}
 
 			wp_suspend_cache_addition( false );
-			restore_current_blog();
+
+			if ( $is_multisite ) {
+				restore_current_blog();
+			}
 
 			if ( ! empty( $ids_maps ) ) {
 				// Saving the ids_maps to a file.
@@ -266,6 +274,7 @@ class ImportCommand extends MUMigrationBase {
 			$assoc_args
 		);
 
+		$is_multisite = is_multisite();
 
 		$filename = $this->args[0];
 
@@ -275,10 +284,6 @@ class ImportCommand extends MUMigrationBase {
 
 		if ( empty( $this->assoc_args['blog_id'] ) ) {
 			WP_CLI::error( __( 'Please, provide a blog_id ', 'mu-migration' ) );
-		}
-
-		if ( ! is_multisite() ) {
-			WP_CLI::error( __( 'You should be running multisite in order to run this command', 'mu-migration' ) );
 		}
 
 		// Terminates the script if sed is not installed.
@@ -345,7 +350,9 @@ class ImportCommand extends MUMigrationBase {
 				}
 			}
 
-			switch_to_blog( (int) $this->assoc_args['blog_id'] );
+			if ( $is_multisite ) {
+				switch_to_blog( (int) $this->assoc_args['blog_id'] );
+			}
 
 			// Update the new tables to work properly with multisite.
 			$new_wp_roles_option_key = $wpdb->prefix . 'user_roles';
@@ -368,7 +375,9 @@ class ImportCommand extends MUMigrationBase {
 				)
 			);
 
-			restore_current_blog();
+			if ( $is_multisite ) {
+				restore_current_blog();
+			}
 		}
 	}
 
@@ -400,6 +409,8 @@ class ImportCommand extends MUMigrationBase {
 			),
 			$assoc_args
 		);
+
+		$is_multisite = is_multisite();
 
 		$verbose = false;
 
@@ -447,10 +458,12 @@ class ImportCommand extends MUMigrationBase {
 			$site_meta_data->url = $assoc_args['new_url'];
 		}
 
-		if ( empty( $assoc_args['blog_id'] ) ) {
+		if ( empty( $assoc_args['blog_id'] ) && $is_multisite ) {
 			$blog_id = $this->create_new_site( $site_meta_data );
-		} else {
+		} else if ( $is_multisite ) {
 			$blog_id = (int) $assoc_args['blog_id'];
+		} else {
+			$blog_id = 1;
 		}
 
 		if ( ! $blog_id ) {

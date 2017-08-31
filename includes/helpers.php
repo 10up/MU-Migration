@@ -267,3 +267,23 @@ function addTransaction( $orig_filename ) {
 	unlink( $orig_filename );
 	rename( $temp_filename, $orig_filename );
 }
+
+/**
+ * Switches to another blog if on Multisite
+ *
+ * @param $blog_id
+ */
+function maybe_switch_to_blog( $blog_id ) {
+	if ( is_multisite() ) {
+		switch_to_blog( $blog_id );
+	}
+}
+
+/**
+ * Restore the current blog if on multisite
+ */
+function maybe_restore_current_blog() {
+	if ( is_multisite() ) {
+		restore_current_blog();
+	}
+}

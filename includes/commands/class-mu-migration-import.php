@@ -81,9 +81,7 @@ class ImportCommand extends MUMigrationBase {
 
 			$line = 0;
 
-			if ( $is_multisite ) {
-				switch_to_blog( $this->assoc_args['blog_id'] );
-			}
+			Helpers\maybe_switch_to_blog( $this->assoc_args['blog_id'] );
 
 			wp_suspend_cache_addition( true );
 			while ( false !== ( $data = fgetcsv( $input_file_handler, 0, $delimiter ) ) ) {
@@ -206,9 +204,7 @@ class ImportCommand extends MUMigrationBase {
 
 			wp_suspend_cache_addition( false );
 
-			if ( $is_multisite ) {
-				restore_current_blog();
-			}
+			Helpers\maybe_restore_current_blog();
 
 			if ( ! empty( $ids_maps ) ) {
 				// Saving the ids_maps to a file.
@@ -350,9 +346,7 @@ class ImportCommand extends MUMigrationBase {
 				}
 			}
 
-			if ( $is_multisite ) {
-				switch_to_blog( (int) $this->assoc_args['blog_id'] );
-			}
+			Helpers\maybe_switch_to_blog( (int) $this->assoc_args['blog_id'] );
 
 			// Update the new tables to work properly with multisite.
 			$new_wp_roles_option_key = $wpdb->prefix . 'user_roles';
@@ -375,9 +369,7 @@ class ImportCommand extends MUMigrationBase {
 				)
 			);
 
-			if ( $is_multisite ) {
-				restore_current_blog();
-			}
+			Helpers\maybe_restore_current_blog();
 		}
 	}
 
@@ -539,9 +531,9 @@ class ImportCommand extends MUMigrationBase {
 			/*
 			 * Flush the rewrite rules for the newly created site, just in case.
 			 */
-			switch_to_blog( $blog_id );
+			Helpers\maybe_switch_to_blog( $blog_id );
 			flush_rewrite_rules();
-			restore_current_blog();
+			Helpers\maybe_restore_current_blog();
 		}, 9999 );
 
 		WP_CLI::log( __( 'Removing temporary files....', 'mu-migration' ) );

@@ -398,7 +398,7 @@ class ExportCommand extends MUMigrationBase {
 		$switched = false;
 
 		if ( isset( $assoc_args['blog_id'] ) ) {
-			switch_to_blog( (int) $assoc_args['blog_id'] );
+			Helpers\maybe_switch_to_blog( (int) $assoc_args['blog_id'] );
 			$switched = true;
 		}
 
@@ -462,7 +462,7 @@ class ExportCommand extends MUMigrationBase {
 		$meta_data_file = 'mu-migration-' . $rand . sanitize_title( $site_data['name'] ) . '.json';
 
 		\WP_CLI::log( __( 'Exporting site meta data...', 'mu-migration' ) );
-		file_put_contents( $meta_data_file, json_encode( $site_data ) );
+		file_put_contents( $meta_data_file, wp_json_encode( $site_data ) );
 
 		\WP_CLI::log( __( 'Exporting users...', 'mu-migration' ) );
 		$this->users( array( $users_file ), $users_assoc_args, $verbose );
@@ -529,7 +529,7 @@ class ExportCommand extends MUMigrationBase {
 		}
 
 		if ( $switched ) {
-			restore_current_blog();
+			Helpers\maybe_restore_current_blog();
 		}
 	}
 

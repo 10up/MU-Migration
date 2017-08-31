@@ -46,15 +46,15 @@ class PostsCommand extends MUMigrationBase {
 
 		$filename = $this->args[0];
 
+		$is_multisite = is_multisite();
+
 		if ( empty( $filename ) || ! file_exists( $filename ) ) {
 			WP_CLI::error( __( 'Invalid input file', 'mu-migration' ) );
 		}
 
-		if ( empty( $this->assoc_args['blog_id'] ) ) {
-			WP_CLI::error( __( 'Please, provide a blog id', 'mu-migration' ) );
+		if ( $is_multisite ) {
+			switch_to_blog( (int) $this->assoc_args['blog_id'] );
 		}
-
-		switch_to_blog( (int) $this->assoc_args['blog_id'] );
 
 		$is_woocommerce = Helpers\is_woocommerce_active();
 
@@ -142,7 +142,9 @@ class PostsCommand extends MUMigrationBase {
 			), $verbose );
 		}
 
-		restore_current_blog();
+		if ( $is_multisite ) {
+			restore_current_blog();
+		}
 	}
 }
 

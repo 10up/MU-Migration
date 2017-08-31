@@ -327,13 +327,21 @@ class ImportCommand extends MUMigrationBase {
 
 				$this->log( __( 'Running Search and Replace for uploads paths', 'mu-migration' ), $verbose );
 
-				/*
-				 * If the $blog_id equals 1 the upload path remains the same.
-				 */
+				$from = false;
+				$to   = false;
+
 				if ( $this->assoc_args['blog_id'] > 1 ) {
+					$from = 'wp-content/uploads';
+					$to = 'wp-content/uploads/sites/' . $this->assoc_args['blog_id'];
+				} else if ( $this->assoc_args['original_blog_id'] > 1 && ! $is_multisite ) {
+					$from = 'wp-content/uploads/sites/' . $this->assoc_args['original_blog_id'];
+					$to = 'wp-content/uploads';
+				}
+
+				if ( $from && $to ) {
 					$search_replace = \WP_CLI::launch_self(
 						'search-replace',
-						array( 'wp-content/uploads', 'wp-content/uploads/sites/' . $this->assoc_args['blog_id'] ),
+						array( $from , $to ),
 						array(),
 						false,
 						false,
@@ -463,9 +471,10 @@ class ImportCommand extends MUMigrationBase {
 		}
 
 		$tables_assoc_args = array(
-			'blog_id'    => $blog_id,
-			'old_prefix' => $site_meta_data->db_prefix,
-			'new_prefix' => Helpers\get_db_prefix( $blog_id ),
+			'blog_id'          => $blog_id,
+			'original_blog_id' => $site_meta_data->blog_id,
+			'old_prefix'       => $site_meta_data->db_prefix,
+			'new_prefix'       => Helpers\get_db_prefix( $blog_id ),
 		);
 
 		/*

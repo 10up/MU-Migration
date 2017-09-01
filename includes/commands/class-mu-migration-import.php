@@ -589,9 +589,9 @@ class ImportCommand extends MUMigrationBase {
 	private function move_uploads( $uploads_dir, $blog_id ) {
 		if ( file_exists( $uploads_dir ) ) {
 			\WP_CLI::log( __( 'Moving Uploads...', 'mu-migration' ) );
-			switch_to_blog( $blog_id );
+			Helpers\maybe_switch_to_blog( $blog_id );
 			$dest_uploads_dir = wp_upload_dir();
-			restore_current_blog();
+			Helpers\maybe_restore_current_blog();
 
 			Helpers\move_folder( $uploads_dir, $dest_uploads_dir['basedir'] );
 		}

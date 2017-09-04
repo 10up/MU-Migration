@@ -1,6 +1,6 @@
 # MU-Migration
 
-This WP-CLI plugin makes the process of moving sites from single WordPress sites to a Multisite instance much easier.
+This WP-CLI plugin makes the process of moving sites from single WordPress sites to a Multisite instance (or vice-versa) much easier.
 It exports everything into a zip package which can be used to automatically import it within the desired Multisite installation.
 
 <a href="http://10up.com/contact/"><img src="https://10updotcom-wpengine.s3.amazonaws.com/uploads/2016/10/10up-Github-Banner.png" width="850"></a>
@@ -15,7 +15,7 @@ Clone this repo onto `plugins/` folder, run `composer install` to fetch dependen
 You need to install this on both the site you're moving and the target Multisite installation.
 
 ### Why do I need this? ###
-Moving single WordPress sites to a Multisite environment can be challenging, specially if you're moving more than one site to
+Moving single WordPress sites to a Multisite environment (or the opposite) can be challenging, specially if you're moving more than one site to
 Multisite. You'd need to replace tables prefix, update post_author and wc_customer_user (if WooCommerce is installed) with the new
 users ID (Multisite has a shared users table, so if you're moving more than one site you can't guarantee that users will have the same IDs) and more.
 
@@ -33,11 +33,19 @@ The above command will export users, tables, plugins folder, themes folder and t
 move to the Multisite server in order to be imported with the `import all` command. The optional flags `--plugins --themes --uploads`,
 add the plugins folder, themes folder and uploads folder to the zip file respectively.
 
+You can also export subsites from another multisite instance, to do so pass the `--blog_id` parameter. E.g:
+
+```
+$ wp mu-migration export all subsite.zip --blog_id=2
+```
+
 The following command can be used to import a site from a zip package.
 ```
 $ wp mu-migration import all site.zip
 ```
-It will create a new site within your Multisite network based on the site you have just exported, the `import all` command will take care
+If importing into Multisite, it will create a new site within your Multisite network based on the site you have just exported, if importing into a single install, it will override your single install with the exported subsite. 
+
+The `import all` command will take care
 of everything that needs to be done when moving a site to Multisite (replacing tables prefix, updating post_author IDs and etc).
 
 If you need to set up a new url for the site you're importing (if importing into staging or local environments for example),
@@ -50,16 +58,14 @@ $ wp mu-migration import all site.zip --new_url=multisite.dev/site
 The import command also supports a `--mysql-single-transaction` parameter that will wrap the sql export into a single transaction to commit
 all changes from the import at one time preventing the write from overwhelming the database server, especially in clustered mysql enviroments.
 
-You can also export subsites from another multisite instance, to do so pass the `--blog_id` parameter. E.g:
+You can also pass `--blog_id` to the `import all` command, in that case the import will override an existing subsite.
 
 ```
-$ wp mu-migration export all subsite.zip --blog_id=2
+$ wp mu-migration import all site.zip --new_url=multisite.dev/site --blog_id=3
 ```
-
-The `import` commando also supports `--blog_id`, in that case the import will override an existing subsite.
 
 In some edge cases it's possible that MU-Migration won't be able to recognize all custom tables while doing the export of a subsite in multisite
-so if you need to make sure to move non-default tables, you can use `--tables` or `--non-default-tables` param. E.g
+so if you need to move non-default tables, you can use `--tables` or `--non-default-tables` param. E.g
 
 ```
 $ wp mu-migration export all subsite.zip --blog_id=1 --non-default-tables=wp_my_custom_table,wp_my_custom_table_2

@@ -167,7 +167,7 @@ function light_add_user_to_blog( $blog_id, $user_id, $role ) {
 
 	if ( ! $user ) {
 		restore_current_blog();
-		return new WP_Error( 'user_does_not_exist', __( 'The requested user does not exist.' ) );
+		return new \WP_Error( 'user_does_not_exist', __( 'The requested user does not exist.' ) );
 	}
 
 	if ( ! get_user_meta( $user_id, 'primary_blog', true ) ) {
@@ -266,4 +266,24 @@ function addTransaction( $orig_filename ) {
 	fclose( $orig_file );
 	unlink( $orig_filename );
 	rename( $temp_filename, $orig_filename );
+}
+
+/**
+ * Switches to another blog if on Multisite
+ *
+ * @param $blog_id
+ */
+function maybe_switch_to_blog( $blog_id ) {
+	if ( is_multisite() ) {
+		switch_to_blog( $blog_id );
+	}
+}
+
+/**
+ * Restore the current blog if on multisite
+ */
+function maybe_restore_current_blog() {
+	if ( is_multisite() ) {
+		restore_current_blog();
+	}
 }

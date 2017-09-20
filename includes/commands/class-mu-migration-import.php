@@ -579,7 +579,7 @@ class ImportCommand extends MUMigrationBase {
 					continue;
 				}
 
-				if ( ! file_exists( $installed_plugins . '/' . $plugin_name ) ) {
+				if ( ! file_exists( $installed_plugins . '/' . $plugin_folder ) ) {
 					WP_CLI::log( sprintf( __( 'Moving %s to plugins folder' ), $plugin_name ) );
 					rename( $fullPluginPath, $installed_plugins . '/' . $plugin_folder );
 				}

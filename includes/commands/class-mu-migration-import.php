@@ -507,8 +507,8 @@ class ImportCommand extends MUMigrationBase {
 		WP_CLI::log( __( 'Moving files...', 'mu-migration' ) );
 
 		if ( ! empty( $plugins_folder ) ) {
-			$blog_plugins 		= isset( $site_meta_data->blog_plugins ) ? $site_meta_data->blog_plugins : false;
-			$network_plugins 	= isset( $site_meta_data->network_plugins ) ? array_keys( $site_meta_data->network_plugins ) : false;
+			$blog_plugins 		= isset( $site_meta_data->blog_plugins ) ? (array) $site_meta_data->blog_plugins : false;
+			$network_plugins 	= isset( $site_meta_data->network_plugins ) ? array_keys( (array) $site_meta_data->network_plugins ) : false;
 			$this->move_and_activate_plugins( $plugins_folder[0], $blog_plugins, $network_plugins );
 		}
 

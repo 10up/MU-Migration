@@ -575,14 +575,14 @@ class ImportCommand extends MUMigrationBase {
 				if ( ! $plugin->isDir() ) {
 					continue;
 				}
-				$plugin_name = $plugin->getFilename();
+				$plugin_name 	= $plugin->getFilename();
+				$fullPluginPath = $plugins_dir . '/' . $plugin_name;
 				
-				if ( $check_plugins && ! in_array( $plugin_name, $blog_plugins, true ) || 
-					! in_array( $plugin_name, $network_plugins, true ) ) {
+				
+				if ( $check_plugins && ! in_array( $fullPluginPath, $blog_plugins, true ) || 
+					! in_array( $fullPluginPath, $network_plugins, true ) ) {
 					continue;
 				}
-
-				$fullPluginPath = $plugins_dir . '/' . $plugin_name;
 
 				if ( ! file_exists( $installed_plugins . '/' . $plugin_name ) ) {
 					WP_CLI::log( sprintf( __( 'Moving %s to plugins folder' ), $plugin_name ) );

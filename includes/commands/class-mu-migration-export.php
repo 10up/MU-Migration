@@ -409,13 +409,15 @@ class ExportCommand extends MUMigrationBase {
 		}
 
 		$site_data = array(
-			'url'           => esc_url( home_url() ),
-			'name'          => sanitize_text_field( get_bloginfo( 'name' ) ),
-			'admin_email'   => sanitize_text_field( get_bloginfo( 'admin_email' ) ),
-			'site_language' => sanitize_text_field( get_bloginfo( 'language' ) ),
-			'db_prefix'     => $wpdb->prefix,
-			'plugins'       => get_plugins(),
-			'blog_id'       => 1
+			'url'           	=> esc_url( home_url() ),
+			'name'          	=> sanitize_text_field( get_bloginfo( 'name' ) ),
+			'admin_email'   	=> sanitize_text_field( get_bloginfo( 'admin_email' ) ),
+			'site_language' 	=> sanitize_text_field( get_bloginfo( 'language' ) ),
+			'db_prefix'     	=> $wpdb->prefix,
+			'plugins'       	=> get_plugins(),
+			'blog_plugins' 		=> get_option( 'active_plugins' ),
+			'network_plugins' 	=> is_multisite() ? get_site_option( 'active_sitewide_plugins' ) : array(),
+			'blog_id'       	=> 1
 		);
 
 		if ( isset( $assoc_args['blog_id'] ) ) {

@@ -507,7 +507,9 @@ class ImportCommand extends MUMigrationBase {
 		WP_CLI::log( __( 'Moving files...', 'mu-migration' ) );
 
 		if ( ! empty( $plugins_folder ) ) {
-			$this->move_plugins( $plugins_folder[0] );
+			$blog_plugins 		= isset( $site_meta_data->blog_plugins ) ? (array) $site_meta_data->blog_plugins : false;
+			$network_plugins 	= isset( $site_meta_data->network_plugins ) ? array_keys( (array) $site_meta_data->network_plugins ) : false;
+			$this->move_and_activate_plugins( $plugins_folder[0], (array) $site_meta_data->plugins, $blog_plugins, $network_plugins );
 		}
 
 		if ( ! empty( $uploads_folder ) ) {
@@ -560,21 +562,34 @@ class ImportCommand extends MUMigrationBase {
 	 * Moves the plugins to the right location.
 	 *
 	 * @param string $plugins_dir
+	 * @param array|bool $blog_plguins
+	 * @param array|bool $network_plugins
 	 */
-	private function move_plugins( $plugins_dir ) {
+	private function move_and_activate_plugins( $plugins_dir, $plugins, $blog_plugins, $network_plugins ) {
 		if ( file_exists( $plugins_dir ) ) {
 			WP_CLI::log( __( 'Moving Plugins...', 'mu-migration' ) );
-			$plugins           = new \DirectoryIterator( $plugins_dir );
 			$installed_plugins = WP_PLUGIN_DIR;
+			$check_plugins 	   = false !== $blog_plugins && false !== $network_plugins;
+			foreach ( $plugins as $plugin_name => $plugin ) {
+				$plugin_folder = basename( $plugin_name );
+				$fullPluginPath = $plugins_dir . '/' . $plugin_folder;
+				
+				if ( $check_plugins &&  ! in_array( $plugin_name, $blog_plugins, true ) && 
+					! in_array( $plugin_name, $network_plugins, true ) ) {
+					continue;
+				}
 
-			foreach ( $plugins as $plugin ) {
-				if ( $plugin->isDir() ) {
-					$fullPluginPath = $plugins_dir . '/' . $plugin->getFilename();
+				if ( ! file_exists( $installed_plugins . '/' . $plugin_folder ) ) {
+					WP_CLI::log( sprintf( __( 'Moving %s to plugins folder' ), $plugin_name ) );
+					rename( $fullPluginPath, $installed_plugins . '/' . $plugin_folder );
+				}
 
-					if ( ! file_exists( $installed_plugins . '/' . $plugin->getFilename() ) ) {
-						WP_CLI::log( sprintf( __( 'Moving %s to plugins folder' ), $plugin->getFilename() ) );
-						rename( $fullPluginPath, $installed_plugins . '/' . $plugin->getFilename() );
-					}
+				if ( $check_plugins && in_array( $plugin_name, $blog_plugins, true ) ) {
+					WP_CLI::log( sprintf( __( 'Activating plugin: %s ' ), $plugin_name ) );
+					activate_plugin( $installed_plugins . '/' . $plugin_name  );
+				} else if ( $check_plugins && in_array( $plugin_name, $network_plugins, true ) ) {
+					WP_CLI::log( sprintf( __( 'Activating plugin network-wide: %s ' ), $plugin_name ) );
+					activate_plugin( $installed_plugins . '/' . $plugin_name , '', true );
 				}
 			}
 		}

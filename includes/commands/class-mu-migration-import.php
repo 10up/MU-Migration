@@ -566,8 +566,6 @@ class ImportCommand extends MUMigrationBase {
 	 * @param array|bool $network_plugins
 	 */
 	private function move_and_activate_plugins( $plugins_dir, $plugins, $blog_plugins, $network_plugins ) {
-		var_dump( $blog_plugins );
-		var_dump( $network_plugins );
 		if ( file_exists( $plugins_dir ) ) {
 			WP_CLI::log( __( 'Moving Plugins...', 'mu-migration' ) );
 			$installed_plugins = WP_PLUGIN_DIR;

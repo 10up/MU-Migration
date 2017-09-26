@@ -195,7 +195,15 @@ $steps->Then( '/^the (.+) (file|directory) should (exist|not exist|be:|contain:|
 				}
 				$contents = implode( PHP_EOL, $files );
 			}
-			checkString( $contents, $expected, $action );
+			$expected_pieces = explode( '|AND|', $expected );
+			foreach( $expected_pieces as $expected_piece ) {
+				$expected_piece = trim( $expected_piece );
+				
+				if ( ! empty( $expected_piece ) ) {
+					checkString( $contents, $expected_piece, $action );
+				}
+				
+			}
 		}
 	}
 );

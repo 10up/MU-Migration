@@ -27,5 +27,58 @@ Feature: Test an MU-Migration export.
     Scenario: MU-Migration is able to export tables of a single site
         Given a WP install
 
+        When I run `wp db prefix`
+        And save STDOUT as {DB_PREFIX}
+
+        When I run `wp mu-migration export tables tables.sql`
+        Then the tables.sql file should exist
+        Then the tables.sql file should contain:
+        """
+        CREATE TABLE `{DB_PREFIX}posts`     |AND|
+        CREATE TABLE `{DB_PREFIX}postmeta`  |AND|
+        CREATE TABLE `{DB_PREFIX}terms`     |AND|
+        CREATE TABLE `{DB_PREFIX}termmeta`  |AND|
+        CREATE TABLE `{DB_PREFIX}options`   |AND|
+        CREATE TABLE `{DB_PREFIX}comments`  |AND|
+        CREATE TABLE `{DB_PREFIX}commentmeta` |AND|
+        CREATE TABLE `{DB_PREFIX}term_taxonomy` |AND|
+        CREATE TABLE `{DB_PREFIX}term_relationships`
+        """
+        Then the tables.sql file should not contain:
+        """
+        CREATE TABLE `{DB_PREFIX}users`     |AND|
+        CREATE TABLE `{DB_PREFIX}usermeta`
+        """
+        Then STDOUT should be:
+        """
+        Success: The export is now complete
+        """
+
+        When I run `wp mu-migration export tables tables1.sql --tables={DB_PREFIX}posts`
+        Then the tables1.sql file should contain:
+        """
+        CREATE TABLE `{DB_PREFIX}posts`
+        """
+        Then the tables1.sql file should not contain:
+        """
+        CREATE TABLE `{DB_PREFIX}postmeta`  |AND|
+        CREATE TABLE `{DB_PREFIX}terms`     |AND|
+        CREATE TABLE `{DB_PREFIX}termmeta`  |AND|
+        CREATE TABLE `{DB_PREFIX}options`   |AND|
+        CREATE TABLE `{DB_PREFIX}comments`  |AND|
+        CREATE TABLE `{DB_PREFIX}commentmeta` |AND|
+        CREATE TABLE `{DB_PREFIX}term_taxonomy` |AND|
+        CREATE TABLE `{DB_PREFIX}term_relationships`
+        """
+
+        When I run `wp db query "CREATE TABLE {DB_PREFIX}custom_table (ID int, text longtext)"`
+        And I run `wp db query "CREATE TABLE custom_table_no_prefix (ID int, text longtext)"`
+        And I run `wp mu-migration export tables tables2.sql --non-default-tables={DB_PREFIX}custom_table,custom_table_no_prefix`
+        Then the tables2.sql file should contain:
+        """
+        CREATE TABLE `{DB_PREFIX}custom_table`  |AND|
+        CREATE TABLE `custom_table_no_prefix`   |AND|
+        """
+
         
  

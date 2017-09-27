@@ -32,3 +32,64 @@ Feature: Test MU-Migration import commands.
         """
         Success
         """
+    Scenario: MU-Migration is able to import the users from a subsite into a single site
+        Given a WP multisite subdirectory install
+        Given I create multiple sites with dummy content
+        Given a WP install in 'singlesite/'
+
+        When I run `wp user list --format=count --blog_id=2`
+        And save STDOUT as {SUBSITE_USERS_COUNT}
+        And I run `wp mu-migration export users users.csv  --blog_id=2`
+        Then the users.csv file should exist
+        Then STDOUT should be:
+        """
+        Success: {SUBSITE_USERS_COUNT} users have been exported
+        """
+        When I run `wp user list --format=count --path=singlesite`
+        Then STDOUT should be:
+        """
+        1
+        """
+        When I run `wp mu-migration import users users.csv --path=singlesite --map_file=users-mapping.json`
+        Then STDOUT should contain:
+        """
+        Parsing users.csv...
+        Success: A map file has been created: users-mapping.json
+        Success: 10 users have been imported and 1 users already existed
+        """
+        Then the users-mapping.json file should exist
+        When I run `wp eval-file {SRC_DIR}/features/tests/csv_matches_user.php users.csv users-mapping.json --path=singlesite`
+        Then STDOUT should be:
+        """
+        Success
+        """
+    Scenario: MU-Migration is able to import the users from a subsite into another subsite
+        Given a WP multisite subdirectory install
+        Given I create multiple sites with dummy content
+
+        When I run `wp user list --format=count --blog_id=2`
+        And save STDOUT as {SUBSITE_USERS_COUNT}
+        And I run `wp mu-migration export users users.csv  --blog_id=2`
+        Then the users.csv file should exist
+        Then STDOUT should be:
+        """
+        Success: {SUBSITE_USERS_COUNT} users have been exported
+        """
+        When I run `wp user list --format=count --url=example.com/site-3`
+        Then STDOUT should be:
+        """
+        11
+        """
+        When I run `wp mu-migration import users users.csv --blog_id=3 --map_file=users-mapping.json`
+        Then STDOUT should contain:
+        """
+        Parsing users.csv...
+        Success: A map file has been created: users-mapping.json
+        Success: 0 users have been imported and 11 users already existed
+        """
+        Then the users-mapping.json file should exist
+        When I run `wp eval-file {SRC_DIR}/features/tests/csv_matches_user.php users.csv users-mapping.json --url=example.com/site-3`
+        Then STDOUT should be:
+        """
+        Success
+        """        

@@ -25,7 +25,7 @@ class ImportCommand extends MUMigrationBase {
 	 *
 	 *   wp mu-migration import users users.csv --map_file=ids_maps.json
 	 *
-	 * @synopsis <inputfile> --map_file=<map> --blog_id=<blog_id>
+	 * @synopsis <inputfile> --map_file=<map> [--blog_id=<blog_id>]
 	 *
 	 * @param array $args
 	 * @param array $assoc_args
@@ -42,7 +42,7 @@ class ImportCommand extends MUMigrationBase {
 			),
 			$args,
 			array(
-				'blog_id'  => '',
+				'blog_id'  => 1,
 				'map_file' => 'ids_maps.json',
 			),
 			$assoc_args
@@ -53,10 +53,6 @@ class ImportCommand extends MUMigrationBase {
 
 		if ( empty( $filename ) || ! file_exists( $filename ) ) {
 			WP_CLI::error( __( 'Invalid input file', 'mu-migration' ) );
-		}
-
-		if ( empty( $this->assoc_args['blog_id'] ) ) {
-			WP_CLI::error( __( 'Please, provide a blog_id ', 'mu-migration' ) );
 		}
 
 		$input_file_handler = fopen( $filename, 'r' );

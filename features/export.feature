@@ -23,7 +23,31 @@ Feature: Test an MU-Migration export.
         """
         Success
         """
-    
+    Scenario: MU-Migration is able to export users on a multisite
+        Given a WP multisite subdirectory install
+        Given I create multiple sites with dummy content
+
+        When I run `wp user list --format=count --url=example.com/site-2`
+        And save STDOUT as {USERS_COUNT}
+
+        When I run `wp mu-migration export users users-subsite.csv --blog_id=2`
+        Then the users-subsite.csv file should exist
+        Then STDOUT should be:
+        """
+        Success: {USERS_COUNT} users have been exported
+        """
+
+        When I run `cat  users-subsite.csv`
+        Then STDOUT should be CSV containing:
+            | ID | user_login | user_email        | role          |
+            | 1  | admin      | admin@example.com | administrator |
+
+        When I run `wp eval-file {SRC_DIR}/features/tests/csv_matches_user.php users-subsite.csv --url=example.com/site-2`
+        Then STDOUT should be:
+        """
+        Success
+        """
+
     Scenario: MU-Migration is able to export tables of a single site
         Given a WP install
 

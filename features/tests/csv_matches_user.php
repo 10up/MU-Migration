@@ -21,7 +21,10 @@ try {
     
             $actual_user_data 	= get_userdata( $expected_user_data['ID'] );
             $actual_user_meta 	= get_user_meta( $expected_user_data['ID'] );
-    
+            
+            if ( is_multisite() && ! is_user_member_of_blog( $expected_user_data['ID'], get_current_blog_id() ) ) {
+                throw new Exception( 'User does not belong to the exported site' );
+            }
             foreach( $expected_user_data as $key => $value ) {
                 if ( isset( $actual_user_data->$key ) && $actual_user_data->$key != $expected_user_data[ $key ] ) {
                     throw new Exception( sprintf( 'User data does not match: %s -> %s:%s', $key, $actual_user_data->$key, $expected_user_data[ $key ] ) );
@@ -34,6 +37,8 @@ try {
     
         }
         fclose($handle);
+    } else {
+        throw new Exception( "Cannot open file" );
     }
 
     echo 'Success';

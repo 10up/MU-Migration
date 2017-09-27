@@ -77,7 +77,7 @@ $steps->Given( '/^a WP install$/',
 
 $steps->Given( "/^a WP install in '([^\s]+)'$/",
 	function ( $world, $subdir ) {
-		$world->install_wp( array(), $subdir );
+		$world->install_wp( $subdir );
 	}
 );
 

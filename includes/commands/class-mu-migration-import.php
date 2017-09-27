@@ -98,7 +98,7 @@ class ImportCommand extends MUMigrationBase {
 
 				$user_exists = $wpdb->get_col(
 					$wpdb->prepare(
-						"SELECT ID FROM {$wpdb->users} WHERE user_login = %s OR user_email = %s;",
+						"SELECT ID FROM {$wpdb->users} WHERE user_login = %s OR (user_email = %s AND user_email != '');",
 						$user_data['user_login'],
 						$user_data['user_email']
 					)

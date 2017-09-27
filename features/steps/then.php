@@ -155,8 +155,8 @@ $steps->Then( '/^(STDOUT|STDERR) should be a version string (<|<=|>|>=|==|=|!=|<
 	}
 );	
 
-$steps->Then( '/^the (.+) (file|directory) should (exist|not exist|be:|contain:|not contain:)$/',
-	function ( $world, $path, $type, $action, $expected = null ) {
+$steps->Then( '/(the|the regex) (.+) (file|directory) should (exist|not exist|be:|contain:|not contain:)$/',
+	function ( $world, $strategy, $path, $type, $action, $expected = null ) {
 		$path = $world->replace_variables( $path );
 
 		// If it's a relative path, make it relative to the current test dir
@@ -164,7 +164,11 @@ $steps->Then( '/^the (.+) (file|directory) should (exist|not exist|be:|contain:|
 			$path = $world->variables['RUN_DIR'] . "/$path";
 
 		if ( 'file' == $type ) {
-			$test = 'file_exists';
+			if ( 'the regex' === $strategy ) {
+				$test = 'file_exists_regex';
+			} else {
+				$test = 'file_exists';
+			}
 		} else if ( 'directory' == $type ) {
 			$test = 'is_dir';
 		}
@@ -224,8 +228,3 @@ $steps->Then( '/^the HTTP status code should be (\d+)$/',
 		assertEquals( $return_code, $response->status_code );
 	}
 );
-
-$steps->Then('/^(.+) is a csv that contains all user\'s metadata$/', function( $world, $file ) {
-	
-	
-});

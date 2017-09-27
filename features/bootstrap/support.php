@@ -192,3 +192,13 @@ function checkThatYamlStringContainsYamlString( $actualYaml, $expectedYaml ) {
 	return compareContents( $expectedValue, $actualValue );
 }
 
+function file_exists_regex( $regex, $dir = './' ) {
+	$open = opendir( $dir );
+	var_dump( $regex );
+	while( ( $file = readdir( $open ) ) !== false ) {
+		if ( preg_match( "/$regex/", $file ) ) {
+			return true;
+		}
+	}
+	return false;
+}

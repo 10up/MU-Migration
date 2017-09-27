@@ -345,7 +345,7 @@ class ImportCommand extends MUMigrationBase {
 					);
 
 					if ( 0 === $search_replace ) {
-						$this->log( __( 'Uploads paths have been successfully updated', 'mu-migration' ), $verbose );
+						$this->log( sprintf( __( 'Uploads paths have been successfully updated: %s -> %s', 'mu-migration' ), $from, $to ), $verbose );
 					}
 				}
 			}

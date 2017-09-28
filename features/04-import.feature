@@ -93,7 +93,7 @@ Feature: Test MU-Migration import commands.
         """
         Success
         """
-    Scenario: MU-Migration is able to import tables using the tables command
+    Scenario: MU-Migration is able to import tables from single site into a subsite
         Given a WP multisite subdirectory install
         Given I create multiple sites with dummy content
         Given a WP install in 'singlesite/'
@@ -119,6 +119,9 @@ Feature: Test MU-Migration import commands.
         """
         http://example.com/site-2
         """
+    Scenario: MU-Migration is able to import tables from a subsite into another subsite
+        Given a WP multisite subdirectory install
+        Given I create multiple sites with dummy content
 
         When I run `wp mu-migration export tables tables.sql --blog_id=3`
         And I run `wp db prefix --url=example.com/site-3`
@@ -138,4 +141,49 @@ Feature: Test MU-Migration import commands.
         Then STDOUT should be:
         """
         http://example.com/site-2
+        """
+       
+        When I run `wp mu-migration export tables tables.sql --blog_id=3`
+        And I run `wp db prefix --url=example.com/site-3`
+        And save STDOUT as {DB_PREFIX}
+        And I run `wp db prefix --url=example.com`
+        And save STDOUT as {SUB_DB_PREFIX}
+        And I run `wp mu-migration import tables tables.sql --blog_id=1 --original_blog_id=3 --old_prefix={DB_PREFIX} --new_prefix={SUB_DB_PREFIX} --old_url=http://example.com/site-3 --new_url=http://example.com`
+        Then STDOUT should be:
+        """
+        Database imported
+        Running search-replace
+        Search and Replace has been successfully executed
+        Running Search and Replace for uploads paths
+        Uploads paths have been successfully updated: wp-content/uploads/sites/3 -> wp-content/uploads
+        """
+        When I run `wp option get siteurl --url=http://example.com/`
+        Then STDOUT should be:
+        """
+        http://example.com
+        """
+
+    Scenario: MU-Migration is able to import tables from a subsite into a single site
+        Given a WP multisite subdirectory install
+        Given I create multiple sites with dummy content
+        Given a WP install in 'singlesite/'
+        
+        When I run `wp mu-migration export tables tables.sql --blog_id=3`
+        And I run `wp db prefix --url=example.com/site-3`
+        And save STDOUT as {DB_PREFIX}
+        And I run `wp db prefix --path=singlesite`
+        And save STDOUT as {SINGLE_DB_PREFIX}
+        And I run `wp mu-migration import tables tables.sql --blog_id=1 --original_blog_id=3 --old_prefix={DB_PREFIX} --new_prefix={SINGLE_DB_PREFIX} --old_url=http://example.com/site-3 --new_url=http://singlesite.com --path=singlesite`
+        Then STDOUT should be:
+        """
+        Database imported
+        Running search-replace
+        Search and Replace has been successfully executed
+        Running Search and Replace for uploads paths
+        Uploads paths have been successfully updated: wp-content/uploads/sites/3 -> wp-content/uploads
+        """
+        When I run `wp option get siteurl --path=singlesite`
+        Then STDOUT should be:
+        """
+        http://singlesite.com
         """

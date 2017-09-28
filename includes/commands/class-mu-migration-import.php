@@ -25,7 +25,7 @@ class ImportCommand extends MUMigrationBase {
 	 *
 	 *   wp mu-migration import users users.csv --map_file=ids_maps.json
 	 *
-	 * @synopsis <inputfile> --map_file=<map> --blog_id=<blog_id>
+	 * @synopsis <inputfile> --map_file=<map> [--blog_id=<blog_id>]
 	 *
 	 * @param array $args
 	 * @param array $assoc_args
@@ -42,7 +42,7 @@ class ImportCommand extends MUMigrationBase {
 			),
 			$args,
 			array(
-				'blog_id'  => '',
+				'blog_id'  => 1,
 				'map_file' => 'ids_maps.json',
 			),
 			$assoc_args
@@ -53,10 +53,6 @@ class ImportCommand extends MUMigrationBase {
 
 		if ( empty( $filename ) || ! file_exists( $filename ) ) {
 			WP_CLI::error( __( 'Invalid input file', 'mu-migration' ) );
-		}
-
-		if ( empty( $this->assoc_args['blog_id'] ) ) {
-			WP_CLI::error( __( 'Please, provide a blog_id ', 'mu-migration' ) );
 		}
 
 		$input_file_handler = fopen( $filename, 'r' );
@@ -98,7 +94,7 @@ class ImportCommand extends MUMigrationBase {
 
 				$user_exists = $wpdb->get_col(
 					$wpdb->prepare(
-						"SELECT ID FROM {$wpdb->users} WHERE user_login = %s OR user_email = %s;",
+						"SELECT ID FROM {$wpdb->users} WHERE user_login = %s OR (user_email = %s AND user_email != '');",
 						$user_data['user_login'],
 						$user_data['user_email']
 					)
@@ -246,7 +242,7 @@ class ImportCommand extends MUMigrationBase {
 	 *
 	 *   wp mu-migration import tables site.sql --old_prefix=wp_ --old_url=old_domain.com --new_url=new_domain.com
 	 *
-	 * @synopsis <inputfile> --blog_id=<blog_id> --old_prefix=<old> --new_prefix=<new> [--old_url=<olddomain>] [--new_url=<newdomain>]
+	 * @synopsis <inputfile> --blog_id=<blog_id> --old_prefix=<old> --new_prefix=<new> [--original_blog_id=<ID>] [--old_url=<olddomain>] [--new_url=<newdomain>]
 	 *
 	 * @param array $args
 	 * @param array $assoc_args
@@ -327,17 +323,16 @@ class ImportCommand extends MUMigrationBase {
 
 				$this->log( __( 'Running Search and Replace for uploads paths', 'mu-migration' ), $verbose );
 
-				$from = false;
-				$to   = false;
+				$from = $to = 'wp-content/uploads';
 
-				if ( $this->assoc_args['blog_id'] > 1 ) {
-					$from = 'wp-content/uploads';
-					$to = 'wp-content/uploads/sites/' . $this->assoc_args['blog_id'];
-				} else if ( $this->assoc_args['original_blog_id'] > 1 && ! $is_multisite ) {
-					$from = 'wp-content/uploads/sites/' . $this->assoc_args['original_blog_id'];
-					$to = 'wp-content/uploads';
+				if ( $this->assoc_args['original_blog_id'] > 1 ) {
+					$from = 'wp-content/uploads/sites/' . (int) $this->assoc_args['original_blog_id'];
 				}
 
+				if ( $this->assoc_args['blog_id'] > 1 ) {
+					$to = 'wp-content/uploads/sites/' . (int) $this->assoc_args['blog_id'];
+				}
+				
 				if ( $from && $to ) {
 					$search_replace = \WP_CLI::launch_self(
 						'search-replace',
@@ -349,7 +344,7 @@ class ImportCommand extends MUMigrationBase {
 					);
 
 					if ( 0 === $search_replace ) {
-						$this->log( __( 'Uploads paths have been successfully updated', 'mu-migration' ), $verbose );
+						$this->log( sprintf( __( 'Uploads paths have been successfully updated: %s -> %s', 'mu-migration' ), $from, $to ), $verbose );
 					}
 				}
 			}
@@ -571,7 +566,7 @@ class ImportCommand extends MUMigrationBase {
 			$installed_plugins = WP_PLUGIN_DIR;
 			$check_plugins 	   = false !== $blog_plugins && false !== $network_plugins;
 			foreach ( $plugins as $plugin_name => $plugin ) {
-				$plugin_folder = basename( $plugin_name );
+				$plugin_folder = dirname( $plugin_name );
 				$fullPluginPath = $plugins_dir . '/' . $plugin_folder;
 				
 				if ( $check_plugins &&  ! in_array( $plugin_name, $blog_plugins, true ) && 

@@ -52,7 +52,7 @@ class ExportCommand extends MUMigrationBase {
 	}
 
 	/**
-	 * Exports the site's table and optionally replaces the database prefix.
+	 * Exports the site's database table
 	 *
 	 * ## OPTIONS
 	 *
@@ -78,7 +78,6 @@ class ExportCommand extends MUMigrationBase {
 			),
 			$args,
 			array(
-				'db_prefix'          => '',
 				'blog_id'            => 1,
 				'tables'             => '',
 				'non-default-tables' => '',

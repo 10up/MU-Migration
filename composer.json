@@ -18,5 +18,8 @@
     ],
   "autoload": {
     "files": [ "mu-migration.php" ]
-  }
+  },
+    "require-dev": {
+        "behat/behat": "~2.5"
+    }
 }

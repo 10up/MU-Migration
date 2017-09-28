@@ -12,21 +12,18 @@
  * @package TenUp\MU_Migration
  */
 
+ if ( ! defined( 'TENUP_MU_MIGRATION_VERSION' ) ) {
+	define( 'TENUP_MU_MIGRATION_VERSION', '0.3.2' );
+	define( 'TENUP_MU_MIGRATION_COMMANDS_PATH', 'includes/commands/' );
+ }
+
 // Only load this plugin once and bail if WP CLI is not present
-if ( defined( 'TENUP_MU_MIGRATION_VERSION' ) || ! defined( 'WP_CLI' ) ) {
+if (  ! defined( 'WP_CLI' ) ) {
 	return;
 }
 
-define( 'TENUP_MU_MIGRATION_VERSION', '0.3.1' );
-define( 'TENUP_MU_MIGRATION_COMMANDS_PATH', 'includes/commands/' );
-
-// we only need to require autoload if running as a plugin
-if ( defined( 'ABSPATH' ) ) {
-	if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
-		require_once( 'vendor/autoload.php' );
-	} else {
-		die( 'Please, run composer install first' );
-	}
+if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
+	require_once( 'vendor/autoload.php' );
 }
 
 require_once( 'includes/helpers.php' );

@@ -323,16 +323,28 @@ class ImportCommand extends MUMigrationBase {
 
 				$this->log( __( 'Running Search and Replace for uploads paths', 'mu-migration' ), $verbose );
 
-				$from = false;
-				$to   = false;
+				$from = $to = 'wp-content/uploads';
+
+				if ( $this->assoc_args['original_blog_id'] > 1 ) {
+					$from = 'wp-content/uploads/sites/' . (int) $this->assoc_args['original_blog_id'];
+				}
 
 				if ( $this->assoc_args['blog_id'] > 1 ) {
-					$from = 'wp-content/uploads';
+					$to = 'wp-content/uploads/sites/' . (int) $this->assoc_args['blog_id'];
+				}
+
+				/*if ( $this->assoc_args['blog_id'] > 1 ) {
+					//this handles the case of moving a subsite from one network to another network
+					if ( $this->assoc_args['original_blog_id'] > 1 ) {
+						$from = 'wp-content/uploads/sites/' . $this->assoc_args['original_blog_id'];
+					} else {
+						$from = 'wp-content/uploads';
+					}
 					$to = 'wp-content/uploads/sites/' . $this->assoc_args['blog_id'];
 				} else if ( $this->assoc_args['original_blog_id'] > 1 && ! $is_multisite ) {
 					$from = 'wp-content/uploads/sites/' . $this->assoc_args['original_blog_id'];
 					$to = 'wp-content/uploads';
-				}
+				}*/
 
 				if ( $from && $to ) {
 					$search_replace = \WP_CLI::launch_self(

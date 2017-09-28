@@ -332,7 +332,7 @@ class ImportCommand extends MUMigrationBase {
 				if ( $this->assoc_args['blog_id'] > 1 ) {
 					$to = 'wp-content/uploads/sites/' . (int) $this->assoc_args['blog_id'];
 				}
-
+				
 				if ( $from && $to ) {
 					$search_replace = \WP_CLI::launch_self(
 						'search-replace',
@@ -566,7 +566,7 @@ class ImportCommand extends MUMigrationBase {
 			$installed_plugins = WP_PLUGIN_DIR;
 			$check_plugins 	   = false !== $blog_plugins && false !== $network_plugins;
 			foreach ( $plugins as $plugin_name => $plugin ) {
-				$plugin_folder = basename( $plugin_name );
+				$plugin_folder = dirname( $plugin_name );
 				$fullPluginPath = $plugins_dir . '/' . $plugin_folder;
 				
 				if ( $check_plugins &&  ! in_array( $plugin_name, $blog_plugins, true ) && 

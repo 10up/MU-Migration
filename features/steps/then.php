@@ -18,7 +18,14 @@ $steps->Then( '/^(STDOUT|STDERR) should (be|contain|not contain):$/',
 
 		$expected = $world->replace_variables( (string) $expected );
 
-		checkString( $world->result->$stream, $expected, $action, $world->result );
+		$expected_pieces = explode( '|AND|', $expected );
+		foreach( $expected_pieces as $expected_piece ) {
+			$expected_piece = trim( $expected_piece );
+			
+			if ( ! empty( $expected_piece ) ) {
+				checkString( $world->result->$stream, $expected_piece, $action, $world->result );
+			}
+		}
 	}
 );
 

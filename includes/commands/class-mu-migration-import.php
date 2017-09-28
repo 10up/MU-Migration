@@ -242,7 +242,7 @@ class ImportCommand extends MUMigrationBase {
 	 *
 	 *   wp mu-migration import tables site.sql --old_prefix=wp_ --old_url=old_domain.com --new_url=new_domain.com
 	 *
-	 * @synopsis <inputfile> --blog_id=<blog_id> --old_prefix=<old> --new_prefix=<new> [--old_url=<olddomain>] [--new_url=<newdomain>]
+	 * @synopsis <inputfile> --blog_id=<blog_id> --old_prefix=<old> --new_prefix=<new> [--original_blog_id=<ID>] [--old_url=<olddomain>] [--new_url=<newdomain>]
 	 *
 	 * @param array $args
 	 * @param array $assoc_args

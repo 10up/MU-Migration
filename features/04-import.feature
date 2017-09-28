@@ -98,7 +98,7 @@ Feature: Test MU-Migration import commands.
         Given I create multiple sites with dummy content
         Given a WP install in 'singlesite/'
 
-        When I run `wp post create --post_type=page --post_title='Test Post' --post_status=publish --path=singlesite`
+        When I run `wp post create --post_type=page --post_title='Test Post' --post_status=publish --post_date='2016-12-01 07:00:00' --path=singlesite`
         And I run `wp mu-migration export tables tables.sql --path=singlesite`
         And I run `wp db prefix --path=singlesite`
         And save STDOUT as {DB_PREFIX}
@@ -114,6 +114,26 @@ Feature: Test MU-Migration import commands.
         Uploads paths have been successfully updated: wp-content/uploads -> wp-content/uploads/sites/2
         """
 
+        When I run `wp option get siteurl --url=http://example.com/site-2`
+        Then STDOUT should be:
+        """
+        http://example.com/site-2
+        """
+
+        When I run `wp mu-migration export tables tables.sql --blog_id=3`
+        And I run `wp db prefix --url=example.com/site-3`
+        And save STDOUT as {DB_PREFIX}
+        And I run `wp db prefix --url=example.com/site-2`
+        And save STDOUT as {SUB_DB_PREFIX}
+        And I run `wp mu-migration import tables tables.sql --blog_id=2 --original_blog_id=3 --old_prefix={DB_PREFIX} --new_prefix={SUB_DB_PREFIX} --old_url=http://example.com/site-3 --new_url=http://example.com/site-2`
+        Then STDOUT should be:
+        """
+        Database imported
+        Running search-replace
+        Search and Replace has been successfully executed
+        Running Search and Replace for uploads paths
+        Uploads paths have been successfully updated: wp-content/uploads/sites/3 -> wp-content/uploads/sites/2
+        """
         When I run `wp option get siteurl --url=http://example.com/site-2`
         Then STDOUT should be:
         """

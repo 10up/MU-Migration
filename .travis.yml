@@ -48,7 +48,7 @@ before_install:
     fi
 
 install:
-  - composer require wp-cli/wp-cli:dev-master
+  - composer require wp-cli/wp-cli:dev-master --ignore-platform-reqs
   - composer install
   - bash bin/install-package-tests.sh
 

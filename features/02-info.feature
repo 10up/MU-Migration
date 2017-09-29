@@ -1,6 +1,7 @@
 Feature: Test an MU-Migration info command.
 
   Scenario: MU-Migration info works
+    Given a WP install
     When I run `wp mu-migration info`
     Then STDOUT should contain:
       """

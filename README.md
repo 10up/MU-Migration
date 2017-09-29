@@ -1,4 +1,6 @@
-# MU-Migration
+MU-Migration [![Build Status](https://travis-ci.org/10up/MU-Migration.svg?branch=master)](https://travis-ci.org/10up/MU-Migration)
+============
+
 
 This WP-CLI plugin makes the process of moving sites from single WordPress sites to a Multisite instance (or vice-versa) much easier.
 It exports everything into a zip package which can be used to automatically import it within the desired Multisite installation.

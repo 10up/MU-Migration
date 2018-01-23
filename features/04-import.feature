@@ -111,7 +111,7 @@ Feature: Test MU-Migration import commands.
         Running search-replace
         Search and Replace has been successfully executed
         Running Search and Replace for uploads paths
-        Uploads paths have been successfully updated: wp-content/uploads -> wp-content/uploads/sites/2
+        Uploads paths have been successfully updated as follows:
         """
 
         When I run `wp option get siteurl --url=http://example.com/site-2`
@@ -135,14 +135,14 @@ Feature: Test MU-Migration import commands.
         Running search-replace
         Search and Replace has been successfully executed
         Running Search and Replace for uploads paths
-        Uploads paths have been successfully updated: wp-content/uploads/sites/3 -> wp-content/uploads/sites/2
+        Uploads paths have been successfully updated as follows:
         """
         When I run `wp option get siteurl --url=http://example.com/site-2`
         Then STDOUT should be:
         """
         http://example.com/site-2
         """
-       
+
         When I run `wp mu-migration export tables tables.sql --blog_id=3`
         And I run `wp db prefix --url=example.com/site-3`
         And save STDOUT as {DB_PREFIX}
@@ -155,7 +155,7 @@ Feature: Test MU-Migration import commands.
         Running search-replace
         Search and Replace has been successfully executed
         Running Search and Replace for uploads paths
-        Uploads paths have been successfully updated: wp-content/uploads/sites/3 -> wp-content/uploads
+        Uploads paths have been successfully updated as follows:
         """
         When I run `wp option get siteurl --url=http://example.com/`
         Then STDOUT should be:
@@ -167,7 +167,7 @@ Feature: Test MU-Migration import commands.
         Given a WP multisite subdirectory install
         Given I create multiple sites with dummy content
         Given a WP install in 'singlesite/'
-        
+
         When I run `wp mu-migration export tables tables.sql --blog_id=3`
         And I run `wp db prefix --url=example.com/site-3`
         And save STDOUT as {DB_PREFIX}
@@ -180,7 +180,7 @@ Feature: Test MU-Migration import commands.
         Running search-replace
         Search and Replace has been successfully executed
         Running Search and Replace for uploads paths
-        Uploads paths have been successfully updated: wp-content/uploads/sites/3 -> wp-content/uploads
+        Uploads paths have been successfully updated as follows:
         """
         When I run `wp option get siteurl --path=singlesite`
         Then STDOUT should be:

@@ -289,10 +289,10 @@ class ImportCommand extends MUMigrationBase {
 		$import = \WP_CLI::launch_self(
 			'db import',
 			array( $filename ),
-			array(),
+			$this->get_non_reused_runtime_args(),
 			false,
 			false,
-			array()
+			\WP_CLI::get_config()
 		);
 
 		if ( 0 === $import ) {
@@ -305,16 +305,19 @@ class ImportCommand extends MUMigrationBase {
 				$old_url = Helpers\parse_url_for_search_replace( $this->assoc_args['old_url'] );
 				$new_url = Helpers\parse_url_for_search_replace( $this->assoc_args['new_url'] );
 
+				$global_config = \WP_CLI::get_config();
+				$global_config['url'] = $new_url;
+####QUI VIENE AGGIUNTA LA RIGA MALEFICA! MA NON SEMBRA ESSERE NEMMENO LA CLASSE Roles
 				$search_replace = \WP_CLI::launch_self(
 					'search-replace',
 					array(
 						$old_url,
 						$new_url,
 					),
-					array(),
+					$this->get_non_reused_runtime_args(),
 					false,
 					false,
-					array( 'url' => $new_url )
+					$global_config
 				);
 
 				if ( 0 === $search_replace ) {
@@ -334,13 +337,15 @@ class ImportCommand extends MUMigrationBase {
 				}
 				
 				if ( $from && $to ) {
+					$global_config = \WP_CLI::get_config();
+					$global_config['url'] = $new_url;
 					$search_replace = \WP_CLI::launch_self(
 						'search-replace',
 						array( $from , $to ),
-						array(),
+						$this->get_non_reused_runtime_args(),
 						false,
 						false,
-						array( 'url' => $new_url )
+						$global_config
 					);
 
 					if ( 0 === $search_replace ) {
@@ -629,10 +634,10 @@ class ImportCommand extends MUMigrationBase {
 						WP_CLI::launch_self(
 							'theme enable',
 							array( $theme->getFilename() ),
-							array(),
+							$this->get_non_reused_runtime_args(),
 							false,
 							false,
-							array()
+							\WP_CLI::get_config()
 						);
 					}
 				}
@@ -718,6 +723,23 @@ class ImportCommand extends MUMigrationBase {
 		}
 
 		return true;
+	}
+
+	protected function get_non_reused_runtime_args() {
+		$reused_runtime_args = array(
+			'path',
+			'url',
+			'user',
+			'allow-root',
+		);
+		$runtime_args = WP_CLI::get_config();
+		$non_reused_runtime_args = [];
+		foreach ($runtime_args as $k => $v) {
+			if (isset($v) && $v && !in_array( $k, $reused_runtime_args)) {
+				$non_reused_runtime_args[$k] = $v;
+			}
+		}
+		return $non_reused_runtime_args;
 	}
 }
 

@@ -307,7 +307,6 @@ class ImportCommand extends MUMigrationBase {
 
 				$global_config = \WP_CLI::get_config();
 				$global_config['url'] = $new_url;
-####QUI VIENE AGGIUNTA LA RIGA MALEFICA! MA NON SEMBRA ESSERE NEMMENO LA CLASSE Roles
 				$search_replace = \WP_CLI::launch_self(
 					'search-replace',
 					array(

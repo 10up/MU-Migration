@@ -650,7 +650,7 @@ class ImportCommand extends MUMigrationBase {
 		$parsed_url = parse_url( esc_url( $meta_data->url ) );
 		$site_id    = 1;
 
-		$parsed_url['path'] = isset($parsed_url['path'])? $parsed_url['path'] : '/';
+		$parsed_url['path'] = isset( $parsed_url['path'] ) ? $parsed_url['path'] : '/';
 
 		if ( domain_exists( $parsed_url['host'], $parsed_url['path'], $site_id ) ) {
 			return false;

@@ -33,6 +33,15 @@ abstract class MUMigrationBase extends \WP_CLI_Command {
 	 * @param array $assoc_args
 	 */
 	protected function process_args( $default_args = array(), $args = array(), $default_assoc_args = array(), $assoc_args = array() ) {
+
+		/**
+		 * Filters the method-defined args.
+		 *
+		 * This filter can be used to determine the folder where files will be
+		 * written to and read from.
+		 */
+		$args = (array) apply_filters( 'mu-migration/process_args/args', $args );
+
 		$this->args       = $args + $default_args;
 		$this->assoc_args = wp_parse_args( $assoc_args, $default_assoc_args );
 	}

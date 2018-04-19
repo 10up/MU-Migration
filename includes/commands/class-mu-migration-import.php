@@ -591,7 +591,7 @@ class ImportCommand extends MUMigrationBase {
 
 		WP_CLI::log( __( 'Removing temporary files....', 'mu-migration' ) );
 
-		// Helpers\delete_folder( $temp_dir );
+		Helpers\delete_folder( $temp_dir );
 
 		WP_CLI::success( sprintf(
 			__( 'All done, your new site is available at %s. Remember to flush the cache (memcache, redis etc).', 'mu-migration' ),

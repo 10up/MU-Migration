@@ -112,6 +112,9 @@ Feature: Test MU-Migration import commands.
         Search and Replace has been successfully executed
         Running Search and Replace for uploads paths
         Uploads paths have been successfully updated as follows:
+        example.com/site-2/wp-content/uploads/sites/  ->  example.com/wp-content/uploads/sites/2/
+        example.com/wp-content/uploads/sites/2/  ->  example.com/wp-content/uploads/sites/2/
+        example.com/site-2/files/  ->  example.com/wp-content/uploads/sites/2/
         """
 
         When I run `wp option get siteurl --url=http://example.com/site-2`
@@ -136,6 +139,9 @@ Feature: Test MU-Migration import commands.
         Search and Replace has been successfully executed
         Running Search and Replace for uploads paths
         Uploads paths have been successfully updated as follows:
+        example.com/site-2/wp-content/uploads/sites/3/  ->  example.com/wp-content/uploads/sites/2/
+        example.com/wp-content/uploads/sites/2/  ->  example.com/wp-content/uploads/sites/2/
+        example.com/site-2/files/  ->  example.com/wp-content/uploads/sites/2/
         """
         When I run `wp option get siteurl --url=http://example.com/site-2`
         Then STDOUT should be:
@@ -181,6 +187,9 @@ Feature: Test MU-Migration import commands.
         Search and Replace has been successfully executed
         Running Search and Replace for uploads paths
         Uploads paths have been successfully updated as follows:
+        singlesite.com/wp-content/uploads/sites/3/  ->  singlesite.com/wp-content/uploads/
+        singlesite.com/wp-content/uploads/  ->  singlesite.com/wp-content/uploads/
+        singlesite.com/files/  ->  singlesite.com/wp-content/uploads/
         """
         When I run `wp option get siteurl --path=singlesite`
         Then STDOUT should be:

@@ -112,8 +112,8 @@ Feature: Test MU-Migration import commands.
         Search and Replace has been successfully executed
         Running Search and Replace for uploads paths
         Uploads paths have been successfully updated as follows:
-        example.com/site-2/wp-content/uploads/sites/  ->  example.com/wp-content/uploads/sites/2/
         example.com/wp-content/uploads/sites/2/  ->  example.com/wp-content/uploads/sites/2/
+        example.com/site-2/wp-content/uploads/  ->  example.com/wp-content/uploads/sites/2/
         example.com/site-2/files/  ->  example.com/wp-content/uploads/sites/2/
         """
 
@@ -162,6 +162,9 @@ Feature: Test MU-Migration import commands.
         Search and Replace has been successfully executed
         Running Search and Replace for uploads paths
         Uploads paths have been successfully updated as follows:
+        example.com/wp-content/uploads/sites/3/  ->  example.com/wp-content/uploads/
+        example.com/wp-content/uploads/  ->  example.com/wp-content/uploads/
+        example.com/files/  ->  example.com/wp-content/uploads/
         """
         When I run `wp option get siteurl --url=http://example.com/`
         Then STDOUT should be:

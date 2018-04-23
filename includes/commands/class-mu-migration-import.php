@@ -326,15 +326,15 @@ class ImportCommand extends MUMigrationBase {
 			$old_url = Helpers\parse_url_for_search_replace( $this->assoc_args['old_url'] );
 			$new_url = Helpers\parse_url_for_search_replace( $this->assoc_args['new_url'] );
 
-			// Perform search and replace on upload paths.
-			$this->log( __( 'Running Search and Replace for uploads paths', 'mu-migration' ), $verbose );
+			$this->log( __( 'Running search-replace for uploads paths', 'mu-migration' ), $verbose );
 
 			$from = $this->get_possible_upload_paths( $this->assoc_args['blog_id'], $this->assoc_args['original_blog_id'], $this->upload_path_options, $old_url );
 			$to = $this->resolve_upload_path( $new_upload_paths, $new_url, $this->assoc_args['blog_id'] );
 
 			if ( $from && $to ) {
 				$check = 0;
-				// Two step search and replace will prevent any weirdness if one of the from paths is a substring of the two path
+				// Two step search and replace will prevent any weirdness if one of the 'from' paths is a substring of the 'to' path
+				// Step one
 				foreach ( $from as $f ) {
 					$search_replace = \WP_CLI::launch_self(
 						'search-replace',
@@ -344,9 +344,9 @@ class ImportCommand extends MUMigrationBase {
 						false,
 						array( 'url' => $new_url )
 					);
-
 					$check += $search_replace;
 				}
+				// Step two
 				$search_replace = \WP_CLI::launch_self(
 					'search-replace',
 					array( "{{{mu-migration-upload-paths-placeholder}}}", $to ),
@@ -357,7 +357,7 @@ class ImportCommand extends MUMigrationBase {
 				);
 				$check += $search_replace;
 
-				// Restore the upload path options.
+				// Restore upload path options.
 				foreach ($this->upload_path_options as $op ) {
 					$restore = \WP_CLI::launch_self(
 						'option update',
@@ -373,16 +373,16 @@ class ImportCommand extends MUMigrationBase {
 					$check += $restore;
 				}
 				if ( 0 === $check ) {
-					$this->log( __( 'Uploads paths have been successfully updated as follows:', 'mu-migration' ), true );
+					$this->log( __( 'Uploads paths have been successfully updated as follows:', 'mu-migration' ), $verbose );
 					foreach ( $from as $f ) {
-						$this->log( sprintf( __( '%s  ->  %s', 'mu-migration' ), $f, $to ), true );
+						$this->log( sprintf( __( '%s  ->  %s', 'mu-migration' ), $f, $to ), $verbose );
 					}
 				}
 			}
 
 			// Perform search and replace on url.
 			if ( ! empty( $this->assoc_args['old_url'] ) && ! empty( $this->assoc_args['new_url'] ) ) {
-				$this->log( __( 'Running search-replace', 'mu-migration' ), $verbose );
+				$this->log( __( 'Running search-replace for urls', 'mu-migration' ), $verbose );
 
 				$search_replace = \WP_CLI::launch_self(
 					'search-replace',
@@ -397,7 +397,7 @@ class ImportCommand extends MUMigrationBase {
 				);
 
 				if ( 0 === $search_replace ) {
-					$this->log( __( 'Search and Replace has been successfully executed', 'mu-migration' ), $verbose );
+					$this->log( __( 'Search and Replace for urls has been successfully executed', 'mu-migration' ), $verbose );
 				}
 			}
 
@@ -790,29 +790,30 @@ class ImportCommand extends MUMigrationBase {
 	 * @param int $blog_id The blog id of the site for which we want to get upload path possibilties.
 	 * @param int $origin_blog_id The original blog id, if there was one. Used for some guesses at upload path.
 	 * @param array $upload_path_options An array of option names, whose values we will add to the possible upload paths.
+	 * @param string $home_path Home path of site being imported (probably will be $old_url)
 	 */
 	private function get_possible_upload_paths( $blog_id, $original_blog_id, $upload_path_options, $home_path ) {
 		Helpers\maybe_switch_to_blog( $blog_id );
 
+		// Home path defaults to 'home' option.
 		$home_path = $home_path ? $home_path : get_option( 'home' );
 
-		$matches = array();
-		preg_match( '/(https?:\/\/)?(.*?)\/.*/', $home_path, $matches );
-		$site_path = count($matches) > 1 ? $matches[2] : '';
+		// Find site path (domain), the base url of the main site.
+		// We will add relative paths against both domain and home path.
+		$site_path = parse_url( esc_url( $home_path ) )['host'];
+		$home_path = Helpers\parse_url_for_search_replace( $home_path );
 
 		$from = array();
 
 		foreach ( $upload_path_options as $op ) {
-			// Get the value of the option.
 			$path = get_option( $op );
-
-			// Add to 'from' array.
 			if ( ! empty( $path ) ) {
 				$from[] = $path;
 			}
 		}
 
 		// Add ms-files-rewriting possibilities. (URLs of the form www.example.com/sitename/files)
+		// For more information see includes/ms-files.php
 		$from[] = $home_path ? $home_path . '/files/' : '';
 		$from[] = $site_path ? $site_path . '/files/' : '';
 
@@ -825,26 +826,32 @@ class ImportCommand extends MUMigrationBase {
 			$from[] = $site_path ? $site_path . "/wp-content/uploads" : '';
 		}
 
-		// Normalize all paths into the form {base_url}/{path}/
+		// Normalize all paths into the form www.example.com/sitename/path/
 		$final_from = array();
 		foreach ( $from as $path ) {
 			if ( empty( $path ) ) {
 				continue;
 			}
+			// Check if this is a relative path.
+			// Add it to the 'from' array accordingly.
 			$url_check = $site_path ? $site_path : $home_path;
-			if ( strpos( $path, $url_check ) !== 0 && ! preg_match( '/^http(s?):\/\//', $path ) ) {
-				$path = preg_replace( '/^([^\/])/', '/$1', $path );
+			if ( strpos( $path, $url_check ) !== 0 && ! preg_match( '/^https?:\/\//', $path ) ) {
+				// For relative paths.
+				$path = preg_replace( '/^([^\/])/', '/$1', $path ); // Add leading slash
 				$paths = array();
-				$paths[] = $home_path . $path;
-				$paths[] = $site_path . $path;
+				$paths[] = untrailingslashit( $home_path ) . $path;
+				$paths[] = untrailingslashit( $site_path ) . $path;
+				// Add relative path appended to home path and site path (domain)
 				foreach ( $paths as $p ) {
-					$p = preg_replace( '/([^\/])$/', '$1/', $p );
-					$p = preg_replace( '/^http(s?):\/\//', '', $p );
+					$p = trailingslashit( $p );
 					$final_from[] = $p;
 				}
 			} else {
-				$path = preg_replace( '/([^\/])$/', '$1/', $path );
-				$path = preg_replace( '/^http(s?):\/\//', '', $path );
+				// For non-relative paths
+				// Strip http(s). Yes, home and site paths have already been stripped at definition --
+				// but, we can't guarantee what the options will return.
+				$path = preg_replace( '/^http(s?):\/\//', '', $path ); // Strip http(s)
+				$path = trailingslashit($path);
 				$final_from[] = $path;
 			}
 		}
@@ -863,12 +870,15 @@ class ImportCommand extends MUMigrationBase {
 	 * We cannot say for certain that this will match the system path the upload files are moved to -- some sites use .htaccess
 	 * rewriting. For example, older sites will almost certainly have ms_files_rewriting enabled (/files/ path).
 	 *
-	 * @param array $possibliities An array of config option values to check. Must be in order of use priority.
+	 * @param array $possibilities An array of config option values to check. Must be in order of use priority.
 	 * @param string $home_path The url of the site -- should be the new url that we want the site to live at.
 	 * @param int $blog_id The blog id of the new incarnation of the site we're importing. Used to take a hard-coded guess
 	 * at the 'to' path as a default if everything else fails.
 	 */
 	private function resolve_upload_path( $possibilities, $home_path, $blog_id ) {
+		$home_path = $home_path ? $home_path : get_option('home');
+		$home_path = Helpers\parse_url_for_search_replace( $home_path );
+
 		// Hard code default in case nothing else works.
 		if ( ! empty( $blog_id ) && $blog_id > 1 ) {
 			$to = $home_path . 'wp-content/uploads/sites/' . $blog_id;
@@ -877,14 +887,13 @@ class ImportCommand extends MUMigrationBase {
 		}
 		// Use the highest priority possibility which has a value.
 		foreach ( $possibilities as $path ) {
-			if ( is_string( $path ) && $path != '' ) {
-				if ( strpos( $path, $home_path ) !== 0 && ! preg_match( '/^http(s?):\/\//', $path ) ) {
-					$path = preg_replace( '/^([^\/])/', '/$1', $path );
-					$path = $home_path . $path;
+			if ( ! empty( $path ) ) {
+				if ( strpos( $path, $home_path ) !== 0 && ! preg_match( '/^https?:\/\//', $path ) ) {
+					$path = preg_replace( '/^([^\/])/', '/$1', $path ); // Add leading slash
+					$path = untrailingslashit($home_path) . $path;
 				}
-				$path = preg_replace( '/([^\/])$/', '$1/', $path );
-				$path = preg_replace( '/^http(s?):\/\//', '', $path );
-				return $path;
+				$path = trailingslashit( $path );
+				return  Helpers\parse_url_for_search_replace( $path );
 			}
 		}
 		return $to;

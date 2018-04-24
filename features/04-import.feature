@@ -148,7 +148,7 @@ Feature: Test MU-Migration import commands.
         """
         http://example.com/site-2
         """
-
+       
         When I run `wp mu-migration export tables tables.sql --blog_id=3`
         And I run `wp db prefix --url=example.com/site-3`
         And save STDOUT as {DB_PREFIX}
@@ -177,7 +177,7 @@ Feature: Test MU-Migration import commands.
         Given a WP multisite subdirectory install
         Given I create multiple sites with dummy content
         Given a WP install in 'singlesite/'
-
+        
         When I run `wp mu-migration export tables tables.sql --blog_id=3`
         And I run `wp db prefix --url=example.com/site-3`
         And save STDOUT as {DB_PREFIX}

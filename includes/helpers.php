@@ -146,7 +146,7 @@ function get_db_prefix( $blog_id ) {
 	global $wpdb;
 
 	if ( $blog_id > 1 ) {
-		$new_db_prefix = $wpdb->prefix . $blog_id . '_';
+		$new_db_prefix = $wpdb->base_prefix . $blog_id . '_';
 	} else {
 		$new_db_prefix = $wpdb->prefix;
 	}

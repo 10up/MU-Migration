@@ -879,7 +879,7 @@ class ImportCommand extends MUMigrationBase {
 			}
 		);
 		Helpers\maybe_restore_current_blog();
-		return array_unique( $final_from );
+		return $final_from;
 	}
 
 	/**
@@ -929,9 +929,7 @@ class ImportCommand extends MUMigrationBase {
 			$path = Helpers\parse_url_for_search_replace( trailingslashit( $path ) ); // Normalize path value.
 			$to['absolute'] = $path;
 			// Relativize path relative to home path.
-			$host = preg_quote( $home_path, '/' );
-			$path = preg_replace( "/^$host.*/", '', $path );
-			$to['relative'] = parse_url( esc_url( $path ) )['path']; // Add to result.
+			$to['relative'] = ltrim( parse_url( esc_url( $path ) )['path'], '/' ); // Add to result.
 		}
 		return $to;
 	}

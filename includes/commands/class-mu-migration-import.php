@@ -847,12 +847,14 @@ class ImportCommand extends MUMigrationBase {
 			$url_check = $site_path ? $site_path : $home_path;
 			if ( strpos( $path, $url_check ) !== 0 && ! preg_match( '/^https?:\/\//', $path ) ) {
 				// For relative paths.
-				$relative = ltrim( $path, '/' ); // Remove leading slash for standalone relative version.
-				$path = "/$path"; // Add leading slash back for concat with home/site path.
+				if ( preg_match( '/\/.*?\/.*?\//', $path ) ) { // If relative path is long/complex enough to be safely unique.
+					$relative = ltrim( $path, '/' ); // Remove leading slash for standalone relative version.
+					$final_from[] = array( 'type' => 'relative', 'value' => $relative );
+				}
+				$path = "/$path"; // Add leading slash for concat with home/site path.
 				$homeabs = untrailingslashit( $home_path ) . $path;
 				$siteabs = untrailingslashit( $site_path ) . $path;
 				// Add all versions to 'from' array.
-				$final_from[] = array( 'type' => 'relative', 'value' => $relative );
 				$final_from[] = array( 'type' => 'absolute', 'value' => $homeabs );
 				$final_from[] = array( 'type' => 'absolute', 'value' => $siteabs );
 			} else {
@@ -860,11 +862,12 @@ class ImportCommand extends MUMigrationBase {
 				// Add relative versions as well, just in case.
 				if ( strpos( $path, $home_path !== 0 ) && ! empty( $home_path ) ) {
 					$relative = str_replace( $home_path, '', $path );
-					$relative = ltrim( $path, '/' );
-					$final_from[] = array( 'type' => 'relative', 'value' => $relative );
 				} else if ( strpos( $path, $site_path !== 0 ) && ! empty( $site_path ) ) {
 					$relative = str_replace( $site_path, '', $path );
-					$relative = ltrim( $path, '/' );
+				}
+				
+				if ( $relative && preg_match( '/\/.*?\/.*?\/', $relative ) ) { // If relative path is long/complex enough to be safely unique.
+					$relative = ltrim( $path, '/' ); // Remove leading slash for standalone relative version.
 					$final_from[] = array( 'type' => 'relative', 'value' => $relative );
 				}
 

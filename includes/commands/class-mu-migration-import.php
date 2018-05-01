@@ -339,7 +339,7 @@ class ImportCommand extends MUMigrationBase {
 					$token = $f['type'] === 'relative' ? '{{{mu-migration-relative}}}' : '{{{mu-migration-absolute}}}';
 					$search_replace = \WP_CLI::launch_self(
 						'search-replace',
-						array( $f['value'] , $token ),
+						array( $f['value'] , $token, '--all-tables-with-prefix' ),
 						array(),
 						false,
 						false,
@@ -350,7 +350,7 @@ class ImportCommand extends MUMigrationBase {
 				// Step two
 				$search_replace = \WP_CLI::launch_self(
 					'search-replace',
-					array( "{{{mu-migration-absolute}}}", $to['absolute'] ),
+					array( "{{{mu-migration-absolute}}}", $to['absolute'], '--all-tables-with-prefix' ),
 					array(),
 					false,
 					false,
@@ -359,7 +359,7 @@ class ImportCommand extends MUMigrationBase {
 				$check += $search_replace;
 				$search_replace = \WP_CLI::launch_self(
 					'search-replace',
-					array( "{{{mu-migration-relative}}}", $to['relative'] ),
+					array( "{{{mu-migration-relative}}}", $to['relative'], '--all-tables-with-prefix' ),
 					array(),
 					false,
 					false,

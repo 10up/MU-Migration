@@ -138,6 +138,7 @@ Feature: Test MU-Migration import commands.
         Uploads paths have been successfully updated as follows:
         example.com/site-3/wp-content/uploads/sites/3/  ->  example.com/wp-content/uploads/sites/2/
         example.com/wp-content/uploads/sites/3/  ->  example.com/wp-content/uploads/sites/2/
+        wp-content/uploads/sites/3/  ->  wp-content/uploads/sites/2/
         example.com/site-3/files/  ->  example.com/wp-content/uploads/sites/2/
         example.com/files/  ->  example.com/wp-content/uploads/sites/2/
         Running search-replace for urls
@@ -162,6 +163,7 @@ Feature: Test MU-Migration import commands.
         Uploads paths have been successfully updated as follows:
         example.com/site-3/wp-content/uploads/sites/3/  ->  example.com/wp-content/uploads/
         example.com/wp-content/uploads/sites/3/  ->  example.com/wp-content/uploads/
+        wp-content/uploads/sites/3/  ->  wp-content/uploads/
         example.com/site-3/files/  ->  example.com/wp-content/uploads/
         example.com/files/  ->  example.com/wp-content/uploads/
         Running search-replace for urls
@@ -191,6 +193,7 @@ Feature: Test MU-Migration import commands.
         Uploads paths have been successfully updated as follows:
         example.com/site-3/wp-content/uploads/sites/3/  ->  singlesite.com/wp-content/uploads/
         example.com/wp-content/uploads/sites/3/  ->  singlesite.com/wp-content/uploads/
+        wp-content/uploads/sites/3/  ->  wp-content/uploads/
         example.com/site-3/files/  ->  singlesite.com/wp-content/uploads/
         example.com/files/  ->  singlesite.com/wp-content/uploads/
         Running search-replace for urls

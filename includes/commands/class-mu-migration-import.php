@@ -882,7 +882,10 @@ class ImportCommand extends MUMigrationBase {
 			}
 		);
 		Helpers\maybe_restore_current_blog();
-		return $final_from;
+		
+		// Remove duplicates.
+		$temp = array_unique( array_column( $final_from, 'value' ) );
+		return array_intersect_key( $final_from, $temp );
 	}
 
 	/**

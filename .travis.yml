@@ -38,6 +38,7 @@ before_install:
 
 install:
   - composer require wp-cli/wp-cli:dev-master
+  - composer update
   - composer install
   - bash bin/install-package-tests.sh
 

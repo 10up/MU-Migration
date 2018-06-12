@@ -51,6 +51,22 @@ class ExportCommand extends MUMigrationBase {
 		return $headers;
 	}
 
+	public function meta( $args = array(), $site_data = array() ) {
+
+		$this->process_args(
+			array(
+				0 => $args[0], // output file name
+			),
+			$args
+		);
+
+		$filename = $this->args[0];
+
+		file_put_contents( $filename, wp_json_encode( $site_data ) );
+
+		return $filename;
+	}
+
 	/**
 	 * Exports the site's database table
 	 *
@@ -163,6 +179,8 @@ class ExportCommand extends MUMigrationBase {
 		} else {
 			\WP_CLI::error( __( 'Unable to get the list of tables to be exported', 'mu-migration' ) );
 		}
+
+		return $filename;
 	}
 
 	/**
@@ -372,6 +390,8 @@ class ExportCommand extends MUMigrationBase {
 			absint( $count )
 		), $verbose );
 
+		return $filename;
+
 	}
 
 	/**
@@ -458,18 +478,18 @@ class ExportCommand extends MUMigrationBase {
 		/*
 		 * Adding rand() to the temporary file names to guarantee uniqueness.
 		 */
-		$users_file     = 'mu-migration-' . $rand . sanitize_title( $site_data['name'] ) . '.csv';
-		$tables_file    = 'mu-migration-' . $rand . sanitize_title( $site_data['name'] ) . '.sql';
-		$meta_data_file = 'mu-migration-' . $rand . sanitize_title( $site_data['name'] ) . '.json';
+		$users_filename     = 'mu-migration-' . $rand . sanitize_title( $site_data['name'] ) . '.csv';
+		$tables_filename    = 'mu-migration-' . $rand . sanitize_title( $site_data['name'] ) . '.sql';
+		$meta_data_filename = 'mu-migration-' . $rand . sanitize_title( $site_data['name'] ) . '.json';
 
 		\WP_CLI::log( __( 'Exporting site meta data...', 'mu-migration' ) );
-		file_put_contents( $meta_data_file, wp_json_encode( $site_data ) );
+		$meta_data_file = $this->meta( array( $meta_data_filename ), $site_data );
 
 		\WP_CLI::log( __( 'Exporting users...', 'mu-migration' ) );
-		$this->users( array( $users_file ), $users_assoc_args, $verbose );
+		$users_file = $this->users( array( $users_filename ), $users_assoc_args, $verbose );
 
 		\WP_CLI::log( __( 'Exporting tables', 'mu-migration' ) );
-		$this->tables( array( $tables_file ), $tables_assoc_args, $verbose );
+		$tables_file = $this->tables( array( $tables_filename ), $tables_assoc_args, $verbose );
 
 		$zippy = Zippy::load();
 
@@ -483,9 +503,9 @@ class ExportCommand extends MUMigrationBase {
 		}
 
 		$files_to_zip = array(
-			$users_file,
-			$tables_file,
-			$meta_data_file,
+			$users_filename => $users_file,
+			$tables_filename => $tables_file,
+			$meta_data_filename => $meta_data_file,
 		);
 
 		if ( $include_plugins ) {

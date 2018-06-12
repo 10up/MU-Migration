@@ -421,7 +421,7 @@ class ImportCommand extends MUMigrationBase {
 			WP_CLI::error( __( 'The provided file does not appear to be a zip file', 'mu-migration' ) );
 		}
 
-		$temp_dir = 'mu-migration' . time() . '/';
+		$temp_dir = apply_filters( 'mu-migration-temp-dir', 'mu-migration' . time() . '/' );
 
 		WP_CLI::log( __( 'Extracting zip package...', 'mu-migration' ) );
 

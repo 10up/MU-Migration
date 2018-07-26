@@ -40,6 +40,7 @@ class PostsCommand extends MUMigrationBase {
 			$args,
 			array(
 				'blog_id' => '',
+				'user_id_fields' => '',
 			),
 			$assoc_args
 		);
@@ -106,6 +107,29 @@ class PostsCommand extends MUMigrationBase {
 					), $verbose );
 
 					$author_not_found[] = absint( $result->ID );
+				}
+
+				if ( \array_key_exists('user_id_fields', $this->assoc_args)) {
+					// Explode and trim uid fields.
+					$uidfields = array_filter( array_map( function($e) { return trim($e); }, explode( ',', 'user_id_fields' )));
+					if (! empty( $uidfields ) ) {
+						foreach ( $uidfields as $f ) {
+							$old_user = get_post_meta( (int) $result->ID, $f, true );
+
+							if ( isset( $ids_map->{$old_user} ) && $old_user != $ids_map->{$old_user} ) {
+								$new_user = $ids_map->{$old_user};
+
+								update_post_meta( (int) $result->ID, $f, $new_user );
+
+								$this->log( sprintf(
+									__( 'Updated %s for "%s" (ID #%d)', 'mu-migration' ),
+									$f,
+									$result->post_title,
+									absint( $result->ID )
+								), $verbose );
+							}
+						}
+					}
 				}
 
 				if ( $is_woocommerce ) {

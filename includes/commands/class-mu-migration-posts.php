@@ -22,9 +22,9 @@ class PostsCommand extends MUMigrationBase {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *   wp mu-migration posts update_author map_users.json --blog_id=2
+	 *   wp mu-migration posts update_author map_users.json --blog_id=2 --uid_fields=_content_audit_owner
 	 *
-	 * @synopsis <inputfile> --blog_id=<blog_id>
+	 * @synopsis <inputfile> --blog_id=<blog_id> [--uid_fields=<uid_fields>]
 	 *
 	 * @param array $args
 	 * @param array $assoc_args
@@ -40,7 +40,7 @@ class PostsCommand extends MUMigrationBase {
 			$args,
 			array(
 				'blog_id' => '',
-				'user_id_fields' => '',
+				'uid_fields' => '',
 			),
 			$assoc_args
 		);
@@ -109,11 +109,12 @@ class PostsCommand extends MUMigrationBase {
 					$author_not_found[] = absint( $result->ID );
 				}
 
-				if ( \array_key_exists('user_id_fields', $this->assoc_args)) {
+				if ( array_key_exists('uid_fields', $this->assoc_args)) {
 					// Explode and trim uid fields.
-					$uidfields = array_filter( array_map( function($e) { return trim($e); }, explode( ',', 'user_id_fields' )));
-					if (! empty( $uidfields ) ) {
-						foreach ( $uidfields as $f ) {
+					$uid_fields = array_filter( array_map( function($e) { return trim($e); }, explode( ',', $this->assoc_args['uid_fields'] )));
+                    // Iterate over fields and update them.
+                    if (! empty( $uid_fields ) ) {
+						foreach ( $uid_fields as $f ) {
 							$old_user = get_post_meta( (int) $result->ID, $f, true );
 
 							if ( isset( $ids_map->{$old_user} ) && $old_user != $ids_map->{$old_user} ) {

@@ -401,7 +401,7 @@ class ImportCommand extends MUMigrationBase {
 				'blog_id'                  => '',
 				'new_url'                  => '',
 				'mysql-single-transaction' => false,
-                'uid_fields' => '',
+				'uid_fields' => '',
 			),
 			$assoc_args
 		);

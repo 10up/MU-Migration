@@ -8,9 +8,9 @@ notifications:
     on_success: never
     on_failure: change
 
-branches:
-  only:
-    - master
+# branches:
+#   only:
+#     - master
 
 cache:
   directories:

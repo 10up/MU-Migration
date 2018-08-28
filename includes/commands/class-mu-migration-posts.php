@@ -109,29 +109,28 @@ class PostsCommand extends MUMigrationBase {
 					$author_not_found[] = absint( $result->ID );
 				}
 
+				// Parse uid_fields
+				$uid_fields = explode( ',', $this->assoc_args['uid_fields'] );
 				// Automatically add Woocommerce user id field
 				if ( $is_woocommerce ) {
-					$this->assoc_args['uid_fields'] .= ',_customer_user';
+					$uid_fields[] = '_customer_user';
 				}
-				// Explode and trim uid fields.
-				$uid_fields = array_filter( array_map( function($e) { return trim($e); }, explode( ',', $this->assoc_args['uid_fields'] )));
 				// Iterate over fields and update them.
-				if (! empty( $uid_fields ) ) {
-					foreach ( $uid_fields as $f ) {
-						$old_user = get_post_meta( (int) $result->ID, $f, true );
+				foreach ( array_filter( $uid_fields ) as $f ) {
+					$f = trim( $f );
+					$old_user = get_post_meta( (int) $result->ID, $f, true );
 
-						if ( isset( $ids_map->{$old_user} ) && $old_user != $ids_map->{$old_user} ) {
-							$new_user = $ids_map->{$old_user};
+					if ( isset( $ids_map->{$old_user} ) && $old_user != $ids_map->{$old_user} ) {
+						$new_user = $ids_map->{$old_user};
 
-							update_post_meta( (int) $result->ID, $f, $new_user );
+						update_post_meta( (int) $result->ID, $f, $new_user );
 
-							$this->log( sprintf(
-								__( 'Updated %s for "%s" (ID #%d)', 'mu-migration' ),
-								$f,
-								$result->post_title,
-								absint( $result->ID )
-							), $verbose );
-						}
+						$this->log( sprintf(
+							__( 'Updated %s for "%s" (ID #%d)', 'mu-migration' ),
+							$f,
+							$result->post_title,
+							absint( $result->ID )
+						), $verbose );
 					}
 				}
 			}

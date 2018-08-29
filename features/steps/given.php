@@ -240,7 +240,7 @@ $steps->Give( '/^I insert arbitrary UID postmeta data for user "([a-zA-Z0-9.@]+)
 	function ( $world, $user, $site ) {
 		$postids = $world->proc( sprintf( 'wp post list --field=ID --path=%s', $site ) )->run_check();
         $postids = explode( "\n", $postids );
-        $userid = $world->proc( sprintf( 'wp user get %s --field=ID', $user ) )->run_check();
+        $userid = $world->proc( sprintf( 'wp user get %s --field=ID --path=%s', $user, $site ) )->run_check();
         foreach ( $postids as $pid ) {
             $pid = trim( $pid );
             $world->proc( sprintf( 'wp post meta add %s _a_userid_field %s --path=%s', $pid, $userid, $site ) )->run_check();

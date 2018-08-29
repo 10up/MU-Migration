@@ -238,9 +238,9 @@ $steps->Given( '/^a PHP built-in web server$/',
 
 $steps->Give( '/^I insert arbitrary UID postmeta data for user "([a-zA-Z0-9.@]+)" in site "(.*)"$/',
 	function ( $world, $user, $site ) {
-		$postids = $world->proc( sprintf( 'wp post list --field=ID --path=%s', $site ) )->run_check();
+		$postids = invoke_proc( $world->proc( sprintf( 'wp post list --field=ID --path=%s', $site ) ), 'run' );
         $postids = explode( "\n", $postids );
-        $userid = $world->proc( sprintf( 'wp user get %s --field=ID --path=%s', $user, $site ) )->run_check();
+        $userid = invoke_proc( $world->proc( sprintf( 'wp user get %s --field=ID --path=%s', $user, $site ) ), 'run' );
         foreach ( $postids as $pid ) {
             $pid = trim( $pid );
             $world->proc( sprintf( 'wp post meta add %s _a_userid_field %s --path=%s', $pid, $userid, $site ) )->run_check();

@@ -7,7 +7,7 @@ Feature: Test MU-Migration posts command.
 
         When I run `wp user create ann ann@example.com  --path=singlesite`
         And I run `wp post generate --count=10 --post_type=post --post_author=ann --path=singlesite`
-        And I insert arbitrary UID postmeta data for user "ann" in site "singlesite"
+        And I insert arbitrary UID postmeta data for user "ann@example.com" in site "singlesite"
         And I run `wp mu-migration export users users.csv --path=singlesite`
         And I run `wp mu-migration export tables tables.sql --path=singlesite`
         And I run `wp mu-migration import users users.csv --blog_id=2 --map_file=users-mapping.json`

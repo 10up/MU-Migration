@@ -236,7 +236,7 @@ $steps->Given( '/^a PHP built-in web server$/',
 	}
 );
 
-$steps->Give( '/^I insert arbitrary UID postmeta data for user "(\w+)" in site "(.*)"$/',
+$steps->Give( '/^I insert arbitrary UID postmeta data for user "([a-zA-Z0-9.@]+)" in site "(.*)"$/',
 	function ( $world, $user, $site ) {
 		$postids = $world->proc( sprintf( 'wp post list --field=ID --path=%s', $site ) )->run_check();
         $postids = explode( "\n", $postids );

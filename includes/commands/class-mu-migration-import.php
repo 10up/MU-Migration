@@ -709,9 +709,9 @@ class ImportCommand extends MUMigrationBase {
 	 * @return bool
 	 */
 	private function check_for_sed_presence( $exit_on_error = false ) {
-		$sed = \WP_CLI::launch( 'sed --version', false, false );
+		$sed = \WP_CLI::launch( 'echo "wp_" | sed "s/wp_/wp_5_/g"', false, true );
 
-		if ( 0 !== $sed ) {
+		if ( 'wp_5_' !== trim( $sed->stdout, "\x0A" ) ) {
 			if ( $exit_on_error ) {
 				\WP_CLI::error( __( 'sed not present, please install sed', 'mu-migration' ) );
 			}

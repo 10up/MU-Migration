@@ -22,9 +22,9 @@ class PostsCommand extends MUMigrationBase {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *   wp mu-migration posts update_author map_users.json --blog_id=2
+	 *   wp mu-migration posts update_author map_users.json --blog_id=2 --uid_fields=_content_audit_owner
 	 *
-	 * @synopsis <inputfile> --blog_id=<blog_id>
+	 * @synopsis <inputfile> --blog_id=<blog_id> [--uid_fields=<uid_fields>]
 	 *
 	 * @param array $args
 	 * @param array $assoc_args
@@ -39,7 +39,8 @@ class PostsCommand extends MUMigrationBase {
 			),
 			$args,
 			array(
-				'blog_id' => '',
+				'blog_id'    => '',
+				'uid_fields' => '',
 			),
 			$assoc_args
 		);
@@ -108,16 +109,25 @@ class PostsCommand extends MUMigrationBase {
 					$author_not_found[] = absint( $result->ID );
 				}
 
+				// Parse uid_fields
+				$uid_fields = explode( ',', $this->assoc_args['uid_fields'] );
+				// Automatically add Woocommerce user id field
 				if ( $is_woocommerce ) {
-					$old_customer_user = get_post_meta( (int) $result->ID, '_customer_user', true );
+					$uid_fields[] = '_customer_user';
+				}
+				// Iterate over fields and update them.
+				foreach ( array_filter( $uid_fields ) as $f ) {
+					$f = trim( $f );
+					$old_user = get_post_meta( (int) $result->ID, $f, true );
 
-					if ( isset( $ids_map->{$old_customer_user} ) && $old_customer_user != $ids_map->{$old_customer_user} ) {
-						$new_customer_user = $ids_map->{$old_customer_user};
+					if ( isset( $ids_map->{$old_user} ) && $old_user != $ids_map->{$old_user} ) {
+						$new_user = $ids_map->{$old_user};
 
-						update_post_meta( (int) $result->ID, '_customer_user', $new_customer_user );
+						update_post_meta( (int) $result->ID, $f, $new_user );
 
 						$this->log( sprintf(
-							__( 'Updated customer_user for "%s" (ID #%d)', 'mu-migration' ),
+							__( 'Updated %s for "%s" (ID #%d)', 'mu-migration' ),
+							$f,
 							$result->post_title,
 							absint( $result->ID )
 						), $verbose );

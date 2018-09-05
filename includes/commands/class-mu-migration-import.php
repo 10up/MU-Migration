@@ -386,9 +386,9 @@ class ImportCommand extends MUMigrationBase {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *      wp mu-migration import all site.zip
+	 *      wp mu-migration import all site.zip --uid_fields=_content_audit_owner
 	 *
-	 * @synopsis <zipfile> [--blog_id=<blog_id>] [--new_url=<new_url>] [--verbose] [--mysql-single-transaction]
+	 * @synopsis <zipfile> [--blog_id=<blog_id>] [--new_url=<new_url>] [--verbose] [--mysql-single-transaction] [--uid_fields=<uid_fields>]
 	 *
 	 * @param array $args
 	 * @param array $assoc_args
@@ -401,6 +401,7 @@ class ImportCommand extends MUMigrationBase {
 				'blog_id'                  => '',
 				'new_url'                  => '',
 				'mysql-single-transaction' => false,
+				'uid_fields' => '',
 			),
 			$assoc_args
 		);
@@ -526,6 +527,7 @@ class ImportCommand extends MUMigrationBase {
 				array( $map_file ),
 				array(
 					'blog_id' => $blog_id,
+					'uid_fields' => $assoc_args['uid_fields'],
 				),
 				$verbose
 			);
@@ -568,8 +570,8 @@ class ImportCommand extends MUMigrationBase {
 			foreach ( $plugins as $plugin_name => $plugin ) {
 				$plugin_folder = dirname( $plugin_name );
 				$fullPluginPath = $plugins_dir . '/' . $plugin_folder;
-				
-				if ( $check_plugins &&  ! in_array( $plugin_name, $blog_plugins, true ) && 
+
+				if ( $check_plugins &&  ! in_array( $plugin_name, $blog_plugins, true ) &&
 					! in_array( $plugin_name, $network_plugins, true ) ) {
 					continue;
 				}

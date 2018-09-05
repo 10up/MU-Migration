@@ -38,6 +38,13 @@ before_install:
 
 install:
   - composer require wp-cli/wp-cli:dev-master
+  - composer require wp-cli/core-command:dev-master
+  - composer require wp-cli/config-command:dev-master
+  - composer require wp-cli/db-command:dev-master
+  - composer require wp-cli/entity-command:dev-master
+  - composer require wp-cli/eval-command:dev-master
+  - composer require wp-cli/extension-command:dev-master
+  - composer require wp-cli/media-command:dev-master
   - composer update
   - composer install
   - bash bin/install-package-tests.sh

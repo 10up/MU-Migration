@@ -685,6 +685,8 @@ class ImportCommand extends MUMigrationBase {
 				'INSERT INTO',
 				'CREATE TABLE IF NOT EXISTS',
 				'ALTER TABLE',
+				'CONSTRAINT',
+				'REFERENCES',
 			);
 
 			//build sed expressions

@@ -146,7 +146,7 @@ class ExportCommand extends MUMigrationBase {
 		}
 
 		if ( is_array( $tables ) && ! empty( $tables ) ) {
-            $export = \WP_CLI::runcommand('db export '.$filename, array('return'=>true));
+            $export = \WP_CLI::runcommand('db export '.$filename.' --tables='.implode(',',$tables), array('return'=>true));
             if ( strpos($export, 'Success') === 0 ) {
 				$this->success( __( 'The export is now complete', 'mu-migration' ), $verbose );
 			} else {

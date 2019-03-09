@@ -22,6 +22,10 @@ if (  ! defined( 'WP_CLI' ) ) {
 	return;
 }
 
+if ( version_compare( PHP_VERSION, '7.1.0' ) < 0 ) {
+   WP_CLI::error( 'MU-Migration requires PHP >= 7.1' );
+}
+
 if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
 	require_once( 'vendor/autoload.php' );
 }

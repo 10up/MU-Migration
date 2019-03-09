@@ -266,8 +266,6 @@ class ImportCommand extends MUMigrationBase {
 			$assoc_args
 		);
 
-		$is_multisite = is_multisite();
-
 		$filename = $this->args[0];
 
 		if ( empty( $filename ) || ! file_exists( $filename ) ) {
@@ -298,9 +296,20 @@ class ImportCommand extends MUMigrationBase {
 				$old_url = Helpers\parse_url_for_search_replace( $this->assoc_args['old_url'] );
 				$new_url = Helpers\parse_url_for_search_replace( $this->assoc_args['new_url'] );
 
-				$search_replace = Helpers\runcommand( 'search-replace', [ $old_url, $new_url ], [], [ 'url' => $new_url ] );
+				// $search_replace = Helpers\runcommand( 'search-replace', [ $old_url, $new_url ], [], [ 'url' => $new_url ] );
+				$search_replace = \WP_CLI::launch_self(
+					'search-replace',
+					array(
+						$old_url,
+						$new_url,
+					),
+					array(),
+					false,
+					false,
+					array( 'url' => $new_url )
+				);
 
-				if ( 0 === $search_replace->return_code ) {
+				if ( 0 === $search_replace ) {
 					$this->log( __( 'Search and Replace has been successfully executed', 'mu-migration' ), $verbose );
 				}
 
@@ -308,7 +317,7 @@ class ImportCommand extends MUMigrationBase {
 
 				$from = $to = 'wp-content/uploads';
 
-				if ( $this->assoc_args['original_blog_id'] > 1 ) {
+				if ( isset( $this->assoc_args['original_blog_id'] ) && $this->assoc_args['original_blog_id'] > 1 ) {
 					$from = 'wp-content/uploads/sites/' . (int) $this->assoc_args['original_blog_id'];
 				}
 
@@ -318,9 +327,16 @@ class ImportCommand extends MUMigrationBase {
 
 				if ( $from && $to ) {
 
-					$search_replace = Helpers\runcommand( 'search-replace', [ $from, $to ], [], [ 'url' => $new_url ] );
+					$search_replace = \WP_CLI::launch_self(
+						'search-replace',
+						array( $from , $to ),
+						array(),
+						false,
+						false,
+						array( 'url' => $new_url )
+					);
 
-					if ( 0 === $search_replace->return_code ) {
+					if ( 0 === $search_replace ) {
 						$this->log( sprintf( __( 'Uploads paths have been successfully updated: %s -> %s', 'mu-migration' ), $from, $to ), $verbose );
 					}
 				}
@@ -604,15 +620,6 @@ class ImportCommand extends MUMigrationBase {
 					if ( ! file_exists( $installed_themes . '/' . $theme->getFilename() ) ) {
 						WP_CLI::log( sprintf( __( 'Moving %s to themes folder' ), $theme->getFilename() ) );
 						rename( $fullPluginPath, $installed_themes . '/' . $theme->getFilename() );
-
-						/* WP_CLI::launch_self(
-							'theme enable',
-							array( $theme->getFilename() ),
-							array(),
-							false,
-							false,
-							array()
-						);*/
 
 						Helpers\runcommand( 'theme enable', [ $theme->getFilename() ] );
 					}

@@ -26,6 +26,8 @@ matrix:
   include:
     - php: 7.1
       env: WP_VERSION=latest
+    - php: 5.6
+      env: WP_VERSION=latest
 
 before_install:
   - |

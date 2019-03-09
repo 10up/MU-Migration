@@ -119,22 +119,6 @@ function move_folder( $source, $dest ) {
 }
 
 /**
- * Extracts a zip file to the $dest_dir.
- *
- * @uses Zippy
- *
- * @param string $filename
- * @param string $dest_dir
- */
-function extract( $filename, $dest_dir ) {
-	$zippy = Zippy::load();
-
-	$site_package = $zippy->open( $filename );
-	mkdir( $dest_dir );
-	$site_package->extract( $dest_dir );
-}
-
-/**
  * Retrieves the db prefix based on the $blog_id.
  *
  * @uses wpdb
@@ -286,4 +270,33 @@ function maybe_restore_current_blog() {
 	if ( is_multisite() ) {
 		restore_current_blog();
 	}
+}
+
+
+/**
+ * Extracts a zip file to the $dest_dir.
+ *
+ * @uses Zippy
+ *
+ * @param string $filename
+ * @param string $dest_dir
+ */
+function extract( $filename, $dest_dir ) {
+	$zippy = Zippy::load();
+
+	$site_package = $zippy->open( $filename );
+	mkdir( $dest_dir );
+	$site_package->extract( $dest_dir );
+}
+
+/**
+ * Creates a zip files with the provided files/folder to zip
+ *
+ * @param string $zip_files    The name of the zip file
+ * @param array  $files_to_zip The files to include in the zip file
+ *
+ * @return void
+ */
+function zip( $zip_file, $files_to_zip ) {
+	return Zippy::load()->create( $zip_file, $files_to_zip, true );
 }

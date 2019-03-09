@@ -9,6 +9,11 @@ It exports everything into a zip package which can be used to automatically impo
 
 ### Install ###
 
+#### Requirements ####
+
+- PHP >= 5.6
+- WP-CLI >= 0.23
+
 #### Via WP-CLI Package Manager (requires wp-cli >= 0.23)
 Just run `wp package install 10up/mu-migration`.
 

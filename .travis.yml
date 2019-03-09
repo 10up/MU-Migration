@@ -2,6 +2,7 @@ sudo: false
 dist: trusty
 
 language: php
+php: 7.1
 
 notifications:
   email:
@@ -35,6 +36,10 @@ before_install:
     else
       echo "xdebug.ini does not exist"
     fi
+  - |
+    # Raise PHP memory limit to 2048MB
+    echo 'memory_limit = 2048M' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
+  - composer validate
 
 install:
   - composer require wp-cli/wp-cli:dev-master

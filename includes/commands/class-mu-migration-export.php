@@ -471,8 +471,6 @@ class ExportCommand extends MUMigrationBase {
 		\WP_CLI::log( __( 'Exporting tables', 'mu-migration' ) );
 		$this->tables( array( $tables_file ), $tables_assoc_args, $verbose );
 
-		$zippy = Zippy::load();
-
 		$zip = null;
 
 		/*
@@ -483,9 +481,9 @@ class ExportCommand extends MUMigrationBase {
 		}
 
 		$files_to_zip = array(
-			$users_file,
-			$tables_file,
-			$meta_data_file,
+			$users_file     => $users_file,
+			$tables_file    => $tables_file,
+			$meta_data_file => $meta_data_file,
 		);
 
 		if ( $include_plugins ) {
@@ -508,9 +506,9 @@ class ExportCommand extends MUMigrationBase {
 
 		try {
 			\WP_CLI::log( __( 'Zipping files....', 'mu-migration' ) );
-			$zip = $zippy->create( $zip_file, $files_to_zip, true );
+			$zip = Helpers\zip( $zip_file, $files_to_zip );
 		} catch ( \Exception $e ) {
-			\WP_CLI::warning( __( 'Unable to create the zip file', 'mu-migration' ) );
+			\WP_CLI::warning( $e->getMessage() );
 		}
 
 		if ( file_exists( $users_file ) ) {

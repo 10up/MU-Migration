@@ -101,14 +101,7 @@ class ExportCommand extends MUMigrationBase {
 				$assoc_args['all-tables-with-prefix'] = 1;
 			}
 
-			$tables = \WP_CLI::launch_self(
-				'db tables',
-				array(),
-				$assoc_args,
-				false,
-				true,
-				array( 'url' => $url )
-			);
+			$tables = Helpers\runcommand( 'db tables', [], $assoc_args, [ 'url' => $url ] );
 
 			if ( 0 === $tables->return_code ) {
 				$tables = $tables->stdout;
@@ -146,16 +139,9 @@ class ExportCommand extends MUMigrationBase {
 		}
 
 		if ( is_array( $tables ) && ! empty( $tables ) ) {
-			$export = \WP_CLI::launch_self(
-				'db export',
-				array( $filename ),
-				array( 'tables' => implode( ',', $tables ) ),
-				false,
-				false,
-				array()
-			);
+			$export = Helpers\runcommand( 'db export', [ $filename ], [ 'tables' => implode( ',', $tables ) ] );
 
-			if ( 0 === $export ) {
+			if ( 0 === $export->return_code ) {
 				$this->success( __( 'The export is now complete', 'mu-migration' ), $verbose );
 			} else {
 				\WP_CLI::error( __( 'Something went wrong while trying to export the database', 'mu-migration' ) );

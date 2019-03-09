@@ -300,3 +300,32 @@ function extract( $filename, $dest_dir ) {
 function zip( $zip_file, $files_to_zip ) {
 	return Zippy::load()->create( $zip_file, $files_to_zip, true );
 }
+
+/**
+ * Run a command within WP_CLI
+ *
+ * @param string $command     The command to run
+ * @param array  $args        The command arguments
+ * @param array  $assoc_args  The associative arguments
+ * @param array  $global_args The global arguments
+ *
+ * @return
+ */
+function runcommand( $command, $args = [], $assoc_args = [], $global_args = [] ) {
+	$assoc_args = array_merge( $assoc_args, $global_args );
+
+	$transformed_assoc_args = [];
+
+	foreach ( $assoc_args as $key => $arg ) {
+		$transformed_assoc_args[] = '--' . $key . '=' . $arg;
+	}
+	$params = sprintf( '%s %s', implode( ' ', $args ), implode( ' ', $transformed_assoc_args ) );
+
+	$options = [
+		'return'     => 'all',
+		'launch'     => false,
+		'exit_error' => false,
+	];
+
+	return \WP_CLI::runcommand( sprintf( '%s %s', $command, $params ), $options );
+}

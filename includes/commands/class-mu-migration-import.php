@@ -266,8 +266,6 @@ class ImportCommand extends MUMigrationBase {
 			$assoc_args
 		);
 
-		$is_multisite = is_multisite();
-
 		$filename = $this->args[0];
 
 		if ( empty( $filename ) || ! file_exists( $filename ) ) {
@@ -286,16 +284,9 @@ class ImportCommand extends MUMigrationBase {
 			$this->replace_db_prefix( $filename, $this->assoc_args['old_prefix'], $this->assoc_args['new_prefix'] );
 		}
 
-		$import = \WP_CLI::launch_self(
-			'db import',
-			array( $filename ),
-			array(),
-			false,
-			false,
-			array()
-		);
+		$import = Helpers\runcommand( 'db import', [ $filename ] );
 
-		if ( 0 === $import ) {
+		if ( 0 === $import->return_code ) {
 			$this->log( __( 'Database imported', 'mu-migration' ), $verbose );
 
 			// Perform search and replace.
@@ -305,6 +296,7 @@ class ImportCommand extends MUMigrationBase {
 				$old_url = Helpers\parse_url_for_search_replace( $this->assoc_args['old_url'] );
 				$new_url = Helpers\parse_url_for_search_replace( $this->assoc_args['new_url'] );
 
+				// $search_replace = Helpers\runcommand( 'search-replace', [ $old_url, $new_url ], [], [ 'url' => $new_url ] );
 				$search_replace = \WP_CLI::launch_self(
 					'search-replace',
 					array(
@@ -325,15 +317,16 @@ class ImportCommand extends MUMigrationBase {
 
 				$from = $to = 'wp-content/uploads';
 
-				if ( $this->assoc_args['original_blog_id'] > 1 ) {
+				if ( isset( $this->assoc_args['original_blog_id'] ) && $this->assoc_args['original_blog_id'] > 1 ) {
 					$from = 'wp-content/uploads/sites/' . (int) $this->assoc_args['original_blog_id'];
 				}
 
 				if ( $this->assoc_args['blog_id'] > 1 ) {
 					$to = 'wp-content/uploads/sites/' . (int) $this->assoc_args['blog_id'];
 				}
-				
+
 				if ( $from && $to ) {
+
 					$search_replace = \WP_CLI::launch_self(
 						'search-replace',
 						array( $from , $to ),
@@ -628,14 +621,7 @@ class ImportCommand extends MUMigrationBase {
 						WP_CLI::log( sprintf( __( 'Moving %s to themes folder' ), $theme->getFilename() ) );
 						rename( $fullPluginPath, $installed_themes . '/' . $theme->getFilename() );
 
-						WP_CLI::launch_self(
-							'theme enable',
-							array( $theme->getFilename() ),
-							array(),
-							false,
-							false,
-							array()
-						);
+						Helpers\runcommand( 'theme enable', [ $theme->getFilename() ] );
 					}
 				}
 			}

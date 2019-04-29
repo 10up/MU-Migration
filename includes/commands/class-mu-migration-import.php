@@ -636,7 +636,7 @@ class ImportCommand extends MUMigrationBase {
 	 */
 	private function create_new_site( $meta_data ) {
 		$parsed_url = parse_url( esc_url( $meta_data->url ) );
-		$site_id    = 1;
+		$site_id    = get_main_network_id();
 
 		$parsed_url['path'] = isset( $parsed_url['path'] ) ? $parsed_url['path'] : '/';
 

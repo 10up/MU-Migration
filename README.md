@@ -2,7 +2,7 @@
 
 > This WP-CLI plugin makes the process of moving sites from single WordPress sites to a Multisite instance (or vice-versa) much easier.  It exports everything into a zip package which can be used to automatically import it within the desired Multisite installation.
 
-[![Build Status](https://travis-ci.org/10up/MU-Migration.svg?branch=master)](https://travis-ci.org/10up/MU-Migration) [![Support Level](https://img.shields.io/badge/support-active-green.svg)](#support-level)
+[![Build Status](https://travis-ci.org/10up/MU-Migration.svg?branch=master)](https://travis-ci.org/10up/MU-Migration) [![Support Level](https://img.shields.io/badge/support-active-green.svg)](#support-level) [![MIT License](https://img.shields.io/github/license/10up/MU-Migration.svg)](https://github.com/10up/MU-Migration/blob/master/LICENSE.md)
 
 ## Install
 
@@ -103,15 +103,6 @@ If your theme and plugins have been done in the WordPress way, you should not ha
 that some themes may experience incompatibilities issue if doing things in the wrong way. (E.g hardcoded links like '/contact' etc)
 Depending of the codebase of the site you're migrating you may need to push some fixes to your code.
 
-## License (MIT)
-Copyright (c) 2016, Nícholas André, 10up Inc.
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
 ## Support Level
 
 **Active:** 10up is actively working on this, and we expect to continue work for the foreseeable future including keeping tested up to the most recent version of WordPress.  Bug reports, feature requests, questions, and pull requests are welcome.
@@ -119,8 +110,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 ## Credits
 
 Created by Nícholas André ([@nicholas_io](https://profiles.wordpress.org/nicholas_io)), at [10up.com](http://10up.com).
-
-Think this is a cool project? Love working with WordPress? [10up is hiring!](http://10up.com/careers/?utm_source=wphammer&utm_medium=community&utm_campaign=oss-code)
 
 ## Like what you see?
 

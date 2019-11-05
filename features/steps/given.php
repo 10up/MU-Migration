@@ -101,7 +101,7 @@ $steps->Given( '/^a WP multisite (subdirectory|subdomain)?\s?install$/',
 	}
 );
 
-$steps->Given( '/^I create multiple sites with dummy content$/', 
+$steps->Given( '/^I create multiple sites with dummy content$/',
 	function( $world ) {
 		$world->proc( 'wp user generate --count=10' )->run_check();
 		$world->proc( 'wp post generate --count=50 --post_type=post' )->run_check();
@@ -116,13 +116,13 @@ $steps->Given( '/^I create multiple sites with dummy content$/',
 				'title'	=> 'Site 3',
 			)
 		);
-		
+
 		foreach( $sites as $site ) {
 			$world->proc( sprintf( 'wp site create --slug=%s --title="%s"', $site['slug'], $site['title'] ) )->run_check();
 			$world->proc( sprintf( 'wp user generate --format=ids --count=10 --url=example.com/%s', $site['slug'] ) )->run_check();
 			$world->proc( sprintf( 'wp post generate --count=50 --post_type=post --url=example.com/%s', $site['slug'] ) )->run_check();
 		}
-	} 
+	}
 );
 
 $steps->Given( '/^these installed and active plugins:$/',
@@ -233,5 +233,19 @@ $steps->Given( '/^a dependency on current wp-cli$/',
 $steps->Given( '/^a PHP built-in web server$/',
 	function ( $world ) {
 		$world->start_php_server();
+	}
+);
+
+$steps->Give( '/^I insert arbitrary UID postmeta data for user "([a-zA-Z0-9.@]+)" in site "(.*)"$/',
+	function ( $world, $user, $site ) {
+		$postids = $world->proc( sprintf( 'wp post list --field=ID --path=%s', $site ) )->run_check();
+        $postids = explode( "\n", $postids->stdout );
+        $userid = $world->proc( sprintf( 'wp user get %s --field=ID --path=%s', $user, $site ) )->run_check();
+        foreach ( $postids as $pid ) {
+            $pid = trim( $pid );
+            if ( !empty( $pid ) ) {
+                $world->proc( sprintf( 'wp post meta add %s _a_userid_field %s --path=%s', $pid, trim( $userid->stdout ), $site ) )->run_check();                
+            }
+        }
 	}
 );

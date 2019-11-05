@@ -119,22 +119,6 @@ function move_folder( $source, $dest ) {
 }
 
 /**
- * Extracts a zip file to the $dest_dir.
- *
- * @uses Zippy
- *
- * @param string $filename
- * @param string $dest_dir
- */
-function extract( $filename, $dest_dir ) {
-	$zippy = Zippy::load();
-
-	$site_package = $zippy->open( $filename );
-	mkdir( $dest_dir );
-	$site_package->extract( $dest_dir );
-}
-
-/**
  * Retrieves the db prefix based on the $blog_id.
  *
  * @uses wpdb
@@ -146,7 +130,7 @@ function get_db_prefix( $blog_id ) {
 	global $wpdb;
 
 	if ( $blog_id > 1 ) {
-		$new_db_prefix = $wpdb->prefix . $blog_id . '_';
+		$new_db_prefix = $wpdb->base_prefix . $blog_id . '_';
 	} else {
 		$new_db_prefix = $wpdb->prefix;
 	}
@@ -286,4 +270,62 @@ function maybe_restore_current_blog() {
 	if ( is_multisite() ) {
 		restore_current_blog();
 	}
+}
+
+
+/**
+ * Extracts a zip file to the $dest_dir.
+ *
+ * @uses Zippy
+ *
+ * @param string $filename
+ * @param string $dest_dir
+ */
+function extract( $filename, $dest_dir ) {
+	$zippy = Zippy::load();
+
+	$site_package = $zippy->open( $filename );
+	mkdir( $dest_dir );
+	$site_package->extract( $dest_dir );
+}
+
+/**
+ * Creates a zip files with the provided files/folder to zip
+ *
+ * @param string $zip_files    The name of the zip file
+ * @param array  $files_to_zip The files to include in the zip file
+ *
+ * @return void
+ */
+function zip( $zip_file, $files_to_zip ) {
+	return Zippy::load()->create( $zip_file, $files_to_zip, true );
+}
+
+/**
+ * Run a command within WP_CLI
+ *
+ * @param string $command     The command to run
+ * @param array  $args        The command arguments
+ * @param array  $assoc_args  The associative arguments
+ * @param array  $global_args The global arguments
+ *
+ * @return
+ */
+function runcommand( $command, $args = [], $assoc_args = [], $global_args = [] ) {
+	$assoc_args = array_merge( $assoc_args, $global_args );
+
+	$transformed_assoc_args = [];
+
+	foreach ( $assoc_args as $key => $arg ) {
+		$transformed_assoc_args[] = '--' . $key . '=' . $arg;
+	}
+	$params = sprintf( '%s %s', implode( ' ', $args ), implode( ' ', $transformed_assoc_args ) );
+
+	$options = [
+		'return'     => 'all',
+		'launch'     => false,
+		'exit_error' => false,
+	];
+
+	return \WP_CLI::runcommand( sprintf( '%s %s', $command, $params ), $options );
 }

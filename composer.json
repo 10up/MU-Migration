@@ -1,25 +1,26 @@
 {
-    "name": "10up/mu-migration",
-    "description": "A set of WP-CLI commands to support the migration of single WordPress instances to multisite",
-    "type": "wp-cli-package",
-    "homepage": "https://github.com/10up/MU-Migration",
-    "support": {
-        "issues": "https://github.com/10up/MU-Migration/issues"
-    },
-    "require": {
-       "alchemy/zippy": "0.4.8"
-    },
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "Nícholas André",
-            "email": "nicholas@iotecnologia.com.br"
-        }
-    ],
+  "name": "10up/mu-migration",
+  "description": "A set of WP-CLI commands to support the migration of single WordPress instances to multisite",
+  "type": "wp-cli-package",
+  "homepage": "https://github.com/10up/MU-Migration",
+  "support": {
+    "issues": "https://github.com/10up/MU-Migration/issues"
+  },
+  "require": {
+    "alchemy/zippy": "0.4.8"
+  },
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Nícholas André",
+      "email": "nicholas@iotecnologia.com.br"
+    }
+  ],
   "autoload": {
     "files": [ "mu-migration.php" ]
   },
-    "require-dev": {
-        "behat/behat": "~2.5"
-    }
+  "require-dev": {
+    "behat/behat": "~2.5",
+    "10up/phpcs-composer": "dev-master"
+  }
 }

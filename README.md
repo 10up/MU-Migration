@@ -2,7 +2,7 @@
 
 > This WP-CLI plugin makes the process of moving sites from single WordPress sites to a Multisite instance (or vice-versa) much easier.  It exports everything into a zip package which can be used to automatically import it within the desired Multisite installation.
 
-[![Build Status](https://travis-ci.org/10up/MU-Migration.svg?branch=master)](https://travis-ci.org/10up/MU-Migration) [![Support Level](https://img.shields.io/badge/support-active-green.svg)](#support-level) [![MIT License](https://img.shields.io/github/license/10up/MU-Migration.svg)](https://github.com/10up/MU-Migration/blob/master/LICENSE.md)
+[![Build Status](https://travis-ci.org/10up/MU-Migration.svg?branch=master)](https://travis-ci.org/10up/MU-Migration) [![Support Level](https://img.shields.io/badge/support-stable-blue.svg)](#support-level) [![MIT License](https://img.shields.io/github/license/10up/MU-Migration.svg)](https://github.com/10up/MU-Migration/blob/master/LICENSE.md)
 
 ## Install
 
@@ -12,15 +12,19 @@
 - WP-CLI >= 0.23
 
 ### Via WP-CLI Package Manager (requires wp-cli >= 0.23)
+
 Just run `wp package install 10up/mu-migration`.
 
 If you run into memory issues when installing the package, it's a known WP-CLI issue. [Check this out for a workaround](https://make.wordpress.org/cli/handbook/common-issues/#php-fatal-error-allowed-memory-size-of-999999-bytes-exhausted-tried-to-allocate-99-bytes).
+
 ### Installing as a plugin
+
 Clone this repo onto `plugins/` folder, run `composer install` to fetch dependencies and activate the plugin.
 
 You need to install this on both the site you're moving and the target Multisite installation.
 
 ## Why do I need this?
+
 Moving single WordPress sites to a Multisite environment (or the opposite) can be challenging, specially if you're moving more than one site to
 Multisite. You'd need to replace tables prefix, update post_author and wc_customer_user (if WooCommerce is installed) with the new
 users ID (Multisite has a shared users table, so if you're moving more than one site you can't guarantee that users will have the same IDs) and more.
@@ -46,9 +50,11 @@ $ wp mu-migration export all subsite.zip --blog_id=2
 ```
 
 The following command can be used to import a site from a zip package.
+
 ```
 $ wp mu-migration import all site.zip
 ```
+
 If importing into Multisite, it will create a new site within your Multisite network based on the site you have just exported, if importing into a single install, it will override your single install with the exported subsite.
 
 The `import all` command will take care
@@ -81,6 +87,7 @@ If you pass `--tables` it will export only the tables you have passed. So if you
 to be exported, including the default tables.
 
 After the migration you can also manage users password (reset passwords and/or force users to reset their passwords).
+
 ```
 $ wp mu-migration update_passwords [<newpassword>] [--blog_id=<blog_id>] [--reset] [--send_email] [--include=<users_id>]  [--exclude=<users_id>]
 ```
@@ -88,6 +95,7 @@ $ wp mu-migration update_passwords [<newpassword>] [--blog_id=<blog_id>] [--rese
 E.g
 
 The following command will update all users passwords of the site with ID 3 to `new_weak_password`.
+
 ```
 $ wp mu-migration update_passwords 'new_weak_password' --blog_id=3
 ```
@@ -99,13 +107,14 @@ $ wp mu-migration update_passwords --reset --blog_id=3 --send_email
 ```
 
 ## Notes
+
 If your theme and plugins have been done in the WordPress way, you should not have major problem after the migration, keep in mind
 that some themes may experience incompatibilities issue if doing things in the wrong way. (E.g hardcoded links like '/contact' etc)
 Depending of the codebase of the site you're migrating you may need to push some fixes to your code.
 
 ## Support Level
 
-**Active:** 10up is actively working on this, and we expect to continue work for the foreseeable future including keeping tested up to the most recent version of WordPress.  Bug reports, feature requests, questions, and pull requests are welcome.
+**Stable:** 10up is not planning to develop any new features for this, but will still respond to bug reports and security concerns. We welcome PRs, but any that include new features should be small and easy to integrate and should not include breaking changes. We otherwise intend to keep this tested up to the most recent version of WordPress.
 
 ## Credits
 

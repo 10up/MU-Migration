@@ -479,7 +479,7 @@ class ExportCommand extends MUMigrationBase {
 		if ( $include_themes ) {
 			$theme_dir = get_template_directory();
 			$files_to_zip[ 'wp-content/themes/' . basename( $theme_dir ) ] = $theme_dir;
-			if ( is_child_theme() ) {
+			if ( get_template_directory() !== get_stylesheet_directory() ) {
 				$child_theme_dir = get_stylesheet_directory();
 				$files_to_zip[ 'wp-content/themes/' . basename( $child_theme_dir ) ] = $child_theme_dir;
 			}

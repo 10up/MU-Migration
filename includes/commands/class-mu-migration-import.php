@@ -644,7 +644,22 @@ class ImportCommand extends MUMigrationBase {
 			return false;
 		}
 
-		$blog_id = insert_blog( $parsed_url['host'], $parsed_url['path'], $site_id );
+		$now = current_time( 'mysql', true );
+		$new_site_meta = array(
+			'domain'       => $parsed_url['host'],
+			'path'         => $parsed_url['path'],
+			'network_id'   => get_current_network_id(),
+			'registered'   => $now,
+			'last_updated' => $now,
+			'public'       => 1,
+			'archived'     => 0,
+			'mature'       => 0,
+			'spam'         => 0,
+			'deleted'      => 0,
+			'lang_id'      => 0,
+		);
+
+		$blog_id = wp_insert_site( $new_site_meta );
 
 		if ( ! $blog_id ) {
 			return false;

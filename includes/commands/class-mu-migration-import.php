@@ -648,7 +648,7 @@ class ImportCommand extends MUMigrationBase {
 		$new_site_meta = array(
 			'domain'       => $parsed_url['host'],
 			'path'         => $parsed_url['path'],
-			'network_id'   => get_current_network_id(),
+			'network_id'   => $site_id,
 			'registered'   => $now,
 			'last_updated' => $now,
 			'public'       => 1,

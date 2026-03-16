@@ -292,7 +292,7 @@ function extract( $filename, $dest_dir ) {
 /**
  * Creates a zip files with the provided files/folder to zip
  *
- * @param string $zip_files    The name of the zip file
+ * @param string $zip_file     The name of the zip file
  * @param array  $files_to_zip The files to include in the zip file
  *
  * @return void

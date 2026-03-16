@@ -571,7 +571,17 @@ class ImportCommand extends MUMigrationBase {
 
 				if ( ! file_exists( $installed_plugins . '/' . $plugin_folder ) ) {
 					WP_CLI::log( sprintf( __( 'Moving %s to plugins folder' ), $plugin_name ) );
-					rename( $fullPluginPath, $installed_plugins . '/' . $plugin_folder );
+	
+					/**
+					 * PHP has a core bug that prevents rename() from working reliably across filesystems. 
+					 * We'll disable and replace rename() by exec() calls.
+					 * 
+					 * @link https://stackoverflow.com/a/35503748/2209086
+					 * @link https://bugs.php.net/bug.php?id=54097
+					 */
+					// rename( $fullPluginPath, $installed_plugins . '/' . $plugin_folder );
+
+					exec("mv " . escapeshellarg($fullPluginPath) . " " . escapeshellarg($installed_plugins . '/' . $plugin_folder));
 				}
 
 				if ( $check_plugins && in_array( $plugin_name, $blog_plugins, true ) ) {
@@ -619,7 +629,18 @@ class ImportCommand extends MUMigrationBase {
 
 					if ( ! file_exists( $installed_themes . '/' . $theme->getFilename() ) ) {
 						WP_CLI::log( sprintf( __( 'Moving %s to themes folder' ), $theme->getFilename() ) );
-						rename( $fullPluginPath, $installed_themes . '/' . $theme->getFilename() );
+
+						/**
+						 * PHP has a core bug that prevents rename() from working reliably across filesystems. 
+						 * We'll disable and replace rename() by exec() calls.
+						 * 
+						 * @link https://stackoverflow.com/a/35503748/2209086
+						 * @link https://bugs.php.net/bug.php?id=54097
+						 */
+						// rename( $fullPluginPath, $installed_themes . '/' . $theme->getFilename() );
+
+						exec("mv " . escapeshellarg($fullPluginPath) . " " . escapeshellarg($installed_themes . '/' . $theme->getFilename()));
+						
 
 						Helpers\runcommand( 'theme enable', [ $theme->getFilename() ] );
 					}
@@ -644,7 +665,22 @@ class ImportCommand extends MUMigrationBase {
 			return false;
 		}
 
-		$blog_id = insert_blog( $parsed_url['host'], $parsed_url['path'], $site_id );
+		$now = current_time( 'mysql', true );
+		$new_site_meta = array(
+			'domain'       => $parsed_url['host'],
+			'path'         => $parsed_url['path'],
+			'network_id'   => $site_id,
+			'registered'   => $now,
+			'last_updated' => $now,
+			'public'       => 1,
+			'archived'     => 0,
+			'mature'       => 0,
+			'spam'         => 0,
+			'deleted'      => 0,
+			'lang_id'      => 0,
+		);
+
+		$blog_id = wp_insert_site( $new_site_meta );
 
 		if ( ! $blog_id ) {
 			return false;
